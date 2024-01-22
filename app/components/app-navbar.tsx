@@ -111,7 +111,7 @@ export default function AppNavbar() {
           />
           {isLoggedIn === undefined ? null : <div
             ref={menuRef}
-            className={`app-navbar-menu w-52 p-2 rounded-2xl bg-default-50 absolute ${menuIsOpen ? '' : 'close'}`}
+            className={`app-navbar-menu shadow-2xl w-52 p-2 rounded-2xl border-1 border-default-50 bg-zinc-950 absolute ${menuIsOpen ? '' : 'close'}`}
             style={{top: '3.25rem', zIndex: 10000}}
           >
             {isLoggedIn ? <Button
