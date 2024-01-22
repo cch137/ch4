@@ -27,9 +27,9 @@ export default function App() {
           </Button>
         </div>
         <Spacer y={8} />
-        <h1 className="text-2xl font-bold">Useful Tools</h1>
+        {/* <h1 className="text-2xl font-bold">Useful Tools</h1>
         <div className="flex flex-wrap py-2 gap-4 items-center">
-          {/* <Button
+          <Button
             as={Link}
             href="/"
             startContent={<div className="scale-125"><HiChatBubbleOvalLeftEllipsis/></div>}
@@ -55,7 +55,7 @@ export default function App() {
             className="font-semibold"
           >
             Matrix Calculator
-          </Button> */}
+          </Button>
           <Button
             as={Link}
             href="/apps/harimau"
@@ -66,7 +66,7 @@ export default function App() {
             Harimau
           </Button>
         </div>
-        <Spacer y={8} />
+        <Spacer y={8} /> */}
         <h1 className="text-2xl font-bold">Join our Discord community!</h1>
         <div className="flex flex-wrap py-2 gap-4 items-center">
           <Button

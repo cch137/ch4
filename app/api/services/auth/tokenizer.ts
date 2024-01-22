@@ -72,7 +72,6 @@ const serializeToken = (token?: Token): StatusResponse<string> => {
     if (!isValidToken(token)) return { success: false, message: message_TokenNotValid }
     return { success: Boolean(token.auth), value: base64ToBase64Url(packDataWithHash(tokenToTokenArray(token), 'MD5', SALTS.value).toBase64()) }
   } catch (e) {
-    console.error('Error occurs in serializeToken:', e);
     return { success: false, message: 'Failed to serialize token' }
   }
 }
