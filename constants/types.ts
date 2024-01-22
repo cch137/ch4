@@ -1,25 +1,31 @@
-interface IModelType {
+import type { Dispatch, SetStateAction } from 'react'
+
+type SetState<T> = Dispatch<SetStateAction<T>>
+
+type StatusResponse<T = undefined> = { success: boolean; message?: string, value?: T }
+type StatusResponseV<T> = StatusResponse<T> & { value: T }
+
+type UserInfo = {
+  id: string;
   name: string;
-  value: string;
-  isWebBrowsingOptional: boolean;
-  isTemperatureOptional: boolean;
-  isContextOptional: boolean;
-  permissionLevel: number;
 }
 
-interface IRedirectIModelType {
-  value: string;
-  redirectTo: string;
+type UserProfile = UserInfo & {
+  eadd: string;
+  ctms?: number;
+  mtms?: number;
+  atms?: number;
 }
 
-interface IConversation {
-  name: string;
-  temp: number;
-  history: number;
+type NextApiContext = {
+  params?: {[key:string]: string}
 }
 
 export type {
-  IModelType,
-  IRedirectIModelType,
-  IConversation,
+  SetState,
+  StatusResponse,
+  StatusResponseV,
+  UserInfo,
+  UserProfile,
+  NextApiContext,
 }

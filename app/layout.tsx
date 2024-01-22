@@ -1,20 +1,20 @@
-import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './optimize.css'
 import './globals.css'
-import { appName } from '@/constants/app'
-import Navbar from './navbar'
 
-const inter = Inter({ subsets: ['latin'] })
+import type { Metadata } from 'next';
+import { appTitle } from '@/constants/app';
 
 export const metadata: Metadata = {
-  title: `${appName}`,
+  title: appTitle(),
   description: 'A website that integrates many useful tools.',
   // openGraph: {
   //   title: `${appName}`,
   //   description: 'A website that integrates many useful tools.',
   // },
 }
+
+const inter = Inter({ subsets: ['latin'] })
 
 export default function RootLayout({
   children,
@@ -24,7 +24,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        <Navbar />
         {children}
       </body>
     </html>

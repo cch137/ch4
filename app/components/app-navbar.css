@@ -1,0 +1,3 @@
+div[aria-label="Profile Actions"] *[role="menuitem"] {
+  transition: .25s ease-out !important;
+}
