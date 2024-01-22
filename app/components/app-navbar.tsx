@@ -114,7 +114,12 @@ export default function AppNavbar() {
             className={`app-navbar-menu w-52 p-2 rounded-2xl bg-default-50 absolute ${menuIsOpen ? '' : 'close'}`}
             style={{top: '3.25rem', zIndex: 10000}}
           >
-            {isLoggedIn ? <Button variant="light" className="w-full p-2 rounded-md">
+            {isLoggedIn ? <Button
+              variant="light"
+              className="w-full p-2 rounded-md"
+              as={Link}
+              href="/profile"
+            >
               <div className="w-full flex items-center gap-1.5">
                 <Avatar
                   as="button"
