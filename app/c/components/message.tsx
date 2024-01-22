@@ -10,8 +10,8 @@ import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure
 
 import Markdown from 'react-markdown';
 
-import type { StatusResponse } from "@/constants/types";
-import type { ConvItem, MssgItem } from "@/constants/chat/types";
+import type { SetState, StatusResponse } from "@/constants/types";
+import type { MssgItem } from "@/constants/chat/types";
 import formatDate from '@cch137/utils/format/date';
 import useCopyText from "@/hooks/copy-text";
 
@@ -22,9 +22,13 @@ const defaultSetMessage = async (msg: MssgItem | {del: string}) => ({success: fa
 function MessageContent({
   message,
   setMessage: _setMessage,
+  isEditMsg,
+  setIsEditMsg,
 }: {
   message: MssgItem,
   setMessage?: (msg: MssgItem | {del: string}) => Promise<StatusResponse>,
+  isEditMsg: boolean,
+  setIsEditMsg: SetState<boolean>,
 }) {
   const {
     _id,
@@ -37,7 +41,6 @@ function MessageContent({
   const setMessage = _setMessage || defaultSetMessage;
   const isFake = setMessage === defaultSetMessage;
 
-  const [isEditMsg, setIsEditMsg] = useState(false);
   const {
     isOpen: editMsgIsOpen,
     onOpen: editMsgOnOpen,
@@ -109,7 +112,6 @@ function MessageContent({
         "aichat-message w-full pt-6 pb-2 px-6 rounded-xl",
         isModel ? 'model bg-default-50' : 'user bg-secondary-50',
         isModel ? 'text-default-600' : 'text-default-900',
-        isEditMsg ? 'pointer-events-none blur' : '',
       ].join(' ')}
     >
       {isModel ? (
@@ -164,7 +166,12 @@ export default function Message({
   setMessage?: (msg: MssgItem | {del: string}) => Promise<StatusResponse>,
 }) {
   const isModel = typeof message.modl === 'string';
-  return <div className="flex items-start justify-center w-full gap-3 px-4 aichat-message-outer">
+  const [isEditMsg, setIsEditMsg] = useState(false);
+  return <div className={[
+      'flex items-start justify-center w-full gap-3 px-4 aichat-message-outer',
+      isEditMsg ? 'pointer-events-none blur-sm' : '',
+    ].join(' ')}
+  >
     <div
       className='text-2xl p-2.5 rounded-lg opacity-75 mt-2'
       style={{background: isModel ? '#36634d' : '#3a3663', backdropFilter: 'blur(16px)'}}
@@ -175,6 +182,8 @@ export default function Message({
       <MessageContent
         message={message}
         setMessage={setMessage}
+        isEditMsg={isEditMsg}
+        setIsEditMsg={setIsEditMsg}
       />
     </div>
     <div className='text-2xl p-2.5 opacity-0 select-none pointer-events-none aichat-message-r-pad'>
