@@ -85,34 +85,27 @@ export default function AppNavbar() {
             />
           </DropdownTrigger>
           <DropdownMenu aria-label="Profile Actions" variant="flat">
-            {[
-              !isLoggedIn ? null : (
-                <DropdownItem key="profile" as={Link} href="/profile">
-                  <div className="flex items-center gap-1.5">
-                    <Avatar
-                      as="button"
-                      className="transition-transform"
-                      color="secondary"
-                      size="sm"
-                      icon={<AvatarIcon />}
-                    />
-                    <p className="font-semibold text-base w-32 truncate">{username}</p>
-                  </div>
-                </DropdownItem>
-              ),
-              isLoggedIn ? null : (<DropdownItem key="login" as={Link} href="/auth/login" color="success">
-                Log In
-              </DropdownItem>),
-              `${pathname}/`.startsWith('/c/') ? null : <DropdownItem key="aichat" as={Link} href="/c/">
-                AI Chat
-              </DropdownItem>,
-              // <DropdownItem key="settings">
-              //   Settings
-              // </DropdownItem>,
-              !isLoggedIn ? null : (<DropdownItem key="logout" as={Link} href="/auth/logout" color="danger">
-                Log Out
-              </DropdownItem>),
-            ].filter(i => i !== null) as any}
+            <DropdownItem key="profile" as={Link} href="/profile" style={{display: !isLoggedIn ? 'none' : ''}}>
+              <div className="flex items-center gap-1.5">
+                <Avatar
+                  as="button"
+                  className="transition-transform"
+                  color="secondary"
+                  size="sm"
+                  icon={<AvatarIcon />}
+                />
+                <p className="font-semibold text-base w-32 truncate">{username}</p>
+              </div>
+            </DropdownItem>
+            <DropdownItem key="login" as={Link} href="/auth/login" color="success" style={{display: isLoggedIn ? 'none' : ''}}>
+              Log In
+            </DropdownItem>
+            <DropdownItem key="aichat" as={Link} href="/c/" style={{display: `${pathname}/`.startsWith('/c/') ? 'none' : ''}}>
+              AI Chat
+            </DropdownItem>
+            <DropdownItem key="logout" as={Link} href="/auth/logout" color="danger" style={{display: !isLoggedIn ? 'none' : ''}}>
+              Log Out
+            </DropdownItem>
           </DropdownMenu>
         </Dropdown>
       </NavbarContent>

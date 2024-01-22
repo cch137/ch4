@@ -70,7 +70,7 @@ const serializeToken = (token?: Token): StatusResponse<string> => {
   try {
     if (!token) throw new Error('Token is required')
     if (!isValidToken(token)) return { success: false, message: message_TokenNotValid }
-    return { success: true, value: base64ToBase64Url(packDataWithHash(tokenToTokenArray(token), 'MD5', SALTS.value).toBase64()) }
+    return { success: Boolean(token.auth), value: base64ToBase64Url(packDataWithHash(tokenToTokenArray(token), 'MD5', SALTS.value).toBase64()) }
   } catch (e) {
     console.error('Error occurs in serializeToken:', e);
     return { success: false, message: 'Failed to serialize token' }
