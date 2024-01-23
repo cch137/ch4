@@ -31,8 +31,8 @@ export default function ResetPassword() {
 
   const post = async () => {
     setIsPosting(true);
-    const { success, message }: StatusResponse = await (await fetch('/api/auth/user/set-pass', {
-      method: 'POST',
+    const { success, message }: StatusResponse = await (await fetch('/api/auth/user/pass', {
+      method: 'PUT',
       body: packData(form, 519746, 8)
     })).json();
     if (message) openErrorMessageBox(message);
@@ -43,7 +43,7 @@ export default function ResetPassword() {
 
   const sendVerificationCode = async () => {
     setIsPosting(true);
-    const { success, message }: StatusResponse = await (await fetch('/api/auth/verify-email', {
+    const { success, message }: StatusResponse = await (await fetch('/api/auth/user/eadd', {
       method: 'POST',
       body: packData({ action: 1, eadd: form.eadd }, 377417, 666)
     })).json();

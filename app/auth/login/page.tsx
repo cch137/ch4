@@ -11,6 +11,7 @@ import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { StatusResponse } from "@/constants/types";
 import { useRouter } from 'next/navigation';
 import useErrorMessage from '@/hooks/error-message';
+import userInfo from "@/stores/user-info";
 
 export default function Login() {
   const variant = 'underlined';
@@ -30,6 +31,7 @@ export default function Login() {
       method: 'POST',
       body: packData(form, 70614, 1)
     })).json();
+    await userInfo.update();
     if (res?.success) return redirectToHome();
     openErrorMessageBox(res?.message || 'Failed to login');
     setIsPosting(false);

@@ -12,7 +12,7 @@ type Token = {
   id: string;
   name?: string;
   hashedPass?: string;
-  auth?: number;
+  auth: number;
   created: Date;
   expired: Date; // if expired > now, check user id and hashedPass in database
   lastChecked: Date; // if lastChecked + LOGIN_AGE_MS < now, user needs to login again
@@ -22,7 +22,7 @@ type TokenArray = [
   string,
   string | undefined,
   string | undefined,
-  number | undefined,
+  number,
   Date,
   Date,
   Date,
@@ -46,7 +46,7 @@ const isValidToken = (token: Token): token is Token => {
   if (typeof id !== 'string') return false;
   if (!['string', 'undefined'].includes(typeof name)) return false;
   if (!['string', 'undefined'].includes(typeof hashedPass)) return false;
-  if (!['number', 'undefined'].includes(typeof auth)) return false;
+  if (typeof auth !== 'number') return false;
   if (!(created instanceof Date)) return false;
   if (!(lastChecked instanceof Date)) return false;
   if (!(expired instanceof Date)) return false;
@@ -59,7 +59,8 @@ const parseToken = (tokenString?: string): StatusResponse<Token> => {
     const token = tokenArrayToToken(unpackDataWithHash<TokenArray>(base64UrlToBase64(tokenString), 'MD5', SALTS.value))
     if (!isValidToken(token)) return { success: false, message: message_TokenNotValid }
     userManager.accessedUser(token.id)
-    return { success: true, value: token }
+    // @ts-ignore because some of the oldest version token does not exist 'auth' key
+    return { success: true, value: {auth: 0, ...token} }
   } catch (e) {
     console.error('Error occurs in parseToken:', e);
     return { success: false, message: message_TokenNotValid }
@@ -92,7 +93,7 @@ const createToken = async (nameOrEadd: string, pass: string, hashed = false): Pr
     created: now,
     lastChecked: now,
     expired: new Date(now.getTime() + CHECK_AGE_MS),
-    auth: auth || void 0,
+    auth: auth || 0,
   })
 }
 
@@ -104,6 +105,7 @@ const createTokenTemporary = async (id?: string): Promise<StatusResponse<string>
     id: id,
     created: now,
     lastChecked: now,
+    auth: 0,
     expired: new Date(now.getTime() + CHECK_AGE_MS),
   })
 }
@@ -125,7 +127,7 @@ const updateToken = async (tokenString?: string, hashedPass?: string): Promise<S
     ...token,
     hashedPass: hashedPass,
     name: name || void 0,
-    auth: auth || void 0,
+    auth: auth || 0,
     expired: new Date(now.getTime() + CHECK_AGE_MS),
     lastChecked: now,
   })

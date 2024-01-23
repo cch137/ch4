@@ -9,10 +9,11 @@ import Link from "next/link";
 import { createRef, useCallback, useState } from "react";
 import { IoCopyOutline, IoCreateOutline } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
-import type { StatusResponse, UserProfile } from "@/constants/types";
+import type { StatusResponse, UserDetails, UserInfo } from "@/constants/types";
 import { useRouter } from 'next/navigation';
 import useErrorMessage from '@/hooks/error-message';
 import useCopyText from "@/hooks/copy-text";
+import userInfo from "@/stores/user-info";
 
 function RenderTableRow([key, value, editable, copiable, edit]: [string, string | undefined, boolean, boolean, () => void | undefined]) {
   const [copied, copyText] = useCopyText(value || '');
@@ -47,9 +48,11 @@ function RenderTableRow([key, value, editable, copiable, edit]: [string, string 
   </TableRow>
 }
 
+type UserProfile = UserInfo & UserDetails;
+
 export default function Profile() {
-  const [user, setUser] = useState<UserProfile|undefined>();
-  const variant = 'underlined';
+  const [user, setUser] = useState<UserProfile>({...userInfo.$object, eadd: ''});
+
   const color = 'secondary';
   const [isPosting, setIsPosting] = useState<boolean|undefined>(false);
 
@@ -75,13 +78,12 @@ export default function Profile() {
     atms,
   } = user || {};
 
-  const fetchProfile = useCallback(async (controller = new AbortController()) => {
-    const { success, message, value } = await (await fetch('/api/auth/user/profile', {
-      method: 'POST',
+  const updateDetails = useCallback(async (controller = new AbortController()) => {
+    const { success, message, value: details } = await (await fetch('/api/auth/user/details', {
       signal: controller.signal
-    })).json() as StatusResponse<UserProfile>;
+    })).json() as StatusResponse<UserDetails>;
     if (controller.signal.aborted) return;
-    if (success) setUser(value);
+    if (success && details) setUser((u) => ({...u, ...details}));
     if (!success || message) openErrorMessageBox(message || 'Faied to fetch profile');
   }, [setUser, openErrorMessageBox]);
 
@@ -89,11 +91,11 @@ export default function Profile() {
     {errorMessageBox}
     <FullpageSpinner callback={async () => {
       const controller = new AbortController();
-      const profileRes = fetchProfile(controller);
+      const detailsRes = updateDetails(controller);
       const updateRes = fetch('/api/auth/update', { method: 'POST' });
       const res: StatusResponse = await (await updateRes).json();
       if (!res?.success) return controller.abort(), redirectToLogin(), setIsPosting(undefined);
-      await profileRes;
+      await detailsRes;
     }} />
     <Modal 
       size="sm"
@@ -122,15 +124,15 @@ export default function Profile() {
               if (!newUsername) return openErrorMessageBox('Username cannot be empty');
               setIsPosting(true);
               try {
-                const { success, message }: StatusResponse = await (await fetch('/api/auth/user/set-name', {
-                  method: 'POST',
+                const { success, message }: StatusResponse = await (await fetch('/api/auth/user/name', {
+                  method: 'PUT',
                   body: newUsername,
                 })).json();
                 if (success) onClose();
                 else openErrorMessageBox(message);
               } finally {
                 setIsPosting(false);
-                await fetchProfile();
+                await Promise.all([userInfo.update(), updateDetails()]);
               }
             }}>Save</Button>
           </ModalFooter>

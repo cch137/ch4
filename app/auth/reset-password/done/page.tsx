@@ -1,9 +1,10 @@
+import userInfo from "@/stores/user-info";
 import { Button } from "@nextui-org/button";
 import Link from "next/link";
 
 export default function ResetPasswordDone() {
   const color = 'secondary';
-
+  userInfo.update();
   return (<>
     <div className="w-full flex-center pb-16 absolute left-0 top-14" style={({height: 'calc(100dvh - 3.5rem)'})}>
       <div className="w-unit-80 max-w-full flex flex-col gap-4">

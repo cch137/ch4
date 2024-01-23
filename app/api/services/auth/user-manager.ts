@@ -2,7 +2,7 @@ import random from '@cch137/utils/random'
 import sha3 from 'crypto-js/sha3.js'
 import { User, dataSetter } from '../mongoose'
 import { USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH } from '@/constants/auth'
-import type { StatusResponse } from '@/constants/types'
+import type { StatusResponse, UserDetails } from '@/constants/types'
 
 const _hashPass = (message: string): string => {
   return sha3(message, { outputLength: 256 }).toString()
@@ -74,30 +74,17 @@ const getUserByIdAndHashedPass = async (id: string, hashedPass?: string) => {
   }
 }
 
-const getUserProfileById = async (_userId: string) => {
-  const {
-    id,
-    name,
-    eadd,
-    ctms,
-    mtms,
-    atms,
-  } = await User.findOne({ id: _userId }, {
-    _id: 0,
-    id: 1,
-    name: 1,
-    eadd: 1,
-    ctms: 1,
-    mtms: 1,
-    atms: 1
-  }, { _id: 0 }).lean() || {}
+const getUserDetailsById = async (userId?: string): Promise<StatusResponse<UserDetails>> => {
+  if (!userId) return { success: false, message: 'User not found' }
+  const { eadd, ctms, mtms, atms } = await User.findOne({ id: userId }, { _id: 0, eadd: 1, ctms: 1, mtms: 1, atms: 1 }).lean() || {}
   return {
-    id: id || _userId,
-    name: name || '',
-    eadd: eadd || '',
-    ctms: ctms || void 0,
-    mtms: mtms || void 0,
-    atms: atms || void 0
+    success: true,
+    value: {
+      eadd: eadd || undefined,
+      ctms: ctms || undefined,
+      mtms: mtms || undefined,
+      atms: atms || undefined,
+    }
   }
 }
 
@@ -184,7 +171,7 @@ const userManager = {
   getUserById,
   getUserByIdAndHashedPass,
   getUserByUserIdentityAndPass,
-  getUserProfileById,
+  getUserDetailsById,
   getUserIdByUserIdentity,
   createUser,
   _createUserTemporary,

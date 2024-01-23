@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { serialize } from "cookie"
 
 import { TOKEN_COOKIE_NAME, OLD_TOKEN_COOKIE_NAME } from "@/constants/cookies";
-import type { StatusResponse, StatusResponseV, UserInfo, UserProfile } from "@/constants/types";
+import type { StatusResponse, StatusResponseV, UserInfo } from "@/constants/types";
 import type { Token } from '../auth/tokenizer';
 import { tokenizer, userManager } from '../auth';
 
@@ -96,10 +96,10 @@ const _transferUser = async (req: NextRequest): Promise<NextResponse<StatusRespo
       if ((oldAuth || 0) > 0) {
         const user = await userManager.getUserById(oldId);
         if (user) {
-          const { eadd, pass, id, name } = user;
+          const { eadd, pass, id, name, auth } = user;
           if (eadd && pass) {
             const { value: tokenString } = await tokenizer.create(eadd, pass, true);
-            const res = NextResponse.json({ success: true, value: { id, name: name || '' } });
+            const res = NextResponse.json({ success: true, value: { id, name: name || '', auth: auth || 0 } });
             res.headers.set('Set-Cookie', serialize(OLD_TOKEN_COOKIE_NAME, '', {maxAge: 0, path: '/'}));
             if (tokenString) setResponseToken(res, tokenString);
             return res;
@@ -120,7 +120,7 @@ const _transferUser = async (req: NextRequest): Promise<NextResponse<StatusRespo
     }
   }
   if (success2 && tokenString) {
-    const res = NextResponse.json({ success: true, value: { id: newId || '', name: '' } });
+    const res = NextResponse.json({ success: true, value: { id: newId || '', name: '', auth: 0 } });
     res.headers.set('Set-Cookie', serialize(OLD_TOKEN_COOKIE_NAME, '', {maxAge: 0, path: '/'}));
     setResponseToken(res, tokenString);
     return res;
@@ -152,22 +152,12 @@ async function updateResponse<T>(req: NextRequest, res?: T | NextResponse<T>) {
   return _res
 }
 
-async function getUserProfile(req: NextRequest): Promise<StatusResponse<UserProfile>> {
-  const { success, message, value: token } = parseToken(req);
-  const { id } = token || {};
-  if (!success || !id) return { success: false, message };
-  const user = await userManager.getUserProfileById(id);
-  if (!user) return { success: false, message: 'Failed to get user profile' };
-  return { success: true, value: user }
-}
-
 const authNext = {
   parse: parseToken,
   updateToken,
   setToken: setResponseToken,
   logout: logoutResponse,
   update: updateResponse,
-  getUserProfile,
   _transferUser,
 }
 

@@ -2,40 +2,25 @@
 import "./app-navbar.css";
 
 import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from '@nextui-org/navbar'
-import { DropdownItem, DropdownTrigger, Dropdown, DropdownMenu } from '@nextui-org/dropdown'
+import { Navbar, NavbarBrand, NavbarContent } from '@nextui-org/navbar'
 import { Avatar, AvatarIcon } from '@nextui-org/avatar'
 import { Button } from '@nextui-org/button'
 import { appName, discordLink } from '@/constants/app'
 import Link from 'next/link'
 import Image from 'next/image'
-import { StatusResponse, UserInfo } from '@/constants/types'
 import DiscordIcon from './discord-icon'
 import { usePathname } from 'next/navigation'
+import userInfoStore from "@/stores/user-info";
 
 export default function AppNavbar() {
-  const inited = useRef(false);
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean|undefined>(undefined);
-  const [username, setUsername] = useState('');
   const pathname = usePathname();
   const isLoginPage = pathname === '/auth/login';
 
-  useEffect(() => {
-    if (inited.current) return;
-    inited.current = true;
-    (async () => {
-      const { success = false, value: user }: StatusResponse<UserInfo> = await (await fetch('/api/auth/user/info')).json();
-      setIsLoggedIn(Boolean(user?.name));
-      if (user) {
-        const { name: username } = user;
-        setUsername(username);
-        if (!localStorage.getItem('first')) {
-          localStorage.setItem('first', '1');
-          location.reload();
-        }
-      }
-    })();
-  }, []);
+  useEffect(() => userInfoStore.init(), []);
+  const [userInfo, setUserInfo] = useState(userInfoStore.$object);
+  userInfoStore.$on(setUserInfo);
+  const { name: username, inited } = userInfo;
+  const isLoggedIn = userInfo.auth > 0;
 
   const menuRef = createRef<HTMLDivElement>();
   const menuTriggerRef = createRef<HTMLSpanElement>();
@@ -61,7 +46,7 @@ export default function AppNavbar() {
     }
     document.body.addEventListener('click', autoCloseMenu);
     return () => document.body.removeEventListener('click', autoCloseMenu);
-  }, [menuRef]);
+  }, [menuRef, menuTriggerRef]);
 
   return (
     <Navbar isBordered height={"3.5rem"} maxWidth="full">
@@ -76,7 +61,7 @@ export default function AppNavbar() {
 
       <NavbarContent as="div" className="items-center" justify="end">
         <div className="flex-center gap-2 mr-1">
-          {(isLoggedIn === false && !isLoginPage) ? <Button
+          {(inited && !isLoggedIn && !isLoginPage) ? <Button
             as={Link}
             href="/auth/login"
             color="secondary"
@@ -131,7 +116,7 @@ export default function AppNavbar() {
                 <p className="font-semibold text-base w-32 truncate text-start">{username}</p>
               </div>
             </Button> : null}
-            {(isLoggedIn || `${pathname}/`.startsWith('/login/')) ? null : <Button
+            {(inited && !isLoggedIn && !isLoginPage) ? <Button
               variant="light"
               className="w-full p-2 text-start h-8 rounded-md"
               onClick={closeMenu}
@@ -139,7 +124,7 @@ export default function AppNavbar() {
               href="/auth/login"
             >
               <div className="w-full">Log In</div>
-            </Button>}
+            </Button>: null}
             {`${pathname}/`.startsWith('/c/') ? null : <Button
               variant="light"
               className="w-full p-2 text-start h-8 rounded-md"

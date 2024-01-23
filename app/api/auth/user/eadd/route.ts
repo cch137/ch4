@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { unpackData } from "@cch137/utils/shuttle";
 import { readStream } from "@cch137/utils/stream";
@@ -6,6 +6,10 @@ import auth from "@/app/api/services/auth";
 import type { StatusResponse } from "@/constants/types";
 import getIp from '@cch137/utils/server/get-ip';
 import RateLimiter from '@cch137/utils/server/rate-limiter';
+
+export async function PUT(req: NextRequest) {
+  return NextResponse.json({ success: false, message: 'This functionality is not currently supported.' })
+}
 
 const rateLimiter = new RateLimiter([
   { maxCount: 5, timeMs: 60000 * 30 },

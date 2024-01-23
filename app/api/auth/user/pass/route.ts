@@ -6,7 +6,7 @@ import auth from "@/app/api/services/auth";
 import type { StatusResponse } from "@/constants/types";
 import authNext from "@/app/api/services/auth-next";
 
-export async function POST(req: NextRequest): Promise<NextResponse<StatusResponse>> {
+export async function PUT(req: NextRequest): Promise<NextResponse<StatusResponse>> {
   try {
     // parse form
     const { eadd, pass, code } = unpackData<{eadd: string, pass: string, code: string}>(await readStream(req.body), 519746, 8)

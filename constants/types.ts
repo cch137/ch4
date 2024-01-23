@@ -8,10 +8,11 @@ type StatusResponseV<T> = StatusResponse<T> & { value: T }
 type UserInfo = {
   id: string;
   name: string;
+  auth: number;
 }
 
-type UserProfile = UserInfo & {
-  eadd: string;
+type UserDetails = {
+  eadd?: string;
   ctms?: number;
   mtms?: number;
   atms?: number;
@@ -26,6 +27,6 @@ export type {
   StatusResponse,
   StatusResponseV,
   UserInfo,
-  UserProfile,
+  UserDetails,
   NextApiContext,
 }
