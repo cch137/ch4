@@ -11,6 +11,7 @@ import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { StatusResponse } from "@/constants/types";
 import { useRouter } from 'next/navigation';
 import useErrorMessage from '@/hooks/error-message';
+import userInfo from "@/stores/user-info";
 
 export default function SignUp() {
   const variant = 'underlined';
@@ -37,7 +38,7 @@ export default function SignUp() {
       body: packData(form, 519746, 8)
     })).json();
     if (message) openErrorMessageBox(message);
-    if (success) return redirectToDone();
+    if (success) return userInfo.update(), redirectToDone();
     else if (!message) openErrorMessageBox();
     setIsPosting(false);
   }
