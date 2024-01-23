@@ -15,6 +15,7 @@ import userInfoStore from "@/stores/user-info";
 export default function AppNavbar() {
   const pathname = usePathname();
   const isLoginPage = pathname === '/auth/login';
+  const isAiChatPage = `${pathname}/`.startsWith('/c/');
 
   useEffect(() => userInfoStore.init(), []);
   const [userInfo, setUserInfo] = useState(userInfoStore.$object);
@@ -91,10 +92,9 @@ export default function AppNavbar() {
             color="secondary"
             size="sm"
             icon={<AvatarIcon />}
-            isDisabled={isLoggedIn === undefined}
             ref={menuTriggerRef}
           />
-          {isLoggedIn === undefined ? null : <div
+          <div
             ref={menuRef}
             className={`app-navbar-menu shadow-2xl w-52 p-2 rounded-2xl border-1 border-default-50 bg-zinc-950 absolute ${menuIsOpen ? '' : 'close'}`}
             style={{top: '3.25rem', zIndex: 10000}}
@@ -125,7 +125,7 @@ export default function AppNavbar() {
             >
               <div className="w-full">Log In</div>
             </Button>: null}
-            {`${pathname}/`.startsWith('/c/') ? null : <Button
+            {isAiChatPage ? null : <Button
               variant="light"
               className="w-full p-2 text-start h-8 rounded-md"
               onClick={closeMenu}
@@ -134,7 +134,7 @@ export default function AppNavbar() {
             >
               <div className="w-full">AI Chat</div>
             </Button>}
-            {!isLoggedIn ? null : <Button
+            {isLoggedIn ? <Button
               variant="light"
               className="w-full p-2 text-start h-8 rounded-md"
               onClick={closeMenu}
@@ -142,8 +142,8 @@ export default function AppNavbar() {
               href="/auth/logout" color="danger"
             >
               <div className="w-full">Log Out</div>
-            </Button>}
-          </div>}
+            </Button> : null}
+          </div>
       </NavbarContent>
     </Navbar>
   )
