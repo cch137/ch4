@@ -68,7 +68,7 @@ export default function InputConsole({
             ref={_textarea}
             value={textareaValue}
             onChange={(e) => setTextareaValue(e.target.value)}
-            onKeyUp={(e) => e.key === 'Enter' ? send() : null}
+            onKeyDown={(e) => (e.key === 'Enter' && !e.shiftKey) ? (e.preventDefault(), send()) : null}
             isDisabled={isSending}
           />
         </div>
