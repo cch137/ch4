@@ -17,7 +17,7 @@ export default function AppNavbar() {
   const isLoginPage = pathname === '/auth/login';
   const isAiChatPage = `${pathname}/`.startsWith('/c/');
 
-  useEffect(() => userInfoStore.init(), []);
+  useEffect(() => {userInfoStore.init()}, []);
   const [userInfo, setUserInfo] = useState(userInfoStore.$object);
   userInfoStore.$on(setUserInfo);
   const { name: username, inited } = userInfo;
