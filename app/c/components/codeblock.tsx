@@ -9,7 +9,7 @@ import type { ExtraProps } from 'react-markdown';
 import Prism from 'react-syntax-highlighter/dist/esm/prism';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-import useCopyText from "@/hooks/copy-text";
+import useCopyText from "@/hooks/useCopyText";
 
 export default function MessageCodeBlock({
   node,

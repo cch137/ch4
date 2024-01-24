@@ -11,7 +11,7 @@ import { useParams } from "next/navigation";
 
 import Sidebar from "./components/sidebar";
 import AiChatContent from "./components/content";
-import useErrorMessage from "@/hooks/error-message";
+import useErrorMessage from "@/hooks/useErrorMessage";
 import { useRouter } from "next/navigation";
 import { appTitle } from "@/constants/app";
 import type { StatusResponse } from "@/constants/types";

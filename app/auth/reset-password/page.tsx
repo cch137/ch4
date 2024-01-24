@@ -10,8 +10,8 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { StatusResponse } from "@/constants/types";
 import { useRouter } from 'next/navigation';
-import useErrorMessage from '@/hooks/error-message';
-import userInfo from "@/stores/user-info";
+import useErrorMessage from '@/hooks/useErrorMessage';
+import { userInfoStore } from "@/hooks/useUserInfo";
 
 export default function ResetPassword() {
   const variant = 'underlined';
@@ -37,7 +37,7 @@ export default function ResetPassword() {
       body: packData(form, 519746, 8)
     })).json();
     if (message) openErrorMessageBox(message);
-    if (success) return (userInfo.update(), redirectToDone());
+    if (success) return (userInfoStore.update(), redirectToDone());
     else if (!message) openErrorMessageBox();
     setIsPosting(false);
   }

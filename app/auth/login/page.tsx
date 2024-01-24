@@ -10,8 +10,8 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { StatusResponse } from "@/constants/types";
 import { useRouter } from 'next/navigation';
-import useErrorMessage from '@/hooks/error-message';
-import userInfo from "@/stores/user-info";
+import useErrorMessage from '@/hooks/useErrorMessage';
+import { userInfoStore } from "@/hooks/useUserInfo";
 
 export default function Login() {
   const variant = 'underlined';
@@ -31,7 +31,7 @@ export default function Login() {
       method: 'POST',
       body: packData(form, 70614, 1)
     })).json();
-    await userInfo.update();
+    await userInfoStore.update();
     if (res?.success) return redirectToHome();
     openErrorMessageBox(res?.message || 'Failed to login');
     setIsPosting(false);
@@ -41,7 +41,7 @@ export default function Login() {
     {errorMessageBox}
     <FullpageSpinner callback={async () => {
       const res: StatusResponse = await (await fetch('/api/auth/update', { method: 'POST' })).json();
-      if ((await userInfo.update()).auth > 0) redirectToHome(), setIsPosting(undefined);
+      if ((await userInfoStore.update()).auth > 0) redirectToHome(), setIsPosting(undefined);
     }} />
     <div className="w-full flex-center pb-16 absolute left-0 top-14" style={({height: 'calc(100dvh - 3.5rem)', visibility: isPosting === undefined ? 'hidden' : 'visible'})}>
       <div className="w-unit-80 max-w-full flex flex-col gap-4">

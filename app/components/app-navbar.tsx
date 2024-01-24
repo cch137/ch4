@@ -10,16 +10,14 @@ import Link from 'next/link'
 import Image from 'next/image'
 import DiscordIcon from './discord-icon'
 import { usePathname } from 'next/navigation'
-import userInfoStore from "@/stores/user-info";
+import useUserInfo from "@/hooks/useUserInfo";
 
 export default function AppNavbar() {
   const pathname = usePathname();
   const isLoginPage = pathname === '/auth/login';
   const isAiChatPage = `${pathname}/`.startsWith('/c/');
 
-  useEffect(() => {userInfoStore.init()}, []);
-  const [userInfo, setUserInfo] = useState(userInfoStore.$object);
-  userInfoStore.$on(setUserInfo);
+  const userInfo = useUserInfo();
   const { name: username, inited } = userInfo;
   const isLoggedIn = userInfo.auth > 0;
 

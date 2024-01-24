@@ -11,9 +11,9 @@ import { IoCopyOutline, IoCreateOutline } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import type { StatusResponse, UserDetails, UserInfo } from "@/constants/types";
 import { useRouter } from 'next/navigation';
-import useErrorMessage from '@/hooks/error-message';
-import useCopyText from "@/hooks/copy-text";
-import userInfo from "@/stores/user-info";
+import useErrorMessage from '@/hooks/useErrorMessage';
+import useCopyText from "@/hooks/useCopyText";
+import { userInfoStore } from "@/hooks/useUserInfo";
 
 function RenderTableRow([key, value, editable, copiable, edit]: [string, string | undefined, boolean, boolean, () => void | undefined]) {
   const [copied, copyText] = useCopyText(value || '');
@@ -51,7 +51,7 @@ function RenderTableRow([key, value, editable, copiable, edit]: [string, string 
 type UserProfile = UserInfo & UserDetails;
 
 export default function Profile() {
-  const [user, setUser] = useState<UserProfile>({...userInfo.$object, eadd: ''});
+  const [user, setUser] = useState<UserProfile>({...userInfoStore.$object, eadd: ''});
 
   const color = 'secondary';
   const [isPosting, setIsPosting] = useState<boolean|undefined>(false);
@@ -132,7 +132,7 @@ export default function Profile() {
                 else openErrorMessageBox(message);
               } finally {
                 setIsPosting(false);
-                await Promise.all([userInfo.update(), updateDetails()]);
+                await Promise.all([userInfoStore.update(), updateDetails()]);
               }
             }}>Save</Button>
           </ModalFooter>

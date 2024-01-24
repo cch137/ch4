@@ -13,7 +13,7 @@ import Markdown from 'react-markdown';
 import type { SetState, StatusResponse } from "@/constants/types";
 import type { MssgItem } from "@/constants/chat/types";
 import formatDate from '@cch137/utils/format/date';
-import useCopyText from "@/hooks/copy-text";
+import useCopyText from "@/hooks/useCopyText";
 
 import MessageCodeBlock from "./codeblock";
 
