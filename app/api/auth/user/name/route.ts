@@ -1,8 +1,8 @@
 import type { NextRequest } from "next/server";
 import { readString } from "@cch137/utils/stream";
-import userManager from "@/app/api/services/auth/user-manager";
+import userManager from "@/server/auth/user-manager";
 import type { StatusResponse } from "@/constants/types";
-import authNext from "@/app/api/services/auth-next";
+import authNext from "@/server/auth-next";
 
 export async function PUT(req: NextRequest) {
   const { success: success0, message: message0, value: token } = authNext.parse(req);

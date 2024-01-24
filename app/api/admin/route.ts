@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import aiProvider from "../services/aichat/aiProvider";
+import aiProvider from "../../../server/aichat/aiProvider";
 
 async function handle(req: NextRequest) {
   try {

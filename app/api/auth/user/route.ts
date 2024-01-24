@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import type { StatusResponse, UserInfo } from "@/constants/types";
-import authNext from "@/app/api/services/auth-next";
+import authNext from "@/server/auth-next";
 import { serialize } from "cookie";
 import { OLD_TOKEN_COOKIE_NAME } from "@/constants/cookies";
 

@@ -1,4 +1,4 @@
-import authNext from "../../services/auth-next";
+import authNext from "../../../../server/auth-next";
 
 function handle() {
   return authNext.logout();

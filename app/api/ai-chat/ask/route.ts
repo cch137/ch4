@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { aiProvider } from "@/app/api/services/aichat";
-import authNext from "../../services/auth-next";
+import { aiProvider } from "@/server/aichat";
+import authNext from "../../../../server/auth-next";
 import { unpackData } from "@cch137/utils/shuttle";
 import type { UniOptions } from "@cch137/utils/ai/types";
 import { readStream } from "@cch137/utils/stream";

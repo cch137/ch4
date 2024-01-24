@@ -2,8 +2,8 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { unpackData } from "@cch137/utils/shuttle";
 import { readStream } from "@cch137/utils/stream";
-import auth from "@/app/api/services/auth";
-import authNext from "../../services/auth-next";
+import auth from "@/server/auth";
+import authNext from "../../../../server/auth-next";
 import getIp from '@cch137/utils/server/get-ip';
 import RateLimiter from '@cch137/utils/server/rate-limiter';
 

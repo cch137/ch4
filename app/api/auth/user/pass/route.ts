@@ -2,9 +2,9 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { unpackData } from "@cch137/utils/shuttle";
 import { readStream } from "@cch137/utils/stream";
-import auth from "@/app/api/services/auth";
+import auth from "@/server/auth";
 import type { StatusResponse } from "@/constants/types";
-import authNext from "@/app/api/services/auth-next";
+import authNext from "@/server/auth-next";
 
 export async function PUT(req: NextRequest): Promise<NextResponse<StatusResponse>> {
   try {

@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { messageManager } from "@/app/api/services/aichat";
-import authNext from "../../services/auth-next";
+import { messageManager } from "@/server/aichat";
+import authNext from "../../../../server/auth-next";
 
 async function handle(req: NextRequest) {
   const { value: token } = authNext.parse(req);

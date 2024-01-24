@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { messageManager } from "@/app/api/services/aichat";
-import authNext from "../../../../services/auth-next";
+import { messageManager } from "@/server/aichat";
+import authNext from "../../../../../../server/auth-next";
 import type { MssgItem } from "@/constants/chat/types";
 import type { NextApiContext, StatusResponse } from "@/constants/types";
 import { readJSON } from "@cch137/utils/stream";
