@@ -3,19 +3,19 @@
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { userInfoStore } from "@/hooks/useUserInfo";
 
-export default function Logout() {
+export default function SignOut() {
   return (
     <FullpageSpinner
       redirectTo="/"
-      label="logging out..."
+      label="Signing out..."
       callback={async () => {
         try {
-          await fetch('/api/auth/logout', { method: 'POST' });
+          await fetch('/api/auth/signout', { method: 'POST' });
         } catch {} finally {
           await userInfoStore.update();
         }
       }}
-      delay={1500}
+      delay={1000}
     />
   )
 }

@@ -59,7 +59,7 @@ export default function Profile() {
   const [isPosting, setIsPosting] = useState<boolean|undefined>(false);
 
   const router = useRouter();
-  const redirectToLogin = () => router.replace('/auth/login');
+  const redirectToSignIn = () => router.replace('/auth/signin?next=/profile');
   const goToResetPassword = () => router.push('/auth/reset-password');
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
@@ -95,7 +95,7 @@ export default function Profile() {
     <FullpageSpinner callback={async () => {
       const controller = new AbortController();
       const res = updateDetails(controller);
-      if ((await userInfoStore.init()).auth <= 0) return controller.abort(), redirectToLogin(), setIsPosting(undefined);
+      if ((await userInfoStore.init()).auth <= 0) return controller.abort(), redirectToSignIn(), setIsPosting(undefined);
       await res;
     }} />
     <Modal 
@@ -165,8 +165,8 @@ export default function Profile() {
           </TableBody>
         </Table>
         <div className="flex-center mt-16">
-          <Button variant="ghost" className="min-w-unit-24" color="danger" as={Link} href='/auth/logout'>
-            Log Out
+          <Button variant="ghost" className="min-w-unit-24" color="danger" as={Link} href='/auth/signout'>
+            Sign out
           </Button>
         </div>
       </div>

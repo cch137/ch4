@@ -1,4 +1,4 @@
-import { LOGIN_AGE_MS, CHECK_AGE_MS } from '@/constants/auth'
+import { SIGNIN_AGE_MS, CHECK_AGE_MS } from '@/constants/auth'
 import { packDataWithHash, unpackDataWithHash } from "@cch137/utils/shuttle";
 import userManager from './user-manager';
 import { base64ToBase64Url, base64UrlToBase64 } from '@cch137/utils/format/base64'
@@ -37,7 +37,7 @@ type TokenType = {
   created: Date;
   /** if checkNeeded > now, check user id and hashedPass in database */
   checkNeeded: Date;
-  /** if lastChecked + LOGIN_AGE_MS < now, user needs to login again */
+  /** if lastChecked + SIGNIN_AGE_MS < now, user needs to sign in again */
   lastChecked: Date; 
 }
 
@@ -121,10 +121,10 @@ class Token implements TokenType {id: string;
   }
 
   get isExpired() {
-    return new Date(this.lastChecked.getTime() + LOGIN_AGE_MS) < new Date;
+    return new Date(this.lastChecked.getTime() + SIGNIN_AGE_MS) < new Date;
   }
 
-  get isLoggedIn() {
+  get isSignedIn() {
     return this.auth > 0;
   }
 
@@ -133,7 +133,7 @@ class Token implements TokenType {id: string;
   }
 
   get isAuthorized() {
-    return this.isLoggedIn || this.isTempUser;
+    return this.isSignedIn || this.isTempUser;
   }
 
   async check(forceUpdate = false) {

@@ -70,7 +70,7 @@ function correctConvConfig(config: ConvConfig | string): ConvConfig | string {
 }
 
 const MIN_LEVEL = 0;
-const LOGGED_IN_LEVEL = 1;
+const SIGNED_IN_LEVEL = 1;
 
 const models: ModelType[] = [
   {

@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
   const rateCheck = rateLimiter.check(ip);
   if (!rateCheck.success) return new NextResponse(rateCheck.message, { status: 429 });
   const { id: userId } = authNext.parseRequestToken(req);
-  if (!userId) return new NextResponse('Unauthorized, please log in or refresh the page.', { status: 401 });
+  if (!userId) return new NextResponse('Unauthorized, please sign in or refresh the page.', { status: 401 });
   const options = tryUnpackData(await readStream(req.body));
   if (!options) return new NextResponse('Failed to parse request (insecure)', { status: 400 });
   try {

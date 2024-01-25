@@ -470,9 +470,9 @@ export default function AiChat() {
                     className="rounded-full"
                     variant="shadow"
                     as={Link}
-                    href="/auth/login?next=/c/"
+                    href="/auth/signin?next=/c/"
                   >
-                    Log In
+                    Sign in
                   </Button>
                 </div>
               </div>

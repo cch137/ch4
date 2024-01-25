@@ -13,7 +13,7 @@ import { useRouter } from 'next/navigation';
 import useErrorMessage from '@/hooks/useErrorMessage';
 import { userInfoStore } from "@/hooks/useUserInfo";
 
-export default function Login() {
+export default function SignIn() {
   const variant = 'underlined';
   const color = 'secondary';
   const [pwIsVisible, setPwIsVisible] = useState(false);
@@ -27,13 +27,13 @@ export default function Login() {
 
   const post = async () => {
     setIsPosting(true);
-    const res: StatusResponse = await (await fetch('/api/auth/login', {
+    const res: StatusResponse = await (await fetch('/api/auth/signin', {
       method: 'POST',
       body: packData(form, 70614, 1)
     })).json();
     await userInfoStore.update();
     if (res?.success) return redirectToHome();
-    openErrorMessageBox(res?.message || 'Failed to login');
+    openErrorMessageBox(res?.message || 'Failed to sign in');
     setIsPosting(false);
   }
 
@@ -44,7 +44,7 @@ export default function Login() {
     }} />
     <div className="w-full flex-center pb-16 absolute left-0 top-14" style={({height: 'calc(100dvh - 3.5rem)', visibility: isPosting === undefined ? 'hidden' : 'visible'})}>
       <div className="w-unit-80 max-w-full flex flex-col gap-4">
-        <h1 className="text-4xl text-center font-bold text-default-600">Log In</h1>
+        <h1 className="text-4xl text-center font-bold text-default-600">Sign in</h1>
         <div className="-m-1"></div>
         <Input
           label="Email / Username"
@@ -66,12 +66,12 @@ export default function Login() {
           isDisabled={isPosting}
         />
         <div className="m-2"></div>
-        <Button color={color} className="mx-12" onClick={post} isLoading={isPosting}>Log In</Button>
+        <Button color={color} className="mx-12" onClick={post} isLoading={isPosting}>Sign in</Button>
         <div></div>
         <div className="text-default-500 flex-center flex-col">
           <div>
             <span>Create a new account! </span>
-            <UiLink href="/auth/signup" color={color} className="hover:underline" as={Link}>Sign Up</UiLink>
+            <UiLink href="/auth/signup" color={color} className="hover:underline" as={Link}>Sign up</UiLink>
           </div>
           <div>
             <UiLink href="/auth/reset-password" color={color} className="hover:underline" as={Link}>Reset Password</UiLink>

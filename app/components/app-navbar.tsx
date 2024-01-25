@@ -14,12 +14,12 @@ import useUserInfo from "@/hooks/useUserInfo";
 
 export default function AppNavbar() {
   const pathname = usePathname();
-  const isLoginPage = pathname === '/auth/login';
+  const isSignInPage = pathname === '/auth/signin';
   const isAiChatPage = `${pathname}/`.startsWith('/c/');
 
   const userInfo = useUserInfo();
   const { name: username, inited } = userInfo;
-  const isLoggedIn = userInfo.auth > 0;
+  const isSignedIn = userInfo.auth > 0;
 
   const menuRef = createRef<HTMLDivElement>();
   const menuTriggerRef = createRef<HTMLSpanElement>();
@@ -60,15 +60,15 @@ export default function AppNavbar() {
 
       <NavbarContent as="div" className="items-center" justify="end">
         <div className="flex-center gap-2 mr-1">
-          {(inited && !isLoggedIn && !isLoginPage) ? <Button
+          {(inited && !isSignedIn && !isSignInPage) ? <Button
             as={Link}
-            href="/auth/login"
+            href="/auth/signin"
             color="secondary"
             className="font-semibold"
             variant="solid"
             size="sm"
           >
-            Log In
+            Sign in
           </Button> : null}
           <Button
             as={Link}
@@ -97,7 +97,7 @@ export default function AppNavbar() {
             className={`app-navbar-menu shadow-2xl w-52 p-2 rounded-2xl border-1 border-default-50 bg-zinc-950 absolute ${menuIsOpen ? '' : 'close'}`}
             style={{top: '3.25rem', zIndex: 10000}}
           >
-            {isLoggedIn ? <Button
+            {isSignedIn ? <Button
               variant="light"
               className="w-full p-2 rounded-md"
               as={Link}
@@ -114,14 +114,14 @@ export default function AppNavbar() {
                 <p className="font-semibold text-base w-32 truncate text-start">{username}</p>
               </div>
             </Button> : null}
-            {(inited && !isLoggedIn && !isLoginPage) ? <Button
+            {(inited && !isSignedIn && !isSignInPage) ? <Button
               variant="light"
               className="w-full p-2 text-start h-8 rounded-md"
               onClick={closeMenu}
               as={Link}
-              href="/auth/login"
+              href="/auth/signin"
             >
-              <div className="w-full">Log In</div>
+              <div className="w-full">Sign in</div>
             </Button>: null}
             {isAiChatPage ? null : <Button
               variant="light"
@@ -132,14 +132,14 @@ export default function AppNavbar() {
             >
               <div className="w-full">AI Chat</div>
             </Button>}
-            {isLoggedIn ? <Button
+            {isSignedIn ? <Button
               variant="light"
               className="w-full p-2 text-start h-8 rounded-md"
               onClick={closeMenu}
               as={Link}
-              href="/auth/logout" color="danger"
+              href="/auth/signout" color="danger"
             >
-              <div className="w-full">Log Out</div>
+              <div className="w-full">Sign out</div>
             </Button> : null}
           </div>
       </NavbarContent>

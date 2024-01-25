@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { appTitle } from '@/constants/app';
 
 export const metadata: Metadata = {
-  title: appTitle('Log In'),
+  title: appTitle('Sign out'),
 }
 
 export default function RootLayout({

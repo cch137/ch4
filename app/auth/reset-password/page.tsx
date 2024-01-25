@@ -61,12 +61,12 @@ export default function ResetPassword() {
     setTimeout(() => setResendCooling(r => r - 1), 1000);
   }, [resendCooling]);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
   return (<>
     {errorMessageBox}
     <FullpageSpinner callback={async () => {
-      if ((await userInfoStore.init()).auth > 0) setIsLoggedIn(true);
+      if ((await userInfoStore.init()).auth > 0) setIsSignedIn(true);
     }} />
     <div className="w-full flex-center pb-16 absolute left-0 top-14" style={({height: 'calc(100dvh - 3.5rem)', visibility: isPosting === undefined ? 'hidden' : 'visible'})}>
       <div className="w-unit-80 max-w-full flex flex-col gap-4">
@@ -121,9 +121,9 @@ export default function ResetPassword() {
         <div className="text-default-500 flex-center flex-col">
           <div>
             <span>Back to </span>
-            {isLoggedIn
+            {isSignedIn
               ? <UiLink href="/profile" color={color} className="hover:underline" as={Link}>Profile</UiLink>
-              : <UiLink href="/auth/login" color={color} className="hover:underline" as={Link}>Log In</UiLink>
+              : <UiLink href="/auth/signin" color={color} className="hover:underline" as={Link}>Sign in</UiLink>
             }
           </div>
         </div>

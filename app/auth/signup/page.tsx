@@ -69,7 +69,7 @@ export default function SignUp() {
     }} />
     <div className="w-full flex-center pb-16 absolute left-0 top-14" style={({height: 'calc(100dvh - 3.5rem)', visibility: isPosting === undefined ? 'hidden' : 'visible'})}>
       <div className="w-unit-80 max-w-full flex flex-col gap-4">
-        <h1 className="text-4xl text-center font-bold text-default-600">Sign Up</h1>
+        <h1 className="text-4xl text-center font-bold text-default-600">Sign up</h1>
         <div className="-m-1"></div>
         <Input
           label="Email"
@@ -107,7 +107,7 @@ export default function SignUp() {
         <div className="m-2"></div>
         {isSentCode
           ? <>
-            <Button color={color} className="mx-12" onClick={post} isLoading={isPosting}>Sign Up</Button>
+            <Button color={color} className="mx-12" onClick={post} isLoading={isPosting}>Sign up</Button>
             <div className="flex-center">
               <UiLink
                 underline="hover"
@@ -127,7 +127,7 @@ export default function SignUp() {
         <div className="text-default-500 flex-center flex-col">
           <div>
             <span>Already have an account? </span>
-            <UiLink href="/auth/login" color={color} className="hover:underline" as={Link}>Log In</UiLink>
+            <UiLink href="/auth/signin" color={color} className="hover:underline" as={Link}>Sign in</UiLink>
           </div>
         </div>
       </div>

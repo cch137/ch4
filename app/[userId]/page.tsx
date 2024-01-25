@@ -12,8 +12,8 @@ export default function App() {
   const userId: string = Array.isArray(params.userId) ? params.userId[0] : params.userId;
 
   switch (userId.toLowerCase()) {
-    case 'login':
-    case 'logout':
+    case 'signin':
+    case 'signout':
     case 'reset-password':
     case 'signup':
       return <FullpageSpinner redirectTo={`/auth/${userId}`} />
