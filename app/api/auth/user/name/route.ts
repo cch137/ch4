@@ -8,7 +8,7 @@ export async function PUT(req: NextRequest) {
   if (!token.isAuthorized) return NextResponse.json({ success: false, message: 'Unathorized' });
   const name = await readString(req.body);
   const res = NextResponse.json(await userManager.setName(token.id, name));
-  await token.check();
+  await token.check(true);
   token.setCookie(res);
   return res;
 }

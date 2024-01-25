@@ -136,9 +136,9 @@ class Token implements TokenType {id: string;
     return this.isLoggedIn || this.isTempUser;
   }
 
-  async check() {
+  async check(forceUpdate = false) {
     this.lastChecked = new Date;
-    if (!this.isCheckNeeded) return this.accessUser();
+    if (!this.isCheckNeeded && !forceUpdate) return this.accessUser();
     if (this.isTempUser) return this.extend();
     if (this.isExpired) return this.clear();
     const user = await userManager.getUserByIdAndHashedPass(this.id, this.hashedPass)

@@ -6,7 +6,7 @@ import { Input } from "@nextui-org/input";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/table";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/modal";
 import Link from "next/link";
-import { createRef, useCallback, useState } from "react";
+import { createRef, useCallback, useEffect, useState } from "react";
 import { IoCopyOutline, IoCreateOutline } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import type { StatusResponse, UserDetails, UserInfo } from "@/constants/types";
@@ -51,7 +51,9 @@ function RenderTableRow([key, value, editable, copiable, edit]: [string, string 
 type UserProfile = UserInfo & UserDetails;
 
 export default function Profile() {
-  const [user, setUser] = useState<UserProfile>({...userInfoStore.$object, eadd: ''});
+  const [user, setUser] = useState<UserProfile>(userInfoStore.$object);
+  
+  useEffect(() => userInfoStore.$on((o) => setUser((u) => ({...u, ...o}))), []);
 
   const color = 'secondary';
   const [isPosting, setIsPosting] = useState<boolean|undefined>(false);
@@ -92,9 +94,9 @@ export default function Profile() {
     {errorMessageBox}
     <FullpageSpinner callback={async () => {
       const controller = new AbortController();
-      const detailsRes = updateDetails(controller);
+      const res = updateDetails(controller);
       if ((await userInfoStore.init()).auth <= 0) return controller.abort(), redirectToLogin(), setIsPosting(undefined);
-      await detailsRes;
+      await res;
     }} />
     <Modal 
       size="sm"
@@ -130,8 +132,8 @@ export default function Profile() {
                 if (success) onClose();
                 else openErrorMessageBox(message);
               } finally {
+                await userInfoStore.update();
                 setIsPosting(false);
-                await Promise.all([userInfoStore.update(), updateDetails()]);
               }
             }}>Save</Button>
           </ModalFooter>
