@@ -1,5 +1,3 @@
-import type { UniMessage, UniOptions } from '@cch137/utils/ai/types'
-
 type ModelType = {
   name: string;
   value: string;
@@ -26,13 +24,14 @@ type MssgItem = {
 }
 
 type SaveMssg = {
+  vers?: string;
   conv?: string;
-  text: string,
-  modl?: string,
-  root?: string,
-  urls?: string[],
-  args?: string[],
-  dtms?: number,
+  text: string;
+  modl?: string;
+  root?: string;
+  urls?: string[];
+  args?: string[];
+  dtms?: number;
 }
 
 type SaveMssgRes = {

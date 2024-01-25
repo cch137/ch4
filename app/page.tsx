@@ -7,8 +7,10 @@ import { HiChatBubbleOvalLeftEllipsis, HiCurrencyDollar, HiCalculator, HiBookmar
 import { discordLink } from '@/constants/app';
 import AppNavbar from '@/app/components/app-navbar'
 import DiscordIcon from '@/app/components/discord-icon'
+import useVersion from '@/hooks/useVersion';
 
 export default function App() {
+  const version = useVersion();
   return (<>
     <AppNavbar />
     <div className="flex justify-center">
@@ -80,6 +82,10 @@ export default function App() {
           >
             Join
           </Button>
+        </div>
+        <Spacer y={8} />
+        <div className="text-default-400 text-sm">
+          <div>{version ? `version: ${version}` : ''}</div>
         </div>
       </div>
     </div>

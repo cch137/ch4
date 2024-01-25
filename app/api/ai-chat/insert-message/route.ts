@@ -6,12 +6,17 @@ import type { SaveMssg, SaveMssgRes } from "@/constants/chat/types";
 import type { StatusResponse } from "@/constants/types";
 import { readStream } from "@cch137/utils/stream";
 import { unpackData } from "@cch137/utils/shuttle";
+import { parse } from "@cch137/utils/format/version";
+import version from "@/server/version";
 
 export async function POST(req: NextRequest): Promise<NextResponse<StatusResponse<SaveMssgRes>>> {
   const { id: userId } = authNext.parseRequestToken(req);
   if (!userId) return NextResponse.json({ success: false, message: 'Unathorized' });
   try {
     const msg = unpackData<SaveMssg>(await readStream(req.body), 54715471, 77455463);
+    // check version
+    const { minor, patch } = parse(msg.vers || '');
+    if (Number(minor || 0) < 6 || Number(patch || 0) < 2) return NextResponse.json({ success: false, message: 'Version oudated, please reload.' });
     return NextResponse.json(await messageManager.insertMessage(userId, msg));
   } catch (e) {
     console.error(e);

@@ -17,10 +17,12 @@ import { appTitle } from "@/constants/app";
 import type { StatusResponse } from "@/constants/types";
 import { packData } from "@cch137/utils/shuttle";
 import type { UniOptions } from "@cch137/utils/ai/types";
+import useVersion from "@/hooks/useVersion";
 
 const SMALL_SCREEN_W = 720;
 
 export default function AiChat() {
+  const version = useVersion();
   const params = useParams();
   const router = useRouter();
   const convId: string | undefined = [params.convId || []].flat(2)[0];
@@ -261,7 +263,7 @@ export default function AiChat() {
     try {
       const status: StatusResponse<SaveMssgRes> = await (await fetch('/api/ai-chat/insert-message', {
         method: 'POST',
-        body: packData(message, 54715471, 77455463),
+        body: packData({...message, vers: version}, 54715471, 77455463),
       })).json();
       return status;
     } catch {
@@ -330,7 +332,7 @@ export default function AiChat() {
       const qSaveStatus = await insertMessage({ text, root, conv: convId });
       const { mssg: qMsg, conv: aConvId, isNewConv = false } = qSaveStatus.value || {};
       const answerRoot = qMsg?._id;
-      if (!qSaveStatus.success || !answerRoot || !aConvId) throw new Error('Failed to insert message (1)');
+      if (!qSaveStatus.success || !answerRoot || !aConvId) throw new Error(`Failed to insert message: ${qSaveStatus.message || 'Unknown'}`);
       if (isNewConv) {
         const autoRenamePrompt = [
           'Please generate a short title for the conversation:\n',
@@ -376,7 +378,7 @@ export default function AiChat() {
       const { mssg: aMsg } = aSaveStatus.value || {};
       if (!aSaveStatus.success || !aMsg) {
         setMessages((m) => [...m, qMsg]);
-        throw new Error('Failed to insert message (2)');
+        throw new Error(`Failed to insert message: ${aSaveStatus.message || 'Unknown'}`);
       }
       setMessages((m) => [...m, qMsg, aMsg]);
       return { success: true };
