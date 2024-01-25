@@ -12,6 +12,7 @@ import { StatusResponse } from "@/constants/types";
 import { useRouter } from 'next/navigation';
 import useErrorMessage from '@/hooks/useErrorMessage';
 import { userInfoStore } from "@/hooks/useUserInfo";
+import toolUrlParams from "@/app/tools/toolUrlParams";
 
 export default function SignIn() {
   const variant = 'underlined';
@@ -21,7 +22,10 @@ export default function SignIn() {
   const [form, setForm] = useState({ user: '', pass: '' });
 
   const router = useRouter();
-  const redirectToHome = () => router.replace('/')
+  const redirectToNext = () => {
+    const path = toolUrlParams(location).get('next') || '/';
+    return router.replace(path);
+  }
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
 
@@ -32,7 +36,7 @@ export default function SignIn() {
       body: packData(form, 70614, 1)
     })).json();
     await userInfoStore.update();
-    if (res?.success) return redirectToHome();
+    if (res?.success) return redirectToNext();
     openErrorMessageBox(res?.message || 'Failed to sign in');
     setIsPosting(false);
   }
@@ -40,7 +44,7 @@ export default function SignIn() {
   return (<>
     {errorMessageBox}
     <FullpageSpinner callback={async () => {
-      if ((await userInfoStore.init()).auth > 0) redirectToHome(), setIsPosting(undefined);
+      if ((await userInfoStore.init()).auth > 0) redirectToNext(), setIsPosting(undefined);
     }} />
     <div className="w-full flex-center pb-16 absolute left-0 top-14" style={({height: 'calc(100dvh - 3.5rem)', visibility: isPosting === undefined ? 'hidden' : 'visible'})}>
       <div className="w-unit-80 max-w-full flex flex-col gap-4">

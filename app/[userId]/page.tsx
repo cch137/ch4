@@ -7,11 +7,15 @@ import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { discordLink } from "@/constants/app";
 import NotFound from "@/app/not-found";
 
-export default function App() {
+export default function UserProfile() {
   const params = useParams();
   const userId: string = Array.isArray(params.userId) ? params.userId[0] : params.userId;
 
   switch (userId.toLowerCase()) {
+    case 'login':
+      return <FullpageSpinner redirectTo={`/auth/signin`} />
+    case 'logout':
+      return <FullpageSpinner redirectTo={`/auth/signout`} />
     case 'signin':
     case 'signout':
     case 'reset-password':
