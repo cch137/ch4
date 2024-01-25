@@ -4,6 +4,7 @@ import "./chat.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SIDEBAR_WIDTH, correctConvConfig, parseConvConfig, serializeConvConfig } from '@/constants/chat';
 import isHeadless from '@cch137/utils/webpage/is-headless';
+import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import type { ConvCompleted, ConvConfig, ConvItem, MssgItem, SaveMssg, SaveMssgRes, SendMssg } from "@/constants/chat/types";
@@ -18,6 +19,7 @@ import type { StatusResponse } from "@/constants/types";
 import { packData } from "@cch137/utils/shuttle";
 import type { UniOptions } from "@cch137/utils/ai/types";
 import useVersion from "@/hooks/useVersion";
+import useUserInfo from "@/hooks/useUserInfo";
 
 const SMALL_SCREEN_W = 720;
 
@@ -399,49 +401,92 @@ export default function AiChat() {
     }
   }, [insertMessage, setIsSending, setSendingMessage, openErrorMessageBox, setNewConvOpened, currentConv, convConfig, messages, fetchList, renameConv]);
 
-  return isHeadlessBrowser ? (
-    <div className="p-4">
-      <div>Your browser does not support this page. Please use another browser.</div>
-      <Link href="/" underline="hover">Back to Home</Link>
-    </div>
-  ) : (!isReady ? <FullpageSpinner /> : <>
-    {errorMessageBox}
-    <div className="overflow-hidden">
-      <Sidebar
-        convId={convId}
-        isSmallScreen={isSmallScreen}
-        sidebarWidth={sidebarWidth}
-        isSidebarOpen={isSidebarOpen}
-        toggleSidebarOpen={toggleSidebarOpen}
-        closeSidebar={closeSidebar}
-        currentConv={currentConv}
-        setCurrentConv={setCurrentConv}
-        isFetchingMessages={isFetchingMessages}
-        convConfig={convConfig}
-        setConvConfig={setConvConfig}
-        renameConv={renameConv}
-        convList={convList}
-        isFetchingConvList={isFetchingConvList}
-        deleteConv={deleteConv}
-      />
-      <div className="chat-content" style={{
-        top: '3.5rem',
-        left: isSmallScreen ? 0 : isSidebarOpen ? sidebarWidth : 0,
-        width: isSmallScreen ? '100dvw' : `calc(100dvw - ${sidebarWidth}px)`,
-        height: 'calc(100dvh - 3.5rem)',
-      }}>
-        <AiChatContent
-          messages={messages}
-          isLoading={isFetchingMessages || !isMessagesAutoScrolled}
-          isMessagesAutoScrolled={isMessagesAutoScrolled}
-          onAutoScrolled={() => setIsMessagesAutoScrolled(true)}
-          isSending={isSending}
-          sendingMessage={sendingMessage}
-          answeringMessage={answeringMessage}
-          sendMessage={sendMessage}
-          setMessage={setMessage}
-        />
+  const userInfo = useUserInfo();
+
+  return isHeadlessBrowser
+    ? (
+      <div className="p-4">
+        <div>Your browser does not support this page. Please use another browser.</div>
+        <Link href="/" underline="hover">Back to Home</Link>
       </div>
-    </div>
-    </>)
+    ) : (
+      (!isReady || userInfo.initing)
+        ? (
+          <FullpageSpinner />
+        ) : (
+          userInfo.auth > 0 
+          ? (<>
+            {errorMessageBox}
+            <div className="overflow-hidden">
+              <Sidebar
+                convId={convId}
+                isSmallScreen={isSmallScreen}
+                sidebarWidth={sidebarWidth}
+                isSidebarOpen={isSidebarOpen}
+                toggleSidebarOpen={toggleSidebarOpen}
+                closeSidebar={closeSidebar}
+                currentConv={currentConv}
+                setCurrentConv={setCurrentConv}
+                isFetchingMessages={isFetchingMessages}
+                convConfig={convConfig}
+                setConvConfig={setConvConfig}
+                renameConv={renameConv}
+                convList={convList}
+                isFetchingConvList={isFetchingConvList}
+                deleteConv={deleteConv}
+              />
+              <div className="chat-content" style={{
+                top: '3.5rem',
+                left: isSmallScreen ? 0 : isSidebarOpen ? sidebarWidth : 0,
+                width: isSmallScreen ? '100dvw' : `calc(100dvw - ${sidebarWidth}px)`,
+                height: 'calc(100dvh - 3.5rem)',
+              }}>
+                <AiChatContent
+                  messages={messages}
+                  isLoading={isFetchingMessages || !isMessagesAutoScrolled}
+                  isMessagesAutoScrolled={isMessagesAutoScrolled}
+                  onAutoScrolled={() => setIsMessagesAutoScrolled(true)}
+                  isSending={isSending}
+                  sendingMessage={sendingMessage}
+                  answeringMessage={answeringMessage}
+                  sendMessage={sendMessage}
+                  setMessage={setMessage}
+                />
+              </div>
+            </div>
+          </>) : (<>
+            <div className="flex-center px-8" style={{height: 'calc(100dvh - 4rem)'}}>
+              <div className="flex flex-col gap-8 w-full max-w-4xl">
+                <h1 className="text-6xl font-bold">AI Chat</h1>
+                <section className="text-xl">
+                  <p>A simple AI chat app by @cch137.</p>
+                  <p>Offers various models for free.</p>
+                  <p>This is for everyone.</p>
+                </section>
+                <div className="pt-4 py-8">
+                  <Button
+                    size="lg"
+                    color="secondary"
+                    className="rounded-full"
+                    variant="shadow"
+                    as={Link}
+                    href="/auth/login?next=/c/"
+                  >
+                    Log In
+                  </Button>
+                </div>
+              </div>
+              {isSmallScreen ? null : (<>
+                <div className="relative flex-center w-0">
+                  <div className="crystal-outer absolute flex-center right-0">
+                    <div className="crystal" />
+                    <div className="crystal" />
+                    <div className="crystal" />
+                  </div>
+                </div>
+              </>)}
+            </div>
+          </>)
+      )
+    )
 }
