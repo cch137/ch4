@@ -4,6 +4,6 @@ import { userManager } from "@/server/auth";
 import authNext from "@/server/auth-next";
 
 export async function GET(req: NextRequest) {
-  const { value: token } = authNext.parse(req);
+  const token = authNext.parseRequestToken(req);
   return NextResponse.json(await userManager.getUserDetailsById(token?.id));
 }

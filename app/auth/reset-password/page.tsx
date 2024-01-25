@@ -66,8 +66,7 @@ export default function ResetPassword() {
   return (<>
     {errorMessageBox}
     <FullpageSpinner callback={async () => {
-      const res: StatusResponse = await (await fetch('/api/auth/update', { method: 'POST' })).json();
-      setIsLoggedIn(Boolean(res?.success));
+      if ((await userInfoStore.init()).auth > 0) setIsLoggedIn(true);
     }} />
     <div className="w-full flex-center pb-16 absolute left-0 top-14" style={({height: 'calc(100dvh - 3.5rem)', visibility: isPosting === undefined ? 'hidden' : 'visible'})}>
       <div className="w-unit-80 max-w-full flex flex-col gap-4">

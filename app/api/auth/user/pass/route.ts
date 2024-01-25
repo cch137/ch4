@@ -21,8 +21,15 @@ export async function PUT(req: NextRequest): Promise<NextResponse<StatusResponse
     const { success, message } = await auth.userManager.setPassword(id, pass);
     if (!success) return NextResponse.json({ success: false, message });
     // login
-    const { message: loginMessage, value: tokenString } = await auth.tokenizer.create(eadd, pass)
-    return authNext.setToken({ success: true , message: message || loginMessage }, tokenString);
+    try {
+      const token = await authNext.create(eadd, pass);
+      const res = NextResponse.json({ success: true });
+      token.setCookie(res);
+      return res;
+    } catch (e) {
+      console.error(e);
+      return NextResponse.json({ success: false, message: e instanceof Error ? e.message : message || 'Failed to login' })
+    }
   } catch {
     return NextResponse.json({ success: false, message: 'Form invalid' })
   }

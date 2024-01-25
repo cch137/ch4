@@ -8,9 +8,8 @@ import { readStream } from "@cch137/utils/stream";
 import { unpackData } from "@cch137/utils/shuttle";
 
 export async function POST(req: NextRequest): Promise<NextResponse<StatusResponse<SaveMssgRes>>> {
-  const { value: token } = authNext.parse(req);
-  const { id: userId } = token || {};
-  if (!userId) return NextResponse.json({ success: false, message: 'Not Logged In' });
+  const { id: userId } = authNext.parseRequestToken(req);
+  if (!userId) return NextResponse.json({ success: false, message: 'Unathorized' });
   try {
     const msg = unpackData<SaveMssg>(await readStream(req.body), 54715471, 77455463);
     return NextResponse.json(await messageManager.insertMessage(userId, msg));

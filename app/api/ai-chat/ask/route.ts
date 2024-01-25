@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aiProvider } from "@/server/aichat";
-import authNext from "../../../../server/auth-next";
+import authNext from "@/server/auth-next";
 import { unpackData } from "@cch137/utils/shuttle";
 import type { UniOptions } from "@cch137/utils/ai/types";
 import { readStream } from "@cch137/utils/stream";
@@ -27,9 +27,8 @@ export async function POST(req: NextRequest) {
   const ip = getIp(req);
   const rateCheck = rateLimiter.check(ip);
   if (!rateCheck.success) return new NextResponse(rateCheck.message, { status: 429 });
-  const { value: token } = authNext.parse(req);
-  const { id: uderId } = token || {};
-  if (!uderId) return new NextResponse('Unauthorized, please log in or refresh the page.', { status: 401 });
+  const { id: userId } = authNext.parseRequestToken(req);
+  if (!userId) return new NextResponse('Unauthorized, please log in or refresh the page.', { status: 401 });
   const options = tryUnpackData(await readStream(req.body));
   if (!options) return new NextResponse('Failed to parse request (insecure)', { status: 400 });
   try {
@@ -62,6 +61,7 @@ export async function POST(req: NextRequest) {
     });
     return res;
   } catch (e) {
+    console.error('Failed to ask model:', e);
     return new NextResponse('Failed to ask model', { status: 500 });
   }
 }

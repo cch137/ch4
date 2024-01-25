@@ -92,9 +92,7 @@ export default function Profile() {
     <FullpageSpinner callback={async () => {
       const controller = new AbortController();
       const detailsRes = updateDetails(controller);
-      const updateRes = fetch('/api/auth/update', { method: 'POST' });
-      const res: StatusResponse = await (await updateRes).json();
-      if (!res?.success) return controller.abort(), redirectToLogin(), setIsPosting(undefined);
+      if ((await userInfoStore.init()).auth <= 0) return controller.abort(), redirectToLogin(), setIsPosting(undefined);
       await detailsRes;
     }} />
     <Modal 

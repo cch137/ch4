@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { unpackData } from "@cch137/utils/shuttle";
 import { readStream } from "@cch137/utils/stream";
 import auth from "@/server/auth";
-import authNext from "../../../../server/auth-next";
+import authNext from "@/server/auth-next";
 import getIp from '@cch137/utils/server/get-ip';
 import RateLimiter from '@cch137/utils/server/rate-limiter';
 
@@ -18,9 +18,15 @@ export async function POST(req: NextRequest) {
   try {
     const { user: u = '', pass = '' } = unpackData<{ user: string, pass: string }>(await readStream(req.body), 70614, 1);
     if (!u || !pass) return NextResponse.json({ success: false, message: 'Form incompleted' });
-    const { success, message = 'Login failed', value: tokenString } = await auth.tokenizer.create(u, pass);
-    if (!success) return NextResponse.json({ success: false, message });
-    return authNext.setToken(true, tokenString);
+    try {
+      const token = await authNext.create(u, pass);
+      const res = NextResponse.json({ success: true });
+      token.setCookie(res);
+      return res;
+    } catch (e) {
+      console.error(e);
+      return NextResponse.json({ success: false, message: e instanceof Error ? e.message : 'Failed to login' })
+    }
   } catch {
     return NextResponse.json({ success: false, message: 'Form invalid' })
   }

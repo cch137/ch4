@@ -7,7 +7,7 @@ import random from '@cch137/utils/random';
 
 const ConvOp = dataSetter(AiChatConversation, 'user', 'id')
 
-const getConvList = async (userId: string) => {
+const getConvList = async (userId?: string) => {
   try {
     if (!userId) throw new Error('UserId is required');
     return await AiChatConversation.find({ user: userId }, { _id: 0, id: 1, name: 1, mtms: 1 })

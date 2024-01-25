@@ -1,7 +1,10 @@
-import authNext from "../../../../server/auth-next";
+import authNext from "@/server/auth-next";
+import { NextResponse } from "next/server";
 
 function handle() {
-  return authNext.logout();
+  const res = NextResponse.json({ success: true });
+  authNext.removeTokenCookie(res);
+  return res;
 }
 
 export {

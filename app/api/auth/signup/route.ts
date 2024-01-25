@@ -4,7 +4,7 @@ import { unpackData } from "@cch137/utils/shuttle";
 import { readStream } from "@cch137/utils/stream";
 import auth from "@/server/auth";
 import type { StatusResponse } from "@/constants/types";
-import authNext from "../../../../server/auth-next";
+import authNext from "@/server/auth-next";
 import getIp from '@cch137/utils/server/get-ip';
 import RateLimiter from '@cch137/utils/server/rate-limiter';
 
@@ -23,8 +23,15 @@ export async function POST(req: NextRequest): Promise<NextResponse<StatusRespons
     if (!verifySuccess) return NextResponse.json({ success: false, message: verifyMessage })
     const { success, message } = await auth.userManager.createUser(eadd, name, pass)
     if (!success) return NextResponse.json({ success: false, message })
-    const { message: loginMessage, value: tokenString } = await auth.tokenizer.create(eadd, pass)
-    return authNext.setToken({ success: true , message: message || loginMessage }, tokenString);
+    try {
+      const token = await authNext.create(eadd, pass);
+      const res = NextResponse.json({ success: true });
+      token.setCookie(res);
+      return res;
+    } catch (e) {
+      console.error(e);
+      return NextResponse.json({ success: false, message: e instanceof Error ? e.message : 'Failed to login' })
+    }
   } catch {
     return NextResponse.json({ success: false, message: 'Form invalid' })
   }

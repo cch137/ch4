@@ -1,15 +1,14 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { messageManager } from "@/server/aichat";
-import authNext from "../../../../../../server/auth-next";
+import authNext from "@/server/auth-next";
 import type { MssgItem } from "@/constants/chat/types";
 import type { NextApiContext, StatusResponse } from "@/constants/types";
 import { readJSON } from "@cch137/utils/stream";
 
 export async function GET(req: NextRequest, context: NextApiContext): Promise<NextResponse<StatusResponse<MssgItem|null>>> {
-  const { value: token } = authNext.parse(req);
-  const { id: userId } = token || {};
-  if (!userId) return NextResponse.json({ success: false, message: 'Not Logged In' });
+  const { id: userId } = authNext.parseRequestToken(req);
+  if (!userId) return NextResponse.json({ success: false, message: 'Unauthorized' });
   try {
     const { id: convId, msg: msgId } = context?.params || {};
     const message = await messageManager.getMessage(userId, convId, msgId);
@@ -20,9 +19,8 @@ export async function GET(req: NextRequest, context: NextApiContext): Promise<Ne
 }
 
 export async function PUT(req: NextRequest, context: NextApiContext): Promise<NextResponse<StatusResponse>> {
-  const { value: token } = authNext.parse(req);
-  const { id: userId } = token || {};
-  if (!userId) return NextResponse.json({ success: false, message: 'Not Logged In' });
+  const { id: userId } = authNext.parseRequestToken(req);
+  if (!userId) return NextResponse.json({ success: false, message: 'Unauthorized' });
   try {
     const { id: convId, msg: msgId } = context?.params || {};
     const msg: MssgItem = await readJSON(req.body);
@@ -34,9 +32,8 @@ export async function PUT(req: NextRequest, context: NextApiContext): Promise<Ne
 }
 
 export async function DELETE(req: NextRequest, context: NextApiContext): Promise<NextResponse<StatusResponse>> {
-  const { value: token } = authNext.parse(req);
-  const { id: userId } = token || {};
-  if (!userId) return NextResponse.json({ success: false, message: 'Not Logged In' });
+  const { id: userId } = authNext.parseRequestToken(req);
+  if (!userId) return NextResponse.json({ success: false, message: 'Unauthorized' });
   try {
     const { id: convId, msg: msgId } = context?.params || {};
     await messageManager.delMessage(userId, convId, msgId);

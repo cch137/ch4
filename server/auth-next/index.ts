@@ -1,164 +1,60 @@
-import { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { serialize } from "cookie"
-
+import type { NextRequest, NextResponse } from "next/server";
+import messageManager from '../aichat/message-manager';
+import Token from '../auth/tokenizer';
 import { TOKEN_COOKIE_NAME, OLD_TOKEN_COOKIE_NAME } from "@/constants/cookies";
-import type { StatusResponse, StatusResponseV, UserInfo } from "@/constants/types";
-import type { Token } from '../auth/tokenizer';
-import { tokenizer, userManager } from '../auth';
+import { serialize } from "cookie";
 
-function wrapNextRequest<T>(res?: T | NextResponse<T>, value?: T): NextResponse<T> {
-  return value !== undefined
-    ? NextResponse.json(value)
-    : res instanceof NextResponse
-      ? res
-      : res !== undefined
-        ? NextResponse.json(res)
-        : new NextResponse();
-}
+const getTokenString = (req: NextRequest) => req.cookies.get(TOKEN_COOKIE_NAME)?.value;
+const getOldTokenString = (req: NextRequest) => req.cookies.get(OLD_TOKEN_COOKIE_NAME)?.value;
 
-class AuthNextResponse<T> implements StatusResponseV<NextResponse<T>> {
-  success: boolean;
-  value: NextResponse<T>;
-  message?: string;
-
-  constructor(status?: boolean | StatusResponse<T>, res?: T | NextResponse<T>) {
-    if (typeof status === 'boolean') status = { success: status, value: { success: status } } as StatusResponse<T>;
-    if (typeof status !== 'object') status = { success: false };
-    if (typeof res === 'boolean') status.value = { success: res } as T, res = undefined;
-    const { success = true, message, value } = status;
-    this.success = success;
-    this.message = message;
-    this.value = wrapNextRequest(res || value, value);
+class NextCh4Token extends Token {
+  static parseRequestToken(req: NextRequest) {
+    return new NextCh4Token(getTokenString(req));
+  }
+  
+  static parseRequestOldToken(req: NextRequest) {
+    return NextCh4Token.parseOldToken(getOldTokenString(req));
   }
 
-  setToken(token?: string | Token) {
-    if (typeof token !== 'string') {
-      token = tokenizer.serialize(token).value || '';
-    }
-    this.value.headers.set('Set-Cookie', serialize(
-      TOKEN_COOKIE_NAME,
-      token,
-      token ? { httpOnly: true, secure: true, path: '/' } : { httpOnly: true, secure: true, maxAge: 0, path: '/' }
-    ));
-    return this;
+  static async create(nameOrEadd: string, pass: string, hashed?: boolean) {
+    return new NextCh4Token(await Token.create(nameOrEadd, pass, hashed));
   }
 
-  setValue(value?: T | NextResponse<T>) {
-    this.value = wrapNextRequest(value);
-    return this;
+  static setCookie(_token: Token, res: NextResponse) {
+    const token = _token.toString();
+    res.cookies.set({
+      name: TOKEN_COOKIE_NAME,
+      value: token,
+      httpOnly: true,
+      secure: true,
+      path: '/',
+    });
   }
 
-  setStatus(success: boolean, message?: string, value?: T) {
-    this.success = success;
-    this.message = message;
-    if (arguments.length > 2) this.setValue(value);
-    return this;
+  static removeTokenCookie(res: NextResponse) {
+    res.cookies.delete(TOKEN_COOKIE_NAME);
   }
 
-  *[Symbol.iterator]() {
-    yield ['success', this.success]
-    yield ['message', this.message]
-    yield ['value', this.value]
+  static removeOldTokenCookie(res: NextResponse) {
+    res.cookies.delete(OLD_TOKEN_COOKIE_NAME);
   }
 
-  get status() {
-    return {
-      success: this.success,
-      message: this.message,
-      value: this.value
-    } as StatusResponseV<T>
+  setCookie(res: NextResponse) {
+    return NextCh4Token.setCookie(this, res);
   }
 
-  get res() {
-    return this.value as NextResponse<T>;
-  }
-}
-
-const _getTokenString = (req: NextRequest) => req.cookies.get(TOKEN_COOKIE_NAME)?.value;
-const _getOldTokenString = (req: NextRequest) => req.cookies.get(OLD_TOKEN_COOKIE_NAME)?.value;
-
-function _createAuthResponse<T>(res?: boolean, status?: boolean | StatusResponse<T>): AuthNextResponse<StatusResponse>
-function _createAuthResponse<T>(res?: T | NextResponse<T>, status?: boolean | StatusResponse<T>): AuthNextResponse<T>
-function _createAuthResponse<T>(res?: boolean | T | NextResponse<T>, status?: boolean | StatusResponse<T>) {
-  return new AuthNextResponse(status, res);
-}
-
-const parseToken = (req: NextRequest) => tokenizer.parse(_getTokenString(req));
-const updateToken = (req: NextRequest) => tokenizer.update(_getTokenString(req));
-
-const _transferUser = async (req: NextRequest): Promise<NextResponse<StatusResponse<UserInfo>>> => {
-  const oldTokenString = _getOldTokenString(req);
-  if (oldTokenString) {
-    const oldToken = tokenizer.oldTokenReader(oldTokenString);
-    if (oldToken) {
-      const { uid: oldId, authlvl: oldAuth } = oldToken;
-      if ((oldAuth || 0) > 0) {
-        const user = await userManager.getUserById(oldId);
-        if (user) {
-          const { eadd, pass, id, name, auth } = user;
-          if (eadd && pass) {
-            const { value: tokenString } = await tokenizer.create(eadd, pass, true);
-            const res = NextResponse.json({ success: true, value: { id, name: name || '', auth: auth || 0 } });
-            res.headers.set('Set-Cookie', serialize(OLD_TOKEN_COOKIE_NAME, '', {maxAge: 0, path: '/'}));
-            if (tokenString) setResponseToken(res, tokenString);
-            return res;
-          }
-        }
-      }
-    }
-  }
-  const { success: success1, message: message1, value: newId } = await userManager._createUserTemporary();
-  const { success: success2, message: message2, value: tokenString } = await tokenizer.createTemp(newId);
-  if (oldTokenString && newId) {
-    const { uid: oldId } = tokenizer.oldTokenReader(oldTokenString) || {};
+  async transferUser(req: NextRequest) {
+    const { uid: oldId } = NextCh4Token.parseRequestOldToken(req) || {};
     if (oldId) {
       try {
-        const messageManager = (await import('../aichat/message-manager')).default;
-        await messageManager.transferConvs(oldId, newId);
-      } catch {}
+        await messageManager.transferConvs(oldId, this.id);
+      } catch (e) {
+        console.error('Failed to transfer user:', e);
+      }
+      return true;
     }
+    return false;
   }
-  if (success2 && tokenString) {
-    const res = NextResponse.json({ success: true, value: { id: newId || '', name: '', auth: 0 } });
-    res.headers.set('Set-Cookie', serialize(OLD_TOKEN_COOKIE_NAME, '', {maxAge: 0, path: '/'}));
-    setResponseToken(res, tokenString);
-    return res;
-  };
-  const res = NextResponse.json({ success: false, message: 'Failed to get user info' });
-  res.headers.set('Set-Cookie', serialize(OLD_TOKEN_COOKIE_NAME, '', {maxAge: 0, path: '/'}));
-  return res;
 }
 
-function setResponseToken<T>(res?: boolean, tokenString?: string): NextResponse<StatusResponse>
-function setResponseToken<T>(res?: T | NextResponse<T>, tokenString?: string): NextResponse<T>
-function setResponseToken<T>(res?: boolean | T | NextResponse<T>, tokenString?: string) {
-  return _createAuthResponse(res).setToken(tokenString).res;
-}
-
-const logoutResponse = <T>(res?: T | NextResponse<T>) => _createAuthResponse(res, true).setToken().res;
-
-async function updateResponse<T>(req: NextRequest, res: T | NextResponse<T>): Promise<NextResponse<T>>
-async function updateResponse(req: NextRequest): Promise<NextResponse<StatusResponse>>
-async function updateResponse<T>(req: NextRequest, res?: T | NextResponse<T>) {
-  const { success, message, value: updatedTokenString } = await updateToken(req);
-  const _res = updatedTokenString
-    ? res === undefined
-        ? setResponseToken({ success, message } as StatusResponse, updatedTokenString)
-        : setResponseToken(res, updatedTokenString)
-    : res === undefined
-      ? NextResponse.json({ success, message })
-      : wrapNextRequest(res)
-  return _res
-}
-
-const authNext = {
-  parse: parseToken,
-  updateToken,
-  setToken: setResponseToken,
-  logout: logoutResponse,
-  update: updateResponse,
-  _transferUser,
-}
-
-export default authNext;
+export default NextCh4Token;
