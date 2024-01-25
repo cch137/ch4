@@ -13,7 +13,7 @@ type UserInfoUpdatable = UserInfo & {
   readonly init: () => Promise<UserInfoUpdatable>;
 }
 
-const userInfoStore: StoreType<UserInfoUpdatable> = store<UserInfoUpdatable>({
+export const userInfoStore: StoreType<UserInfoUpdatable> = store({
   initing: false,
   inited: false,
   id: '',
@@ -22,7 +22,6 @@ const userInfoStore: StoreType<UserInfoUpdatable> = store<UserInfoUpdatable>({
   async update() {
     clearTimeout(userInfoStore._timeout);
     try {
-      userInfoStore.$assign({initing: true});
       const res = await fetch('/api/auth/user/', {method: 'POST'});
       const data = (await res.json() as StatusResponse<UserInfo>)?.value;
       userInfoStore.$assign({id: '', name: '', auth: 0, ...data, initing: false, inited: true});
@@ -31,12 +30,13 @@ const userInfoStore: StoreType<UserInfoUpdatable> = store<UserInfoUpdatable>({
     return userInfoStore;
   },
   async init() {
-    if (!userInfoStore.inited && !userInfoStore.initing) await userInfoStore.update();
+    if (!userInfoStore.inited && !userInfoStore.initing) {
+      userInfoStore.$assign({initing: true});
+      await userInfoStore.update();
+    }
     return userInfoStore;
   },
 });
-
-export { userInfoStore }
 
 export default function useUserInfo() {
   const [userInfo, setUserInfo] = useState(userInfoStore.$object);
