@@ -49,7 +49,10 @@ const setConvNameAndConf = async (userId?: string, convId?: string, name?: strin
 }
 
 const transferConvs = async (fromUserId: string, toUserId: string) => {
-  return await AiChatConversation.updateMany({ user: fromUserId }, { $set: { user: toUserId } })
+  if (!fromUserId) return;
+  if (!toUserId) return;
+  await AiChatConversation.updateMany({ user: fromUserId }, { $set: { user: toUserId } })
+  return;
 }
 
 const delConv = async (userId?: string, convId?: string) => {

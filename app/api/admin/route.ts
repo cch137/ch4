@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import aiProvider from "../../../server/aichat/aiProvider";
 
-async function handle(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const stream = aiProvider.ask({
       model: 'claude-2',
@@ -18,9 +18,4 @@ async function handle(req: NextRequest) {
   } catch (err) {
     return NextResponse.json({ err });
   }
-}
-
-export {
-  handle as GET,
-  handle as POST,
 }

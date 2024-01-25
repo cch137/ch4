@@ -23,7 +23,7 @@ const userInfoStore: StoreType<UserInfoUpdatable> = store<UserInfoUpdatable>({
     clearTimeout(userInfoStore._timeout);
     try {
       userInfoStore.$assign({initing: true});
-      const res = await fetch('/api/auth/user');
+      const res = await fetch('/api/auth/user/', {method: 'POST'});
       const data = (await res.json() as StatusResponse<UserInfo>)?.value;
       userInfoStore.$assign({id: '', name: '', auth: 0, ...data, initing: false, inited: true});
     } catch {}

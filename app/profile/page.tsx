@@ -80,6 +80,7 @@ export default function Profile() {
 
   const updateDetails = useCallback(async (controller = new AbortController()) => {
     const { success, message, value: details } = await (await fetch('/api/auth/user/details', {
+      method: 'POST',
       signal: controller.signal
     })).json() as StatusResponse<UserDetails>;
     if (controller.signal.aborted) return;

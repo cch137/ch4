@@ -6,7 +6,7 @@ import type { MssgItem } from "@/constants/chat/types";
 import type { NextApiContext, StatusResponse } from "@/constants/types";
 import { readJSON } from "@cch137/utils/stream";
 
-export async function GET(req: NextRequest, context: NextApiContext): Promise<NextResponse<StatusResponse<MssgItem|null>>> {
+export async function POST(req: NextRequest, context: NextApiContext): Promise<NextResponse<StatusResponse<MssgItem|null>>> {
   const { id: userId } = authNext.parseRequestToken(req);
   if (!userId) return NextResponse.json({ success: false, message: 'Unauthorized' });
   try {

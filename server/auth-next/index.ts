@@ -2,7 +2,6 @@ import type { NextRequest, NextResponse } from "next/server";
 import messageManager from '../aichat/message-manager';
 import Token from '../auth/tokenizer';
 import { TOKEN_COOKIE_NAME, OLD_TOKEN_COOKIE_NAME } from "@/constants/cookies";
-import { serialize } from "cookie";
 
 const getTokenString = (req: NextRequest) => req.cookies.get(TOKEN_COOKIE_NAME)?.value;
 const getOldTokenString = (req: NextRequest) => req.cookies.get(OLD_TOKEN_COOKIE_NAME)?.value;
