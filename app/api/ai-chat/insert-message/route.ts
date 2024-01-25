@@ -7,11 +7,10 @@ import type { StatusResponse } from "@/constants/types";
 import { readStream } from "@cch137/utils/stream";
 import { unpackData } from "@cch137/utils/shuttle";
 import { parse } from "@cch137/utils/format/version";
-import version from "@/server/version";
 
 export async function POST(req: NextRequest): Promise<NextResponse<StatusResponse<SaveMssgRes>>> {
   const { id: userId } = authNext.parseRequestToken(req);
-  if (!userId) return NextResponse.json({ success: false, message: 'Unathorized' });
+  if (!userId) return NextResponse.json({ success: false, message: 'Unauthorized' });
   try {
     const msg = unpackData<SaveMssg>(await readStream(req.body), 54715471, 77455463);
     // check version

@@ -5,7 +5,7 @@ import authNext from "@/server/auth-next";
 
 export async function PUT(req: NextRequest) {
   const token = authNext.parseRequestToken(req);
-  if (!token.isAuthorized) return NextResponse.json({ success: false, message: 'Unathorized' });
+  if (!token.isAuthorized) return NextResponse.json({ success: false, message: 'Unauthorized' });
   const name = await readString(req.body);
   const res = NextResponse.json(await userManager.setName(token.id, name));
   await token.check(true);
