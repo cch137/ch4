@@ -12,13 +12,11 @@ export const versionStore = store(parse(), async () => {
   } catch {}
 }, {
   autoInit: false,
+  initAfterOn: true,
 });
 
 export default function useVersion() {
   const [version, setVersion] = useState(versionStore.toString());
-  useEffect(() => {
-    versionStore.$init();
-    return versionStore.$on((v, p) => setVersion(p.toString()));
-  }, []);
+  useEffect(() => versionStore.$on((v, p) => setVersion(p.toString())), []);
   return version;
 };

@@ -15,14 +15,12 @@ export const userInfoStore = store({
   } catch {}
 }, {
   autoInit: false,
+  initAfterOn: true,
   updateInterval: 60 * 1000,
 });
 
 export default function useUserInfo() {
   const [userInfo, setUserInfo] = useState(userInfoStore.$object);
-  useEffect(() => {
-    userInfo.$init();
-    return userInfoStore.$on(setUserInfo);
-  }, []);
+  useEffect(() => userInfoStore.$on(setUserInfo), []);
   return userInfo;
 };
