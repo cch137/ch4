@@ -113,7 +113,7 @@ export default function AiChat() {
   const fetchList = useCallback(async (useLoading = true, setConvId?: string) => {
     if (useLoading) setIsFetchingConvList(true);
     try {
-      const convList = (await (await fetch('/api/ai-chat/conv/', {method: 'POST'})).json() as ConvItem[])
+      const convList = (await (await fetch('/api/ai-chat/conv', {method: 'POST'})).json() as ConvItem[])
         .sort((a, b) => (b?.mtms || 0) - (a?.mtms || 0));
       setConvList(convList);
       const convId = setConvId || currentConv?.id;

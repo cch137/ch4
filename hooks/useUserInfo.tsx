@@ -10,7 +10,7 @@ export const userInfoStore = store({
   auth: 0,
 } as UserInfo, async () => {
   try {
-    const res = await fetch('/api/auth/user/', {method: 'POST'});
+    const res = await fetch('/api/auth/user', {method: 'POST'});
     return (await res.json() as StatusResponse<UserInfo>)?.value || {};
   } catch {}
 }, {
