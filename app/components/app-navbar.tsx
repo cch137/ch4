@@ -18,7 +18,7 @@ export default function AppNavbar() {
   const isAiChatPage = `${pathname}/`.startsWith('/c/');
 
   const userInfo = useUserInfo();
-  const { name: username, inited } = userInfo;
+  const { name: username, $inited } = userInfo;
   const isSignedIn = userInfo.auth > 0;
 
   const menuRef = createRef<HTMLDivElement>();
@@ -60,7 +60,7 @@ export default function AppNavbar() {
 
       <NavbarContent as="div" className="items-center" justify="end">
         <div className="flex-center gap-2 mr-1">
-          {(inited && !isSignedIn && !isSignInPage) ? <Button
+          {($inited && !isSignedIn && !isSignInPage) ? <Button
             as={Link}
             href="/auth/signin"
             color="secondary"
@@ -114,7 +114,7 @@ export default function AppNavbar() {
                 <p className="font-semibold text-base w-32 truncate text-start">{username}</p>
               </div>
             </Button> : null}
-            {(inited && !isSignedIn && !isSignInPage) ? <Button
+            {($inited && !isSignedIn && !isSignInPage) ? <Button
               variant="light"
               className="w-full p-2 text-start h-8 rounded-md"
               onClick={closeMenu}
