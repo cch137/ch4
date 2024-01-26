@@ -3,9 +3,9 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useState, useEffect, useRef, createRef, useCallback } from "react"
 
+import Link from "next/link";
 import { Input } from "@nextui-org/input";
 import { Button } from '@nextui-org/button';
-import { Link } from "@nextui-org/link";
 import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/popover";
 import { Spinner } from "@nextui-org/spinner";
 import { Tooltip } from '@nextui-org/tooltip';
@@ -115,24 +115,29 @@ function ConversationButton({
       onMouseLeave={() => isHover ? setIsHover(false) : null}
       ref={ref}
       id={convIdToKey(id)}
-      onClick={(e) => {e.preventDefault(), selectConv(conv)}}
-      draggable={true}
-      as={Link}
-      href={`/c/${id}`}
+      onClick={(e) => {
+        e.preventDefault();
+        try{
+          ((e.target as HTMLElement).children[0].children[0] as HTMLElement)!.click();
+        } catch {};
+        return selectConv(conv);
+      }}
+      // draggable={true}
+      // as={Link}
       isDisabled={isDisabled || isDeleting}
     >
       <div className="flex-center h-full w-full">
         <Tooltip content={name} delay={1500} placement="bottom-start" className="pointer-events-none select-none">
-          <a
+          <Link
+            href={`/c/${id}`}
             className="flex-1 h-full pl-2 focus:outline-none"
             onClick={(e) => {e.preventDefault(), selectConv(conv)}}
             draggable={true}
-            href={`/c/${id}`}    
           >
             <div className="relative flex-center w-full h-full">
               <div className="absolute w-full overflow-hidden overflow-ellipsis text-start">{name}</div>
             </div>
-          </a>
+          </Link>
         </Tooltip>
         <Popover placement="right" showArrow isOpen={isPopoverOpen} onOpenChange={(c) => setIsPopoverOpen(c)}>
           <PopoverTrigger>

@@ -21,6 +21,6 @@ export const userInfoStore = store({
 export default function useUserInfo() {
   const [userInfo, setUserInfo] = useState(userInfoStore.$object);
   useEffect(() => userInfoStore.$on(setUserInfo), []);
-  userInfoStore.$init();
+  if (typeof window !== 'undefined') userInfo.$init();
   return userInfo;
 };

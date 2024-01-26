@@ -18,8 +18,8 @@ export default function AppNavbar() {
   const isAiChatPage = `${pathname}/`.startsWith('/c/');
 
   const userInfo = useUserInfo();
-  const { name: username, $inited } = userInfo;
-  const isSignedIn = userInfo.auth > 0;
+  const { name: username, $inited, auth } = userInfo;
+  const isSignedIn = auth > 0;
 
   const menuRef = createRef<HTMLDivElement>();
   const menuTriggerRef = createRef<HTMLSpanElement>();
@@ -47,7 +47,7 @@ export default function AppNavbar() {
     return () => document.body.removeEventListener('click', autoCloseMenu);
   }, [menuRef, menuTriggerRef]);
 
-  return (
+  return (<>
     <Navbar isBordered height={"3.5rem"} maxWidth="full">
       <NavbarContent justify="start">
         <NavbarBrand>
@@ -144,5 +144,5 @@ export default function AppNavbar() {
           </div>
       </NavbarContent>
     </Navbar>
-  )
+  </>)
 }

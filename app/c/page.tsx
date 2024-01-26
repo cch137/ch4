@@ -273,7 +273,7 @@ export default function AiChat() {
       openErrorMessageBox(err);
       return { success: false, message: err };
     }
-  }, [openErrorMessageBox]);
+  }, [openErrorMessageBox, version]);
 
   const [isSending, setIsSending] = useState(false);
   const [sendingMessage, setSendingMessage] = useState<SendMssg>({text:''});
@@ -401,7 +401,7 @@ export default function AiChat() {
     }
   }, [insertMessage, setIsSending, setSendingMessage, openErrorMessageBox, setNewConvOpened, currentConv, convConfig, messages, fetchList, renameConv]);
 
-  const userInfo = useUserInfo();
+  const { auth, $initing } = useUserInfo();
 
   return isHeadlessBrowser
     ? (
@@ -410,11 +410,11 @@ export default function AiChat() {
         <Link href="/" underline="hover">Back to Home</Link>
       </div>
     ) : (
-      (!isReady || userInfo.$initing)
+      (!isReady || $initing)
         ? (
           <FullpageSpinner />
         ) : (
-          userInfo.auth > 0 
+          auth > 0 
           ? (
             <>
               {errorMessageBox}
