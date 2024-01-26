@@ -1,17 +1,8 @@
-import qs from "qs"
-import type { ParsedQs } from "qs"
+import qs, { type ParsedQs } from "qs"
 import type { ConvConfig, ModelType } from "./types";
 
-const SIDEBAR_WIDTH = 285;
-const CONTENT_MAX_W = 840;
-
-const correctModelName = (model = '') => {
-  if (/^gemini/i.test(model)) return 'gemini-pro';
-  if (/^gpt[-_]?4/i.test(model)) return 'gpt-4';
-  if (/^gpt[-_]?3/i.test(model)) return 'gpt-3.5-turbo';
-  if (/^claude/i.test(model)) return 'claude-2';
-  return 'gemini-pro';
-}
+export const SIDEBAR_WIDTH = 285;
+export const CONTENT_MAX_W = 840;
 
 const correctNumber = (item: string | number | undefined | null, minValue: number, maxValue: number, defaultValue: number) => {
   if (item === undefined || item === null) return defaultValue;
@@ -27,7 +18,26 @@ const qsItemToString = (item?: string | string[] | ParsedQs | ParsedQs[]) => {
   return undefined;
 }
 
-const parseConvConfig = (conf: string = '') => {
+export const DEFAULT_CONV_CONFIG: ConvConfig = Object.freeze({
+  modl: 'gemeni-pro',
+  temp: 0.3,
+  ctxt: 16,
+  topP: 1,
+  topK: 8,
+});
+const c = DEFAULT_CONV_CONFIG;
+
+export const getDefConvConfig = (): ConvConfig => ({...c});
+
+export const correctModelName = (model = '') => {
+  if (/^gemini/i.test(model)) return 'gemini-pro';
+  if (/^gpt[-_]?4/i.test(model)) return 'gpt-4';
+  if (/^gpt[-_]?3/i.test(model)) return 'gpt-3.5-turbo';
+  if (/^claude/i.test(model)) return 'claude-2';
+  return c.modl;
+}
+
+export const parseConvConfig = (conf: string = '') => {
   const {
     model,
     temperature = '0.3',
@@ -36,17 +46,17 @@ const parseConvConfig = (conf: string = '') => {
     temp: _temp = temperature,
     topP: _topP,
     topK: _topK,
-    ctxt: _ctxt = context !== 'false' ? '10' : '0',
+    ctxt: _ctxt = context !== 'false' ? '16' : '0',
   } = qs.parse(conf);
   const modl = correctModelName(qsItemToString(_modl));
-  const temp = correctNumber(qsItemToString(_temp), 0, 1, 0.3);
-  const topP = correctNumber(qsItemToString(_topP), 0, 1, 1);
-  const topK = correctNumber(qsItemToString(_topK), 1, 16, 8);
-  const ctxt = correctNumber(qsItemToString(_ctxt), 0, 16, 16);
+  const temp = correctNumber(qsItemToString(_temp), 0, 1, c.temp);
+  const topP = correctNumber(qsItemToString(_topP), 0, 1, c.topP);
+  const topK = correctNumber(qsItemToString(_topK), 1, 16, c.topK);
+  const ctxt = correctNumber(qsItemToString(_ctxt), 0, 16, c.ctxt);
   return { modl, temp, topP, topK, ctxt } as ConvConfig;
 }
 
-const serializeConvConfig = (conf: ConvConfig) => {
+export const serializeConvConfig = (conf: ConvConfig) => {
   const {
     modl: _modl,
     temp: _temp,
@@ -55,10 +65,10 @@ const serializeConvConfig = (conf: ConvConfig) => {
     ctxt: _ctxt,
   } = conf;
   const modl = correctModelName(_modl);
-  const temp = correctNumber(_temp, 0, 1, 0.3);
-  const topP = correctNumber(_topP, 0, 1, 1);
-  const topK = correctNumber(_topK, 1, 16, 8);
-  const ctxt = correctNumber(_ctxt, 0, 16, 16);
+  const temp = correctNumber(_temp, 0, 1, c.temp);
+  const topP = correctNumber(_topP, 0, 1, c.topP);
+  const topK = correctNumber(_topK, 1, 16, c.topK);
+  const ctxt = correctNumber(_ctxt, 0, 16, c.ctxt);
   return qs.stringify({ modl, temp, topP, topK, ctxt });
 }
 
@@ -68,11 +78,11 @@ function correctConvConfig(config: ConvConfig | string): ConvConfig | string {
   if (typeof config === 'string') return serializeConvConfig(parseConvConfig(config));
   return parseConvConfig(serializeConvConfig(config));
 }
+export { correctConvConfig };
 
 const MIN_LEVEL = 0;
-const SIGNED_IN_LEVEL = 1;
 
-const models: ModelType[] = [
+export const models: ModelType[] = [
   {
     name: 'Gemini-Pro',
     value: 'gemini-pro',
@@ -97,14 +107,4 @@ const models: ModelType[] = [
     configKeys: ['temp','topP','topK','ctxt'],
     permissionLevel: MIN_LEVEL,
   },
-]
-
-export {
-  correctModelName,
-  parseConvConfig,
-  serializeConvConfig,
-  correctConvConfig,
-  models,
-  SIDEBAR_WIDTH,
-  CONTENT_MAX_W,
-}
+];
