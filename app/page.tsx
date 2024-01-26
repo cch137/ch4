@@ -21,7 +21,7 @@ export default function App() {
             as={Link}
             href="/c/"
             startContent={<div className="scale-125"><HiChatBubbleOvalLeftEllipsis/></div>}
-            color="primary"
+            color="secondary"
             className="font-semibold"
             variant="shadow"
           >

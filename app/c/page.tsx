@@ -20,6 +20,7 @@ import { packData } from "@cch137/utils/shuttle";
 import type { UniOptions } from "@cch137/utils/ai/types";
 import useVersion from "@/hooks/useVersion";
 import useUserInfo from "@/hooks/useUserInfo";
+import Entry from "./components/entry";
 
 const SMALL_SCREEN_W = 720;
 
@@ -415,78 +416,50 @@ export default function AiChat() {
           <FullpageSpinner />
         ) : (
           userInfo.auth > 0 
-          ? (<>
-            {errorMessageBox}
-            <div className="overflow-hidden">
-              <Sidebar
-                convId={convId}
-                isSmallScreen={isSmallScreen}
-                sidebarWidth={sidebarWidth}
-                isSidebarOpen={isSidebarOpen}
-                toggleSidebarOpen={toggleSidebarOpen}
-                closeSidebar={closeSidebar}
-                currentConv={currentConv}
-                setCurrentConv={setCurrentConv}
-                isFetchingMessages={isFetchingMessages}
-                convConfig={convConfig}
-                setConvConfig={setConvConfig}
-                renameConv={renameConv}
-                convList={convList}
-                isFetchingConvList={isFetchingConvList}
-                deleteConv={deleteConv}
-              />
-              <div className="chat-content" style={{
-                top: '3.5rem',
-                left: isSmallScreen ? 0 : isSidebarOpen ? sidebarWidth : 0,
-                width: isSmallScreen ? '100dvw' : `calc(100dvw - ${sidebarWidth}px)`,
-                height: 'calc(100dvh - 3.5rem)',
-              }}>
-                <AiChatContent
-                  messages={messages}
-                  isLoading={isFetchingMessages || !isMessagesAutoScrolled}
-                  isMessagesAutoScrolled={isMessagesAutoScrolled}
-                  onAutoScrolled={() => setIsMessagesAutoScrolled(true)}
-                  isSending={isSending}
-                  sendingMessage={sendingMessage}
-                  answeringMessage={answeringMessage}
-                  sendMessage={sendMessage}
-                  setMessage={setMessage}
+          ? (
+            <>
+              {errorMessageBox}
+              <div className="overflow-hidden">
+                <Sidebar
+                  convId={convId}
+                  isSmallScreen={isSmallScreen}
+                  sidebarWidth={sidebarWidth}
+                  isSidebarOpen={isSidebarOpen}
+                  toggleSidebarOpen={toggleSidebarOpen}
+                  closeSidebar={closeSidebar}
+                  currentConv={currentConv}
+                  setCurrentConv={setCurrentConv}
+                  isFetchingMessages={isFetchingMessages}
+                  convConfig={convConfig}
+                  setConvConfig={setConvConfig}
+                  renameConv={renameConv}
+                  convList={convList}
+                  isFetchingConvList={isFetchingConvList}
+                  deleteConv={deleteConv}
                 />
-              </div>
-            </div>
-          </>) : (<>
-            <div className="flex-center px-8" style={{height: 'calc(100dvh - 4rem)'}}>
-              <div className="flex flex-col gap-8 w-full max-w-4xl">
-                <h1 className="text-6xl font-bold">AI Chat</h1>
-                <section className="text-xl">
-                  <p>A simple AI chat app by @cch137.</p>
-                  <p>Offers various models for free.</p>
-                  <p>This is for everyone.</p>
-                </section>
-                <div className="pt-4 py-8">
-                  <Button
-                    size="lg"
-                    color="secondary"
-                    className="rounded-full"
-                    variant="shadow"
-                    as={Link}
-                    href="/auth/signin?next=/c/"
-                  >
-                    Sign in
-                  </Button>
+                <div className="chat-content" style={{
+                  top: '3.5rem',
+                  left: isSmallScreen ? 0 : isSidebarOpen ? sidebarWidth : 0,
+                  width: isSmallScreen ? '100dvw' : `calc(100dvw - ${sidebarWidth}px)`,
+                  height: 'calc(100dvh - 3.5rem)',
+                }}>
+                  <AiChatContent
+                    messages={messages}
+                    isLoading={isFetchingMessages || !isMessagesAutoScrolled}
+                    isMessagesAutoScrolled={isMessagesAutoScrolled}
+                    onAutoScrolled={() => setIsMessagesAutoScrolled(true)}
+                    isSending={isSending}
+                    sendingMessage={sendingMessage}
+                    answeringMessage={answeringMessage}
+                    sendMessage={sendMessage}
+                    setMessage={setMessage}
+                  />
                 </div>
               </div>
-              {isSmallScreen ? null : (<>
-                <div className="relative flex-center w-0">
-                  <div className="crystal-outer absolute flex-center right-0">
-                    <div className="crystal" />
-                    <div className="crystal" />
-                    <div className="crystal" />
-                  </div>
-                </div>
-              </>)}
-            </div>
-          </>)
+            </>
+          ) : (
+            <Entry isSmallScreen={isSmallScreen} />
+          )
       )
     )
 }

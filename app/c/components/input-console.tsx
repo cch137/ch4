@@ -6,7 +6,7 @@ import { IoArrowDown, IoSend } from "react-icons/io5";
 import { Button } from "@nextui-org/button";
 import { Textarea } from "@nextui-org/input";
 
-import type { ConvItem, SendMssg } from "@/constants/chat/types";
+import type { SendMssg } from "@/constants/chat/types";
 import { CONTENT_MAX_W } from "@/constants/chat";
 import type { StatusResponse } from "@/constants/types";
 
