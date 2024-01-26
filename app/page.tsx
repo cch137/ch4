@@ -85,7 +85,7 @@ export default function App() {
         </div>
         <Spacer y={8} />
         <div className="text-default-400 text-sm">
-          <div>{version ? `version: ${version}` : ''}</div>
+          <div suppressHydrationWarning>{version ? `version: ${version}` : ''}</div>
         </div>
       </div>
     </div>

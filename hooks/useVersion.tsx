@@ -7,7 +7,8 @@ import { useEffect, useState } from 'react';
 export const versionStore = store(parse(), async () => {
   try {
     const res = await fetch('/api/version', {method: 'GET'});
-    return parse(await res.text());
+    const ver = parse(await res.text());
+    return ver;
   } catch {}
 }, {
   autoInit: false,
@@ -15,7 +16,7 @@ export const versionStore = store(parse(), async () => {
 
 export default function useVersion() {
   const [version, setVersion] = useState(versionStore.toString());
-  useEffect(() => versionStore.$on((v) => setVersion(v.toString())), []);
+  useEffect(() => versionStore.$on((v, p) => setVersion(p.toString())), []);
   versionStore.$init();
   return version;
 };
