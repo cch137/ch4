@@ -9,10 +9,13 @@ export const versionStore = store(parse(), async () => {
     const res = await fetch('/api/version', {method: 'GET'});
     return parse(await res.text());
   } catch {}
+}, {
+  autoInit: false,
 });
 
 export default function useVersion() {
   const [version, setVersion] = useState(versionStore.toString());
   useEffect(() => versionStore.$on((v) => setVersion(v.toString())), []);
+  versionStore.$init();
   return version;
 };

@@ -14,11 +14,13 @@ export const userInfoStore = store({
     return (await res.json() as StatusResponse<UserInfo>)?.value || {};
   } catch {}
 }, {
+  autoInit: false,
   updateInterval: 60 * 1000,
 });
 
 export default function useUserInfo() {
   const [userInfo, setUserInfo] = useState(userInfoStore.$object);
   useEffect(() => userInfoStore.$on(setUserInfo), []);
+  userInfoStore.$init();
   return userInfo;
 };

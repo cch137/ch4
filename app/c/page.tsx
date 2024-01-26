@@ -4,7 +4,6 @@ import "./chat.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SIDEBAR_WIDTH, correctConvConfig, parseConvConfig, serializeConvConfig } from '@/constants/chat';
 import isHeadless from '@cch137/utils/webpage/is-headless';
-import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import type { ConvCompleted, ConvConfig, ConvItem, MssgItem, SaveMssg, SaveMssgRes, SendMssg } from "@/constants/chat/types";
@@ -115,7 +114,7 @@ export default function AiChat() {
     if (useLoading) setIsFetchingConvList(true);
     try {
       const convList = (await (await fetch('/api/ai-chat/conv/', {method: 'POST'})).json() as ConvItem[])
-        .sort((a, b) => (b?.mtms || 0) - (a?.mtms || 0)).slice(0, 32);
+        .sort((a, b) => (b?.mtms || 0) - (a?.mtms || 0));
       setConvList(convList);
       const convId = setConvId || currentConv?.id;
       const conv = convList.find(c => c.id === convId);
