@@ -23,7 +23,6 @@ export async function POST(req: NextRequest) {
       token.setCookie(res);
       return res;
     } catch (e) {
-      console.error(e);
       return NextResponse.json({ success: false, message: e instanceof Error ? e.message : 'Failed to sign in' })
     }
   } catch {
