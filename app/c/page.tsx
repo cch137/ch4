@@ -411,7 +411,7 @@ export default function AiChat() {
         <Link href="/" underline="hover">Back to Home</Link>
       </div>
     ) : (
-      (!isReady || userInfo.initing)
+      (!isReady || userInfo.$initing)
         ? (
           <FullpageSpinner />
         ) : (

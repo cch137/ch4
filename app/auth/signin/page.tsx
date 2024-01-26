@@ -35,7 +35,7 @@ export default function SignIn() {
       method: 'POST',
       body: packData(form, 70614, 1)
     })).json();
-    await userInfoStore.update();
+    await userInfoStore.$update();
     if (res?.success) return redirectToNext();
     openErrorMessageBox(res?.message || 'Failed to sign in');
     setIsPosting(false);
@@ -44,7 +44,7 @@ export default function SignIn() {
   return (<>
     {errorMessageBox}
     <FullpageSpinner callback={async () => {
-      if ((await userInfoStore.init()).auth > 0) redirectToNext(), setIsPosting(undefined);
+      if ((await userInfoStore.$init()).auth > 0) redirectToNext(), setIsPosting(undefined);
     }} />
     <div className="w-full flex-center pb-16 absolute left-0 top-14" style={({height: 'calc(100dvh - 3.5rem)', visibility: isPosting === undefined ? 'hidden' : 'visible'})}>
       <div className="w-unit-80 max-w-full flex flex-col gap-4">

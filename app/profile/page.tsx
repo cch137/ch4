@@ -95,7 +95,7 @@ export default function Profile() {
     <FullpageSpinner callback={async () => {
       const controller = new AbortController();
       const res = updateDetails(controller);
-      if ((await userInfoStore.init()).auth <= 0) return controller.abort(), redirectToSignIn(), setIsPosting(undefined);
+      if ((await userInfoStore.$init()).auth <= 0) return controller.abort(), redirectToSignIn(), setIsPosting(undefined);
       await res;
     }} />
     <Modal 
@@ -132,7 +132,7 @@ export default function Profile() {
                 if (success) onClose();
                 else openErrorMessageBox(message);
               } finally {
-                await userInfoStore.update();
+                await userInfoStore.$update();
                 setIsPosting(false);
               }
             }}>Save</Button>

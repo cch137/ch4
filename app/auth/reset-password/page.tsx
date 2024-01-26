@@ -37,7 +37,7 @@ export default function ResetPassword() {
       body: packData(form, 519746, 8)
     })).json();
     if (message) openErrorMessageBox(message);
-    if (success) return (userInfoStore.update(), redirectToDone());
+    if (success) return (userInfoStore.$update(), redirectToDone());
     else if (!message) openErrorMessageBox();
     setIsPosting(false);
   }
@@ -66,7 +66,7 @@ export default function ResetPassword() {
   return (<>
     {errorMessageBox}
     <FullpageSpinner callback={async () => {
-      if ((await userInfoStore.init()).auth > 0) setIsSignedIn(true);
+      if ((await userInfoStore.$init()).auth > 0) setIsSignedIn(true);
     }} />
     <div className="w-full flex-center pb-16 absolute left-0 top-14" style={({height: 'calc(100dvh - 3.5rem)', visibility: isPosting === undefined ? 'hidden' : 'visible'})}>
       <div className="w-unit-80 max-w-full flex flex-col gap-4">

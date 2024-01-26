@@ -12,7 +12,7 @@ export default function SignOut() {
         try {
           await fetch('/api/auth/signout', { method: 'POST' });
         } catch {} finally {
-          await userInfoStore.update();
+          await userInfoStore.$update();
         }
       }}
       delay={1000}

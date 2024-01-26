@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
-import { versionString } from "@/server/version";
+import version from "@/server/version";
+
+const v = version.toString();
 
 export async function GET() {
-  return new NextResponse(versionString);
+  return new NextResponse(v);
 }
