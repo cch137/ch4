@@ -401,7 +401,7 @@ export default function AiChat() {
     }
   }, [insertMessage, setIsSending, setSendingMessage, openErrorMessageBox, setNewConvOpened, currentConv, convConfig, messages, fetchList, renameConv]);
 
-  const { auth, $initing } = useUserInfo();
+  const { auth, $inited } = useUserInfo();
 
   return isHeadlessBrowser
     ? (
@@ -410,7 +410,7 @@ export default function AiChat() {
         <Link href="/" underline="hover">Back to Home</Link>
       </div>
     ) : (
-      (!isReady || $initing)
+      (!isReady || !$inited)
         ? (
           <FullpageSpinner />
         ) : (

@@ -16,7 +16,9 @@ export const versionStore = store(parse(), async () => {
 
 export default function useVersion() {
   const [version, setVersion] = useState(versionStore.toString());
-  useEffect(() => versionStore.$on((v, p) => setVersion(p.toString())), []);
-  if (typeof window !== 'undefined') versionStore.$init();
+  useEffect(() => {
+    versionStore.$init();
+    return versionStore.$on((v, p) => setVersion(p.toString()));
+  }, []);
   return version;
 };
