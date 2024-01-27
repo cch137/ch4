@@ -52,7 +52,7 @@ export default function AppNavbar() {
       <NavbarContent justify="start">
         <NavbarBrand>
           <Link href="/" className="flex items-center min-w-unit-8">
-            <Image width={36} height={36} alt="Favicon" src="/favicon.ico" />
+            <Image width={36} height={36} alt="Favicon" src="/favicon.ico" className="pointer-events-none" />
             <div className="pl-1 text-default-900 hidden sm:block font-bold text-xl">{appName}</div>
           </Link>
         </NavbarBrand>
