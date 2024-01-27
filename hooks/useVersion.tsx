@@ -15,8 +15,13 @@ export const versionStore = store(parse(), async () => {
   initAfterOn: true,
 });
 
+export const getVersion = () => versionStore.toString();
+
+/** alias for `getVersion`. */
+export const vers = getVersion;
+
 export default function useVersion() {
-  const [version, setVersion] = useState(versionStore.toString());
-  useEffect(() => versionStore.$on((v, p) => setVersion(p.toString())), []);
+  const [version, setVersion] = useState(vers());
+  useEffect(() => versionStore.$on(() => setVersion(vers())), []);
   return version;
 };
