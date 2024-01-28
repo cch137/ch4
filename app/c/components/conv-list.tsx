@@ -206,12 +206,17 @@ export default function ConversationList({
     }
   }, [getScrollTopRatio]);
 
+  const _lastConvId = useRef<string>();
   useEffect(() => {
+    const currConvId = currentConv?.id;
+    const lastConvId = _lastConvId.current;
+    if (lastConvId === currConvId) return;
     scrollToCurrentConvInConvList(
       convListEl.current,
       document.getElementById(convIdToKey(currentConv?.id || ''))
     );
-  }, [scrollToCurrentConvInConvList, convListEl, currentConv]);
+    _lastConvId.current = currConvId;
+  }, [_lastConvId, currentConv, scrollToCurrentConvInConvList, convListEl]);
 
   const inited = useRef(false);
 

@@ -15,7 +15,7 @@ export default function AiChatContent() {
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isMessagesAutoScrolled, setIsMessagesAutoScrolled] = useState(false);
 
-  const { currentConv, convConfig, messages, tailMessage, isAnswering, isLoadingConv } = useAiChatContent();
+  const { currentConv, messages, tailMessage, isAnswering, isLoadingConv } = useAiChatContent();
 
   const outerOnScroll = useCallback(() => {
     const outer = _outer.current;
