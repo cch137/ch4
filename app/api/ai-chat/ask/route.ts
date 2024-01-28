@@ -44,7 +44,6 @@ export async function POST(req: NextRequest) {
         'X-Accel-Buffering': 'no',
       }
     });
-    console.log(typeof(res));
     const stream = aiProvider.ask(options);
     stream.pipe({
       data(s: any) {
