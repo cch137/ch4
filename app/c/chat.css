@@ -206,25 +206,25 @@
 
 .aichat-thinking::after {
   display: inline;
-  content: "Thiking";
+  content: "Thinking";
   animation: thinking_text 1s infinite;
 }
 
 @keyframes thinking_text {
   0% {
-    content: "Thiking.";
+    content: "Thinking.";
   }
   25% {
-    content: "Thiking..";
+    content: "Thinking..";
   }
   50% {
-    content: "Thiking...";
+    content: "Thinking...";
   }
   75% {
-    content: "Thiking....";
+    content: "Thinking....";
   }
   100% {
-    content: "Thiking.";
+    content: "Thinking.";
   }
 }
 
