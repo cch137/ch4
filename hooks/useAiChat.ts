@@ -516,7 +516,6 @@ export function useAiChatInputConsole() {
 
 export function useAiChatContent() {
   const [currentConv, _currentConv] = useState(chat.currentConv);
-  const [convConfig, _convConfig] = useState(chat.convConfig);
   const [messages, _messages] = useState(chat.messages);
   const [tailMessage, _tailMessage] = useState(chat.tailMessage);
   const [isAnswering, _isAnswering] = useState(chat.isAnswering);
@@ -525,7 +524,6 @@ export function useAiChatContent() {
   useEffect(() => {
     return chat.$on((o) => {
       _currentConv(o.currentConv ? {...o.currentConv} : void 0);
-      _convConfig({...o.convConfig});
       _messages([...o.messages]);
       _tailMessage(o.tailMessage ? {...o.tailMessage} : void 0);
       _isAnswering(o.isAnswering);
@@ -535,7 +533,6 @@ export function useAiChatContent() {
 
   return {
     currentConv,
-    convConfig,
     messages,
     tailMessage,
     isAnswering,
