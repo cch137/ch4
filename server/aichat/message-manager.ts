@@ -28,6 +28,7 @@ const getMessages = async (userId: string, convId: string) => {
 }
 
 const getConv = async (userId: string, convId: string) => {
+  accessedConv(userId, convId)
   return (await ConvOp.find(userId, convId).get({ _id: 0, user: 0 })) as ConvItem || null
 }
 
@@ -48,7 +49,7 @@ const setConv = async (userId?: string, convId?: string, data?: {name?: string, 
   if (typeof name === 'string') op = op.set('name', name.trim())
   if (typeof conf === 'string') op = op.set('conf', correctConvConfig(conf))
   if (typeof tail === 'string') op = op.set('tail', tail)
-  return await op.save()
+  return await op.set('mtms', Date.now()).save()
 }
 
 const transferConvs = async (fromUserId: string, toUserId: string) => {
@@ -80,6 +81,14 @@ const accessedConv = async (userId?: string, convId?: string) => {
     .save()
 }
 
+const modifiedConv = async (userId?: string, convId?: string) => {
+  if (!userId) return { success: false, message: 'UserId is required' }
+  if (!convId) return { success: false, message: 'ConvId is required' }
+  return await ConvOp.find(userId)
+    .set('mtms', Date.now())
+    .save()
+}
+
 const _generateConvId = async () => {
   while (true) {
     const id = random.base64(8)
@@ -97,7 +106,6 @@ const createConv = async (userId?: string): Promise<StatusResponse<string>> => {
       id: convId,
       user: userId,
       ctms: now,
-      mtms: now,
     })
     return { success: true, value: convId }
   } catch {
@@ -110,6 +118,7 @@ const insertMessage = async (userId?: string, msg?: SaveMssg): Promise<StatusRes
   const { conv, text, modl, root, urls, args, dtms } = msg
   if (!userId || !conv || !(await isOwnerOfConv(userId, conv))) return { success: false, message: 'Conversation is requried' }
   const ctms = Date.now()
+  modifiedConv(userId, conv)
   const createdMsg = await AiChatMessage.create({
     conv,
     text: text.trim(),
@@ -117,7 +126,6 @@ const insertMessage = async (userId?: string, msg?: SaveMssg): Promise<StatusRes
     root,
     dtms,
     ctms,
-    // mtms: undefined,
     // urls,
     // args,
   })
@@ -140,7 +148,19 @@ const setMessage = async (userId: string, convId: string, _id?: ObjectId | strin
   if (!msgId || !msg) return { success: false, message: 'Message is empty' }
   if (!await isOwnerOfConv(userId, convId)) return { success: false, message: 'Not owner' }
   const { text, modl, root, urls, args } = msg
-  return await AiChatMessage.updateOne({ _id: msgId }, { $set: { text: text.trim(), modl, root, urls, args } })
+  modifiedConv(userId, convId)
+  return await AiChatMessage.updateOne(
+    { _id: msgId },
+    {
+      $set: {
+        text: text.trim(),
+        modl,
+        root,
+        urls,
+        args,
+        mtms: Date.now(),
+      }
+    })
 }
 
 const delMessage = async (userId: string, convId: string, _id?: ObjectId | string) => {
@@ -163,6 +183,7 @@ const messageManager = {
   delMessage,
   delConv,
   accessedConv,
+  modifiedConv,
   transferConvs,
 }
 
