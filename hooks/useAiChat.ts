@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import store from '@cch137/utils/dev/store';
+import store, { type StoreType } from '@cch137/utils/dev/store';
 import Broadcaster from '@cch137/utils/dev/broadcaster';
 import type { UniOptions } from '@cch137/utils/ai';
 import { wrapMessages } from '@cch137/utils/ai/utils';
@@ -202,7 +202,7 @@ export async function loadConv(id?: string | ConvItem): Promise<void> {
     }));
   } catch {
     handleError('Failed to load conversation.');
-    await loadConv();
+    return await loadConv();
   } finally {
     chat.$assign({
       isLoadingConv: false,
@@ -318,7 +318,15 @@ let _stopGeneration = async () => {};
  * 5. Save the answer message.
  * 6. Unlock the messages.
  */
-export async function askAiFromInput(msg: SendMssg, autoRenameConv = false) {
+export async function askAiFromInput(msg: SendMssg, autoRenameConv = false): Promise<{
+  readonly answer: string;
+  readonly dtms: number;
+  chunks: StoreType<string[]>;
+  promise: Promise<{
+      dtms: number;
+  }>;
+  controller: AbortController;
+} | undefined> {
   try {
     chat.$assign({
       isAnswering: true,
