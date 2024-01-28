@@ -93,7 +93,9 @@ export default function AiChat() {
   useEffect(() => {
     const convId = currentConv?.id || undefined;
     const pConvId = getPathnameData().convId || undefined;
-    if (pConvId !== convId) history.pushState(null, '', `/c/${convId || ''}`);
+    try {
+      if (pConvId !== convId) history.pushState(null, '', `/c/${convId || ''}`);
+    } catch { router.push(`/c/${convId || ''}`) }
     const handlePopstat = (e: PopStateEvent) => {
       const { pathname, isNotInAiChat } = getPathnameData();
       if (isNotInAiChat) {

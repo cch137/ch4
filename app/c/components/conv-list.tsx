@@ -103,7 +103,7 @@ function ConversationButton({ conv }: { conv: ConvItem }) {
     <Button
       color={isDeleting ? 'danger' : isCurrentConv ? 'secondary' : 'default'}
       variant={isDeleting ? 'light' : isCurrentConv ? 'bordered' : 'light'}
-      className={`flex-center h-7 p-0 w-full conv-btn ${isDeleting ? 'opacity-50' : ''}`}
+      className={`flex-center h-7 mb-1 p-0 w-full conv-btn ${isDeleting ? 'opacity-50' : ''}`}
       style={(isCurrentConv ? {} : {border: '2px solid #0000'})}
       onMouseEnter={() => isHover ? null : setIsHover(true)}
       onMouseLeave={() => isHover ? setIsHover(false) : null}
@@ -140,11 +140,11 @@ function ConversationButton({ conv }: { conv: ConvItem }) {
           </PopoverTrigger>
           <PopoverContent style={({zIndex: 9999})}>
             <div className="flex flex-col min-w-unit-24 -m-4 py-5 px-4">
-              <Button className="w-full h-8 flex-center justify-start" variant="light" onClick={() => (setIsHover(false), setIsPopoverOpen(false), renameConvOnOpen())}>
-                Rename
+              <Button className="w-full h-8 flex items-center justify-start" variant="light" onClick={() => (setIsHover(false), setIsPopoverOpen(false), renameConvOnOpen())}>
+                <span>Rename</span>
               </Button>
-              <Button className="w-full h-8 flex-center justify-start" variant="light" color="danger" onClick={deleteConv}>
-                {confirmDelete ? 'Confirm Delete' : 'Delete'}
+              <Button className="w-full h-8 flex items-center justify-start" variant="light" color="danger" onClick={deleteConv}>
+                <span>{confirmDelete ? 'Confirm Delete' : 'Delete'}</span>
               </Button>
             </div>
           </PopoverContent>
@@ -221,9 +221,9 @@ export default function ConversationList({
   const inited = useRef(false);
 
   useEffect(() => {
+    convListOnScoll();
     if (inited.current) return;
     inited.current = true;
-    convListOnScoll();
     loadConv(currentConv || ((!inited.current && initConvId) ? { id: initConvId } : undefined));
   }, [convListOnScoll, inited, currentConv, initConvId]);
 

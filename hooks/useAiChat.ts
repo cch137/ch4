@@ -16,7 +16,7 @@ import {
   serializeConvConfig,
 } from '@/constants/chat';
 
-import { vers } from './useVersion';
+import { vers, versionStore } from './useVersion';
 
 export const errorBroadcaster = new Broadcaster<{message: string, title?: string}>('ai-chat-error');
 
@@ -49,6 +49,7 @@ const chat = store({
   isUpdatingConv: false,
   isRenamingConv: false,
 }, async () => {
+  versionStore.$init();
   return {
     conversations: await fetchConvList(),
   }
