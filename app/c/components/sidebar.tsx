@@ -52,8 +52,8 @@ export default function Sidebar({
   return (
     <div className="chat-sidebar" style={{
       width: isSmallScreen ? '100dvw' : `${SIDEBAR_WIDTH}px`,
-      height: isSmallScreen ? '100dvh' : 'calc(100dvh - 3.5rem)',
-      top: isSmallScreen ? '0' : '3.5rem',
+      height: 'calc(100dvh - 3.5rem)',
+      top: '3.5rem',
       left: isSmallScreen ? `${isSidebarOpen ? 0 : -100}dvw` : `${sidebarWidth-SIDEBAR_WIDTH}px`,
       zIndex: isSmallScreen ? 50 : 'auto',
     }}>

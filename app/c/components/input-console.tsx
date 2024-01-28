@@ -62,7 +62,7 @@ export default function InputConsole({
           <Textarea
             color="secondary"
             variant="bordered"
-            className="aichat-input text-base"
+            className={`aichat-input text-base ${isAnswering ? 'brightness-50' : ''}`}
             autoFocus={!isTouchScreen}
             ref={_textarea}
             value={textareaValue}

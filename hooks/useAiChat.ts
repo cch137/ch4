@@ -14,11 +14,19 @@ import {
   parseConvConfig,
   getDefConvConfig,
   serializeConvConfig,
+  TEMP,
 } from '@/constants/chat';
 
 import { vers, versionStore } from './useVersion';
+import random from '@cch137/utils/random';
 
+type action = 'send' | 'stream';
+export const answerBroadcaster = new Broadcaster<action>('ai-chat-answer');
 export const errorBroadcaster = new Broadcaster<{message: string, title?: string}>('ai-chat-error');
+
+const boardcastAnsweringSignal = (signal: action = 'stream') => {
+  answerBroadcaster.broadcast(signal);
+}
 
 const _handleErrorMessage = (message: string, title?: string) => {
   errorBroadcaster.broadcast({ message, title });
@@ -37,7 +45,6 @@ const chat = store({
   currentConv: undefined as ConvItem | undefined,
   conversations: [] as ConvItem[],
   messages: [] as MssgItem[],
-  tailMessage: undefined as MssgItem | undefined,
   convConfig: getDefConvConfig(),
   isAnswering: false,
   isStoping: false,
@@ -61,8 +68,8 @@ export {
 let _updateConvTimeout: NodeJS.Timeout;
 export const updateConv = async (_conf = chat.convConfig, post = true) => {
   const id = chat.currentConv?.id;
-  if (!id) return;
   chat.convConfig = {..._conf};
+  if (!id) return;
   if (post) {
     clearTimeout(_updateConvTimeout);
     _updateConvTimeout = setTimeout(async () => {
@@ -268,7 +275,7 @@ const _askConvName = async (q = 'Hi', a = 'Hi') => {
   return '';
 }
 
-const _insertMessage = async (message: SaveMssg) => {
+const _insertMessage = async (message: SaveMssg, replaceId?: string) => {
   try {
     const status = await (await fetch('/api/ai-chat/insert-message', {
       method: 'POST',
@@ -276,7 +283,16 @@ const _insertMessage = async (message: SaveMssg) => {
     })).json() as StatusResponse<MssgItem>;
     const mssg = status.value;
     if (!status.success || !mssg) throw new Error(`Failed to insert message: ${status.message || 'Unknown'}`);
-    chat.messages = _sortMessages([...chat.messages, mssg]);
+    if (replaceId) {
+      const _mssg = chat.messages.find((m) => m._id === replaceId);
+      if (_mssg) {
+        Object.assign(_mssg, mssg);
+        chat.messages = _sortMessages(chat.messages);
+        return _mssg;
+      }
+    } else {
+      chat.messages = _sortMessages([...chat.messages, mssg]);
+    }
     if (message.root === chat.convTail) updateTail(mssg._id);
     return mssg;
   } catch (e) {
@@ -327,6 +343,7 @@ export async function askAiFromInput(msg: SendMssg, autoRenameConv = false): Pro
   }>;
   controller: AbortController;
 } | undefined> {
+  const tempId = `${TEMP}-${random.base64(16)}`;
   try {
     chat.$assign({
       isAnswering: true,
@@ -343,8 +360,10 @@ export async function askAiFromInput(msg: SendMssg, autoRenameConv = false): Pro
       chat.currentConv = { id: newConvId };
       return await askAiFromInput(msg, true);
     }
+    boardcastAnsweringSignal('send');
     const insertedQuestion = await _insertMessage({root, text: question, conv, vers: vers()});
     if (!insertedQuestion) throw new Error('Failed to insert message.');
+    const answerRoot = insertedQuestion._id;
     const {convConfig, messages} = chat;
     const {length: end} = messages;
     const {modl, temp, topP, topK, ctxt} = convConfig;
@@ -360,8 +379,11 @@ export async function askAiFromInput(msg: SendMssg, autoRenameConv = false): Pro
     };
     const res = await _askAiModel(options);
     if (chat.isStoping) res.controller.abort();
-    chat.tailMessage = {_id: 'TEMP', text: '', modl: chat.convConfig.modl};
-    res.chunks.$on(() => chat.tailMessage = {...chat.tailMessage as MssgItem, text: res.answer});
+    chat.messages.push({root: answerRoot, _id: tempId, text: '', modl: chat.convConfig.modl});
+    res.chunks.$on(() => {
+      chat.messages = chat.messages.map((m: MssgItem) => m._id === tempId ? {...m, text: res.answer} : m);
+      boardcastAnsweringSignal();
+    });
     _stopGeneration = async () => {
       _stopGeneration = async () => {};
       res.controller.abort();
@@ -371,32 +393,36 @@ export async function askAiFromInput(msg: SendMssg, autoRenameConv = false): Pro
         const answer = res.answer;
         if (!answer) throw new Error('Model refused to respond');
         const insertedAnswer = await _insertMessage({
-          root: insertedQuestion._id,
+          root: answerRoot,
           text: answer, conv, vers: vers(), dtms, modl,
-        });
+        }, tempId);
         if (!insertedAnswer) throw new Error('Failed to insert message.');
         if (autoRenameConv) {
           _askConvName(question, answer).then((name) => renameConv(conv, name));
         }
-      })
-      .catch((e) => {
-        handleError(e);
-      })
-      .finally(() => {
-        _stopGeneration = async () => {};
         chat.$assign({
           isAnswering: false,
           isStoping: false,
-          tailMessage: undefined,
         });
+      })
+      .catch((e) => {
+        handleError(e);
+        chat.$assign({
+          isAnswering: false,
+          isStoping: false,
+          messages: messages.filter((m) => m._id !== tempId),
+        });
+      })
+      .finally(() => {
+        _stopGeneration = async () => {};
       })
     return res;
   } catch (e) {
     handleError(e);
     chat.$assign({
-      isAnswering: false,
+      // isAnswering: false,
       isStoping: false,
-      tailMessage: undefined,
+      messages: chat.messages.filter(m => m._id !== tempId),
     });
   }
 }
@@ -517,7 +543,6 @@ export function useAiChatInputConsole() {
 export function useAiChatContent() {
   const [currentConv, _currentConv] = useState(chat.currentConv);
   const [messages, _messages] = useState(chat.messages);
-  const [tailMessage, _tailMessage] = useState(chat.tailMessage);
   const [isAnswering, _isAnswering] = useState(chat.isAnswering);
   const [isLoadingConv, _isLoadingConv] = useState(chat.isLoadingConv);
 
@@ -525,7 +550,6 @@ export function useAiChatContent() {
     return chat.$on((o) => {
       _currentConv(o.currentConv ? {...o.currentConv} : void 0);
       _messages([...o.messages]);
-      _tailMessage(o.tailMessage ? {...o.tailMessage} : void 0);
       _isAnswering(o.isAnswering);
       _isLoadingConv(o.isLoadingConv);
     });
@@ -534,7 +558,6 @@ export function useAiChatContent() {
   return {
     currentConv,
     messages,
-    tailMessage,
     isAnswering,
     isLoadingConv,
   };

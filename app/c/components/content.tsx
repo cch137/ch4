@@ -9,13 +9,13 @@ import Message from "./message";
 import InputConsole from "./input-console";
 import {useAiChatContent} from "@/hooks/useAiChat";
 
-export default function AiChatContent() {
+export default function AiChatContent({isSmallScreen}: {isSmallScreen: boolean}) {
   const _outer = createRef<HTMLDivElement>();
   const _inner = createRef<HTMLDivElement>();
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isMessagesAutoScrolled, setIsMessagesAutoScrolled] = useState(false);
 
-  const { currentConv, messages, tailMessage, isAnswering, isLoadingConv } = useAiChatContent();
+  const { currentConv, messages, isAnswering, isLoadingConv } = useAiChatContent();
 
   const outerOnScroll = useCallback(() => {
     const outer = _outer.current;
@@ -34,8 +34,8 @@ export default function AiChatContent() {
   }, [_outer, _inner, outerOnScroll]);
 
   useEffect(() => {
-    if (tailMessage && isAtBottom) scrollToBottom();
-  }, [tailMessage, scrollToBottom, isAtBottom]);
+    if (isAtBottom) scrollToBottom();
+  }, [scrollToBottom, isAtBottom]);
 
   useEffect(() => {
     if (isAnswering) scrollToBottom();
@@ -66,12 +66,11 @@ export default function AiChatContent() {
         </div>
       </div> : null}
       <div className="flex-center w-full" ref={_inner}>
-        <div className="flex-center w-full flex-col py-8 pb-48 gap-4" style={{maxWidth: CONTENT_MAX_W}}>
-          <div className={`${messages.length == 0 ? 'py-12' : 'py-4'} text-default-300 select-none`}>
+        <div className={`flex flex-col w-full py-8 pb-48 ${isSmallScreen ? 'px-4' : 'px-8'} gap-4`} style={{maxWidth: CONTENT_MAX_W}}>
+          <div className={`${messages.length == 0 ? 'py-12' : 'py-4'} mb-2 text-default-300 text-center select-none`}>
             {"Let's start!"}
           </div>
           {messages.map((m) => <Message key={m._id} message={m} />)}
-          {(isAnswering && tailMessage) ? <Message message={tailMessage} /> : null}
         </div>
       </div>
       {isLoading ? null : <InputConsole

@@ -148,12 +148,19 @@
     opacity: 1 !important;
   }
 }
+
+.aichat-message-c {
+  width: calc(100% - 7rem);
+}
 @media (max-width: 720px) {
   .aichat-message-outer {
     padding: 0;
   }
-  .aichat-message-r-pad {
+  .aichat-message-r {
     display: none;
+  }
+  .aichat-message-c {
+    width: calc(100% - 3.5rem);
   }
 }
 
@@ -240,8 +247,11 @@
   background: #ffffff19;
 }
 
-.aichat-input > * {
-  background: #000;
+.aichat-input {
+  opacity: 1 !important;
+}
+.aichat-input * {
+  background: #000 !important;
 }
 .aichat-input textarea {
   font-size: 1rem;

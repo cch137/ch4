@@ -17,6 +17,7 @@ import useCopyText from "@/hooks/useCopyText";
 
 import MessageCodeBlock from "./codeblock";
 import { editMessage, deleteMessage as _deleteMessage, aiChatHandleError } from "@/hooks/useAiChat";
+import { TEMP } from "@/constants/chat";
 
 function MessageContent({
   message,
@@ -35,7 +36,7 @@ function MessageContent({
     dtms,
   } = message;
   const isModel = typeof modl === 'string';
-  const disableActions = _id === 'TEMP';
+  const disableActions = _id.startsWith(TEMP);
 
   const {
     isOpen: editMsgIsOpen,
@@ -131,7 +132,7 @@ function MessageContent({
               {confirmDelete ? <span className="text-xs pl-1">Confirm Delete</span> : ''}
             </div>
           </Tooltip>
-          <Tooltip content="Copy text" placement="bottom" showArrow>
+          <Tooltip content="Copy" placement="bottom" showArrow>
             <div
               onClick={copyText}
               className={copied ? 'flex-center text-success-400 opacity-100' : ''}
@@ -161,26 +162,34 @@ function MessageContent({
 export default function Message({ message }: { message: MssgItem }) {
   const isModel = typeof message.modl === 'string';
   const [isEditing, setIsEditing] = useState(false);
-  return <div className={[
-      'flex items-start justify-center w-full gap-3 px-4 aichat-message-outer',
-      isEditing ? 'pointer-events-none blur-sm' : '',
-    ].join(' ')}
-  >
-    <div
-      className='text-2xl p-2.5 rounded-lg opacity-75 mt-2'
-      style={{background: isModel ? '#36634d' : '#3a3663', backdropFilter: 'blur(16px)'}}
+  return (
+    <div className={[
+        'flex items-start justify-center w-full aichat-message-outer',
+        isEditing ? 'pointer-events-none blur-sm' : '',
+      ].join(' ')}
     >
-      {isModel ? <IoHardwareChipOutline /> : <IoPersonOutline />}
+      <div className='w-11'>
+        <div
+          className='text-2xl p-2.5 rounded-lg mt-2'
+          // style={{background: isModel ? '#36634d' : '#3a3663', backdropFilter: 'blur(16px)', opacity: 0.75}}
+          style={{background: isModel ? '#284A39' : '#2B284A'}}
+        >
+          {isModel ? <IoHardwareChipOutline /> : <IoPersonOutline />}
+        </div>
+      </div>
+      <div className="flex-1 ml-3 aichat-message-c">
+        <MessageContent
+          message={message}
+          isEditing={isEditing}
+          setIsEditing={setIsEditing}
+        />
+      </div>
+      <div className='w-11 ml-3 mt-2 aichat-message-r'>
+        <div className="text-default-400 text-xs select-none text-center">
+          <div>1 / 2</div>
+          <div>{'< >'}</div>
+        </div>
+      </div>
     </div>
-    <div style={{width: 'calc(100% - 5.5rem)'}}>
-      <MessageContent
-        message={message}
-        isEditing={isEditing}
-        setIsEditing={setIsEditing}
-      />
-    </div>
-    <div className='text-2xl p-2.5 opacity-0 select-none pointer-events-none aichat-message-r-pad'>
-      <IoHardwareChipOutline />
-    </div>
-  </div>
+  )
 }

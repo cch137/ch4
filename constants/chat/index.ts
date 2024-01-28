@@ -1,8 +1,9 @@
 import qs, { type ParsedQs } from "qs"
 import type { ConvConfig, ModelType } from "./types";
 
+export const TEMP = '[TEMP]';
 export const SIDEBAR_WIDTH = 285;
-export const CONTENT_MAX_W = 840;
+export const CONTENT_MAX_W = 870;
 
 const correctNumber = (item: string | number | undefined | null, minValue: number, maxValue: number, defaultValue: number) => {
   if (item === undefined || item === null) return defaultValue;

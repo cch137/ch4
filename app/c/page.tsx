@@ -144,7 +144,7 @@ export default function AiChat() {
                   width: isSmallScreen ? '100dvw' : `calc(100dvw - ${sidebarWidth}px)`,
                   height: 'calc(100dvh - 3.5rem)',
                 }}>
-                  <AiChatContent />
+                  <AiChatContent isSmallScreen={isSmallScreen} />
                 </div>
               </div>
             </>
