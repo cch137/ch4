@@ -1,5 +1,6 @@
 import status from '@/server/aichat/status'
 import mongoose, { AiChatConversation, AiChatMessage, User } from '@/server/mongoose/'
+import { NextResponse } from 'next/server'
 
 interface MongoDbStats {
   db: string,
@@ -31,11 +32,11 @@ export async function POST() {
     User.countDocuments({auth: { $gte: 1 }}),
     mongoose.connection.db.stats()
   ])
-  return {
+  return NextResponse.json({
     models: status.table,
     totalConversations,
     totalMessages,
     totalRegisteredUsers,
     dataSize: (dbStats as MongoDbStats).dataSize
-  }
+  })
 }
