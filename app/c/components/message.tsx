@@ -64,7 +64,7 @@ function MessageContent({
       return true;
     }
     return false;
-  }, [msgTextInput, editMsgOnClose, _id, aiChatHandleError]);
+  }, [msgTextInput, editMsgOnClose, _id]);
 
   return <>
     <Modal

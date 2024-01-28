@@ -54,7 +54,7 @@ export default function AiChatContent() {
     if (isMessagesAutoScrolled || isLoadingConv) return;
     scrollToBottom(false);
     setIsMessagesAutoScrolled(true);
-  }, [isMessagesAutoScrolled, scrollToBottom, setIsMessagesAutoScrolled]);
+  }, [isLoadingConv, isMessagesAutoScrolled, scrollToBottom, setIsMessagesAutoScrolled]);
 
   const isLoading = isLoadingConv || !isMessagesAutoScrolled;
 

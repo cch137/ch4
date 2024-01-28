@@ -86,7 +86,7 @@ export default function ConversationConfig({
 
   const setSelectedModel = useCallback(async (model: ModelType, update = true) => {
     updateConv({ ...convConfig, modl: model.value }, update);
-  }, [updateConv, convConfig]);
+  }, [convConfig]);
 
   const adjustModelSettingsElHeight = useCallback(async () => {
     setTimeout(async () => {

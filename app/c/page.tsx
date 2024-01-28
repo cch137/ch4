@@ -108,7 +108,7 @@ export default function AiChat() {
     return () => {
       sessionStorage.setItem('in-aichat', '0');
     }
-  }, [router, currentConv, loadConv]);
+  }, [router, currentConv]);
 
   const { auth, $inited } = useUserInfo();
 

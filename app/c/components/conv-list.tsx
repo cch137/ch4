@@ -62,7 +62,7 @@ function ConversationButton({ conv }: { conv: ConvItem }) {
       await _deleteConv(id);
     } catch {}
     setIsDeleting(false);
-  }, [confirmDelete, setConfirmDelete, setIsHover, setIsPopoverOpen, setIsDeleting, _deleteConv, id]);
+  }, [confirmDelete, setConfirmDelete, setIsHover, setIsPopoverOpen, setIsDeleting, id]);
 
   return <>
     <Modal
@@ -220,7 +220,7 @@ export default function ConversationList({
     inited.current = true;
     convListOnScoll();
     loadConv(currentConv || ((!inited.current && initConvId) ? { id: initConvId } : undefined));
-  }, [convListOnScoll, inited, currentConv, initConvId, loadConv]);
+  }, [convListOnScoll, inited, currentConv, initConvId]);
 
   return (<div className="flex flex-col h-full w-full absolute">
     <div className="flex gap-2">
