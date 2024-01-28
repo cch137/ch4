@@ -32,9 +32,6 @@ const handleError = (e?: any) => {
 
 export const aiChatHandleError = handleError;
 
-// todos:
-// - no autofocus when touchscreen
-
 const chat = store({
   convTail: undefined as string | undefined,
   currentConv: undefined as ConvItem | undefined,
@@ -192,12 +189,14 @@ export async function loadConv(id?: string | ConvItem): Promise<void> {
     const {
       name,
       conf,
-      tail: convTail,
-      messages = [],
+      tail: _convTail,
+      messages: _messages = [],
     }: ConvCompleted = await (await fetch(`/api/ai-chat/conv/${id}`, {method: 'POST'})).json();
+    const messages = _sortMessages(_messages);
+    const convTail = _convTail || messages.at(-1)?._id;
     chat.$assign((o) => ({
       currentConv: { ...o.currentConv, id, name },
-      messages: _sortMessages(messages),
+      messages,
       convConfig: parseConvConfig(conf),
       convTail,
     }));

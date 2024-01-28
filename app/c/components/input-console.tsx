@@ -21,11 +21,13 @@ export default function InputConsole({
   const [textareaValue, setTextareaValue] = useState('');
 
   const {convTail, isAnswering, isStoping} = useAiChatInputConsole();
-
+  const isTouchScreen = typeof window === 'undefined'
+    ? false
+    : Boolean('ontouchstart' in window || navigator.maxTouchPoints)
   useEffect(() => {
     const textarea = _textarea.current;
     if (!textarea) return;
-    if (!isAnswering) textarea.focus();
+    if (!isAnswering && !isTouchScreen) textarea.focus();
   }, [_textarea, isAnswering]);
 
   const send = useCallback(async () => {
@@ -61,7 +63,7 @@ export default function InputConsole({
             color="secondary"
             variant="bordered"
             className="aichat-input text-base"
-            autoFocus
+            autoFocus={!isTouchScreen}
             ref={_textarea}
             value={textareaValue}
             onChange={(e) => setTextareaValue(e.target.value)}
