@@ -204,6 +204,30 @@
   padding-left: .25rem;
 }
 
+.aichat-thinking::after {
+  display: inline;
+  content: "Thiking";
+  animation: thinking_text 1s infinite;
+}
+
+@keyframes thinking_text {
+  0% {
+    content: "Thiking.";
+  }
+  25% {
+    content: "Thiking..";
+  }
+  50% {
+    content: "Thiking...";
+  }
+  75% {
+    content: "Thiking....";
+  }
+  100% {
+    content: "Thiking.";
+  }
+}
+
 .aichat-message-actions > * {
   padding: .35rem;
   opacity: .5;

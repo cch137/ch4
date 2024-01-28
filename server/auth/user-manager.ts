@@ -19,8 +19,9 @@ const _generateUserId = async () => {
   }
 }
 
-const hasUserById = async (id: string) => {
+const hasUserById = async (id?: string) => {
   try {
+    if (!id) return false;
     return Boolean(await User.findOne({ id }, { _id: 1 }))
   } catch {
     return false

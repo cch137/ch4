@@ -1,45 +1,42 @@
 "use client"
 
 import { createRef, useCallback, useEffect, useState } from "react";
-import { IoArrowDown, IoSend } from "react-icons/io5";
+import { IoArrowDown, IoSend, IoStop } from "react-icons/io5";
 
 import { Button } from "@nextui-org/button";
 import { Textarea } from "@nextui-org/input";
 
-import type { SendMssg } from "@/constants/chat/types";
 import { CONTENT_MAX_W } from "@/constants/chat";
-import type { StatusResponse } from "@/constants/types";
+import { askAiFromInput, stopGeneration, useAiChatInputConsole } from "@/hooks/useAiChat";
+import { Tooltip } from "@nextui-org/tooltip";
 
 export default function InputConsole({
-  root,
   isAtBottom,
   scrollToBottom,
-  isSending,
-  sendMessage,
 }: {
-  root?: string,
   isAtBottom: boolean,
   scrollToBottom?: () => void,
-  isSending: boolean,
-  sendMessage: (message: SendMssg) => Promise<StatusResponse>,
 }) {
   const _textarea = createRef<HTMLTextAreaElement>();
   const [textareaValue, setTextareaValue] = useState('');
 
+  const {convTail, isAnswering, isStoping} = useAiChatInputConsole();
+
   useEffect(() => {
     const textarea = _textarea.current;
     if (!textarea) return;
-    if (!isSending) textarea.focus();
-  }, [_textarea, isSending]);
+    if (!isAnswering) textarea.focus();
+  }, [_textarea, isAnswering]);
 
   const send = useCallback(async () => {
     try {
       const text = String(textareaValue).trim();
       if (!text) throw new Error('Text is empty');
-      const { success } = await sendMessage({ text, root });
-      if (success) setTextareaValue('');
+      const res = await askAiFromInput({root: convTail, text});
+      if (!res) return;
+      setTextareaValue('');
     } catch {}
-  }, [textareaValue, setTextareaValue, sendMessage, root]);
+  }, [textareaValue, setTextareaValue, convTail]);
 
   return (<>
     <div className="absolute z-10 flex justify-end items-center flex-col w-full h-0 bottom-0" style={{paddingRight:12}}>
@@ -69,19 +66,32 @@ export default function InputConsole({
             value={textareaValue}
             onChange={(e) => setTextareaValue(e.target.value)}
             onKeyDown={(e) => (e.key === 'Enter' && !e.shiftKey) ? (e.preventDefault(), send()) : null}
-            isDisabled={isSending}
+            isDisabled={isAnswering}
           />
         </div>
         <div className="bg-secondary-50 rounded-xl">
-          <Button
-            color="secondary"
-            variant="flat"
-            onClick={send}
-            isLoading={isSending}
-            isIconOnly
-          >
-            <IoSend style={{scale:1.5}} />
-          </Button>
+          {isAnswering ? (
+            <Tooltip content="Stop" placement="top">
+              <Button
+                variant="flat"
+                onClick={stopGeneration}
+                isDisabled={isStoping}
+                isLoading={isStoping}
+                isIconOnly
+              >
+                <IoStop style={{scale:1.5}} />
+              </Button>
+            </Tooltip>
+          ) : (
+            <Button
+              color="secondary"
+              variant="flat"
+              onClick={send}
+              isIconOnly
+            >
+              <IoSend style={{scale:1.5}} />
+            </Button>
+          )}
         </div>
       </div>
     </div>

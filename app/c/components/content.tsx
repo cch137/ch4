@@ -1,39 +1,21 @@
 "use client"
 
-import { createRef, useCallback, useEffect, useState } from "react";
+import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import { Spinner } from "@nextui-org/spinner";
 
-import type { StatusResponse } from "@/constants/types";
-import type { MssgItem, SendMssg } from "@/constants/chat/types";
 import { CONTENT_MAX_W } from "@/constants/chat";
 
 import Message from "./message";
 import InputConsole from "./input-console";
+import {useAiChatContent} from "@/hooks/useAiChat";
 
-export default function AiChatContent({
-  messages,
-  isLoading,
-  isMessagesAutoScrolled,
-  isSending,
-  sendingMessage,
-  answeringMessage,
-  sendMessage,
-  setMessage,
-  onAutoScrolled,
-}: {
-  messages: MssgItem[],
-  isLoading: boolean,
-  isMessagesAutoScrolled: boolean,
-  isSending: boolean,
-  sendingMessage: SendMssg,
-  answeringMessage: SendMssg,
-  sendMessage: (message: SendMssg) => Promise<StatusResponse>,
-  setMessage: (msg: MssgItem | {del: string}) => Promise<StatusResponse>,
-  onAutoScrolled: () => void,
-}) {
+export default function AiChatContent() {
   const _outer = createRef<HTMLDivElement>();
   const _inner = createRef<HTMLDivElement>();
   const [isAtBottom, setIsAtBottom] = useState(true);
+  const [isMessagesAutoScrolled, setIsMessagesAutoScrolled] = useState(false);
+
+  const { currentConv, convConfig, messages, tailMessage, isAnswering, isLoadingConv } = useAiChatContent();
 
   const outerOnScroll = useCallback(() => {
     const outer = _outer.current;
@@ -43,7 +25,7 @@ export default function AiChatContent({
     setIsAtBottom(isAtBottom);
   }, [_outer, _inner]);
 
-  const scrollToBottomOfMessages = useCallback((smooth = true) => {
+  const scrollToBottom = useCallback((smooth = true) => {
     const outer = _outer.current;
     const inner = _inner.current;
     if (!outer || !inner) return;
@@ -51,21 +33,30 @@ export default function AiChatContent({
     outerOnScroll();
   }, [_outer, _inner, outerOnScroll]);
 
-  const scrollToBottom = useCallback(() => scrollToBottomOfMessages(), [scrollToBottomOfMessages]);
+  useEffect(() => {
+    if (tailMessage && isAtBottom) scrollToBottom();
+  }, [tailMessage, scrollToBottom, isAtBottom]);
 
   useEffect(() => {
-    if (sendingMessage.text) scrollToBottom();
-  }, [sendingMessage, scrollToBottom]);
+    if (isAnswering) scrollToBottom();
+  }, [isAnswering, scrollToBottom]);
+
+  const _lastConvId = useRef<string>();
+  useEffect(() => {
+    const currConvId = currentConv?.id;
+    const lastConvId = _lastConvId.current;
+    if (lastConvId === currConvId) return;
+    setIsMessagesAutoScrolled(false);
+    _lastConvId.current = currConvId;
+  }, [_lastConvId, currentConv, setIsMessagesAutoScrolled]);
 
   useEffect(() => {
-    if (answeringMessage.text && isAtBottom) scrollToBottom();
-  }, [answeringMessage, scrollToBottom, isAtBottom]);
+    if (isMessagesAutoScrolled || isLoadingConv) return;
+    scrollToBottom(false);
+    setIsMessagesAutoScrolled(true);
+  }, [isMessagesAutoScrolled, scrollToBottom, setIsMessagesAutoScrolled]);
 
-  useEffect(() => {
-    if (isMessagesAutoScrolled) return;
-    scrollToBottomOfMessages(false);
-    onAutoScrolled();
-  }, [isMessagesAutoScrolled, scrollToBottomOfMessages, onAutoScrolled]);
+  const isLoading = isLoadingConv || !isMessagesAutoScrolled;
 
   return (
     <div className="aichat-messages-bg overflow-x-hidden overflow-y-scroll w-full h-full" ref={_outer} onScroll={outerOnScroll}>
@@ -79,18 +70,13 @@ export default function AiChatContent({
           <div className={`${messages.length == 0 ? 'py-12' : 'py-4'} text-default-300 select-none`}>
             {"Let's start!"}
           </div>
-          {messages.map((m) => <Message key={m._id} message={m} setMessage={setMessage} />)}
-          {!isSending ? null : <>
-            <Message message={{_id: '', text: sendingMessage.text}} />
-            <Message message={{modl: '', _id: '', text: answeringMessage.text || 'Thinking...'}} />
-          </>}
+          {messages.map((m) => <Message key={m._id} message={m} />)}
+          {(isAnswering && tailMessage) ? <Message message={tailMessage} /> : null}
         </div>
       </div>
       {isLoading ? null : <InputConsole
         isAtBottom={isAtBottom}
         scrollToBottom={scrollToBottom}
-        isSending={isSending}
-        sendMessage={sendMessage}
       />}
     </div>
   )

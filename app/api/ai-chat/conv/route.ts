@@ -7,3 +7,8 @@ export async function POST(req: NextRequest) {
   const { id } = authNext.parseRequestToken(req);
   return NextResponse.json(await messageManager.getConvList(id));
 }
+
+export async function PUT(req: NextRequest) {
+  const { id } = authNext.parseRequestToken(req);
+  return NextResponse.json(await messageManager.createConv(id));
+}

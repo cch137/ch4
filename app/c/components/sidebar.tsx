@@ -34,37 +34,19 @@ function SidebarFooter() {
 }
 
 export default function Sidebar({
-  convId,
+  initConvId,
   isSmallScreen,
   isSidebarOpen,
   sidebarWidth,
   toggleSidebarOpen,
   closeSidebar,
-  currentConv,
-  setCurrentConv,
-  isFetchingMessages,
-  convConfig,
-  setConvConfig,
-  renameConv,
-  convList,
-  isFetchingConvList,
-  deleteConv,
 }: {
-  convId?: string,
+  initConvId?: string,
   isSmallScreen: boolean,
   isSidebarOpen: boolean,
   sidebarWidth: number,
   toggleSidebarOpen: () => void,
   closeSidebar: () => void,
-  currentConv: ConvItem | undefined,
-  setCurrentConv: Dispatch<SetStateAction<ConvItem|undefined>>,
-  isFetchingMessages: boolean,
-  convConfig: ConvConfig,
-  setConvConfig: (c: string | ConvConfig, u?: boolean) => void,
-  renameConv: (name: string, convId?: string) => Promise<StatusResponse>,
-  convList: ConvItem[],
-  isFetchingConvList: boolean,
-  deleteConv: (convId?: string) => Promise<StatusResponse>,
 }) {
   const [modelSettingOpened, setModelSettingOpened] = useState(false);
   return (
@@ -80,23 +62,13 @@ export default function Sidebar({
           <ConversationConfig
             isSmallScreen={isSmallScreen}
             closeSidebar={closeSidebar}
-            convConfig={convConfig}
-            setConvConfig={setConvConfig}
-            isDisabled={isFetchingMessages}
             modelSettingOpened={modelSettingOpened}
             setModelSettingOpened={setModelSettingOpened}
           />
           <div className="flex-1 bottom-b-1 w-full relative">
             <ConversationList
-              convId={convId}
-              currentConv={currentConv}
-              setCurrentConv={setCurrentConv}
+              initConvId={initConvId}
               modelSettingOpened={modelSettingOpened}
-              isFetchingMessages={isFetchingMessages}
-              renameConv={renameConv}
-              convList={convList}
-              isFetchingConvList={isFetchingConvList}
-              deleteConv={deleteConv}
             />
           </div>
           <SidebarFooter />

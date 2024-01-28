@@ -1,17 +1,18 @@
-type ModelType = {
+export type ModelType = {
   name: string;
   value: string;
   configKeys: (keyof ConvConfig)[];
   permissionLevel: number;
 }
 
-type ConvItem = {
+export type ConvItem = {
   id: string;
   name?: string;
   mtms?: number;
+  tail?: string;
 }
 
-type MssgItem = {
+export type MssgItem = {
   _id: string;
   text: string,
   modl?: string,
@@ -23,10 +24,10 @@ type MssgItem = {
   dtms?: number,
 }
 
-type SaveMssg = {
-  vers?: string;
-  conv?: string;
+export type SaveMssg = {
+  conv: string;
   text: string;
+  vers: string;
   modl?: string;
   root?: string;
   urls?: string[];
@@ -34,13 +35,13 @@ type SaveMssg = {
   dtms?: number;
 }
 
-type SaveMssgRes = {
+export type SaveMssgRes = {
   isNewConv: boolean;
   conv: string;
   mssg: MssgItem;
 }
 
-type ConvConfig = {
+export type ConvConfig = {
   modl: string;
   temp: number; // 0-1
   topP: number; // 0-1
@@ -48,23 +49,12 @@ type ConvConfig = {
   ctxt: number; // 0-10 (10:auto)
 }
 
-type ConvCompleted = ConvItem & {
+export type ConvCompleted = ConvItem & {
   conf?: string;
   messages?: MssgItem[];
 }
 
-type SendMssg = {
+export type SendMssg = {
   root?: string;
   text: string;
-}
-
-export type {
-  ModelType,
-  ConvItem,
-  MssgItem,
-  SaveMssg,
-  SaveMssgRes,
-  SendMssg,
-  ConvCompleted,
-  ConvConfig,
 }

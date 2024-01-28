@@ -13,6 +13,7 @@ import { IoSettingsSharp, IoChevronUp, IoCloseOutline } from "react-icons/io5";
 import { correctModelName, models as _models } from '@/constants/chat';
 import type { ModelType, ConvConfig } from "@/constants/chat/types";
 import type { SetState } from "@/constants/types";
+import { useAiChatConvConfig, updateConv } from "@/hooks/useAiChat";
 
 const MODEL_SETTINGS_ID = 'model-settings';
 
@@ -27,7 +28,6 @@ function ConvConfigSlider({
   hidden = false,
   isDisabled,
   getValue,
-  setConvConfig,
   isSmallScreen,
 }: {
   model?: ModelType,
@@ -40,7 +40,6 @@ function ConvConfigSlider({
   hidden?: boolean,
   isDisabled?: boolean,
   getValue?: (v: number | number[]) => string,
-  setConvConfig: (c: string | ConvConfig) => void,
   isSmallScreen: boolean,
 }) {
   return (!hidden && (model?.configKeys || []).includes(name)) ? <Slider
@@ -49,7 +48,7 @@ function ConvConfigSlider({
     maxValue={maxValue}
     step={step}
     value={Number(conf[name])}
-    onChange={(v) => setConvConfig({...conf, [name]: Number(v)})}
+    onChange={(v) => updateConv({...conf, [name]: Number(v)})}
     className="w-full"
     getValue={getValue}
     color="secondary"
@@ -69,20 +68,15 @@ function ConvConfigSlider({
 export default function ConversationConfig({
   closeSidebar,
   isSmallScreen,
-  convConfig,
-  setConvConfig,
-  isDisabled,
   modelSettingOpened,
   setModelSettingOpened,
 }: {
   closeSidebar: () => void;
   isSmallScreen: boolean;
-  convConfig: ConvConfig;
-  setConvConfig: (c: string | ConvConfig, u?: boolean) => void;
-  isDisabled?: boolean;
   modelSettingOpened: boolean;
   setModelSettingOpened: SetState<boolean>;
 }) {
+  const { convConfig, isLoadingConv: isDisabled } = useAiChatConvConfig();
   const [modelSettingsHeight, setModelSettingsHeight] = useState('');
   const [isFetchingModels, setIsFetchingModels] = useState(true);
   const [showAdditional, setShowAdditional] = useState(false);
@@ -91,8 +85,8 @@ export default function ConversationConfig({
   const selectedModels = selectedModel ? [selectedModel.value] : [];
 
   const setSelectedModel = useCallback(async (model: ModelType, update = true) => {
-    setConvConfig({ ...convConfig, modl: model.value }, update);
-  }, [setConvConfig, convConfig]);
+    updateConv({ ...convConfig, modl: model.value }, update);
+  }, [updateConv, convConfig]);
 
   const adjustModelSettingsElHeight = useCallback(async () => {
     setTimeout(async () => {
@@ -175,7 +169,7 @@ export default function ConversationConfig({
         <div id={MODEL_SETTINGS_ID} className={`flex flex-col ${isSmallScreen ? 'pb-2' : 'pb-0'}`}>
           {([
             ['Temperature', 'temp', 0, 1, 0.01, false, (v: number | number[]) => Number(v).toFixed(2)],
-            ['History messages', 'ctxt', 0, 16, 1, false, (v: number | number[]) => (v == 16 ? 'max' : v == 0 ? 'none' : v).toString()],
+            ['History messages', 'ctxt', 0, 16, 1, false, (v: number | number[]) => (v == 16 ? '16' : v == 0 ? 'none' : v).toString()],
             ['Top P', 'topP', 0, 1, 0.01, true, (v: number | number[]) => Number(v).toFixed(2)],
             ['Top K', 'topK', 1, 16, 1, true],
           ] as [string, keyof ConvConfig, number, number, number, boolean, ((v: number | number[]) => string) | undefined][]).map(([label, name, min, max, step, isAdditional, getValue]) => (
@@ -191,7 +185,6 @@ export default function ConversationConfig({
               hidden={isAdditional && !showAdditional}
               isDisabled={isDisabled}
               getValue={getValue}
-              setConvConfig={setConvConfig}
               isSmallScreen={isSmallScreen}
             />
           ))}

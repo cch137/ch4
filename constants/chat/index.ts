@@ -19,7 +19,7 @@ const qsItemToString = (item?: string | string[] | ParsedQs | ParsedQs[]) => {
 }
 
 export const DEFAULT_CONV_CONFIG: ConvConfig = Object.freeze({
-  modl: 'gemeni-pro',
+  modl: 'gemini-pro',
   temp: 0.3,
   ctxt: 16,
   topP: 1,

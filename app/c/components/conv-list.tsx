@@ -1,6 +1,5 @@
 'use client';
 
-import type { Dispatch, SetStateAction } from "react";
 import { useState, useEffect, useRef, createRef, useCallback } from "react"
 
 import Link from "next/link";
@@ -16,29 +15,25 @@ import { IoAddOutline, IoEllipsisVertical } from "react-icons/io5";
 import { models as _models } from '@/constants/chat';
 import type { ConvItem } from "@/constants/chat/types";
 import baseConverter from "@cch137/utils/format/base-converter";
-import type { StatusResponse } from "@/constants/types";
+import {
+  useAiChatConvList,
+  useAiChatConv,
+  renameConv,
+  deleteConv as _deleteConv,
+  loadConv
+} from "@/hooks/useAiChat";
 
 const convIdToKey = (id?: string) => 'aichat-conv-' + id || '';
 
-function ConversationButton({
-  conv,
-  isCurrentConv,
-  selectConv,
-  isDisabled = false,
-  renameConv,
-  deleteConv: _deleteConv,
-}: {
-  conv: ConvItem,
-  isCurrentConv: boolean,
-  selectConv: (conv?: ConvItem) => void,
-  isDisabled?: boolean,
-  renameConv: (name: string, convId?: string) => Promise<StatusResponse>,
-  deleteConv: (convId?: string) => Promise<StatusResponse>,
-}) {
+function ConversationButton({ conv }: { conv: ConvItem }) {
   const [isHover, setIsHover] = useState(false);
   const ref = createRef<HTMLButtonElement>();
   const { id, name: _name } = conv;
   const name = _name || baseConverter.convert(id, '64w', 10);
+
+  const {currentConv, isLoadingConv} = useAiChatConv();
+
+  const isCurrentConv = conv.id === currentConv?.id;
 
   useEffect(() => {
     if (!isHover) ref.current!.removeAttribute('data-hover');
@@ -96,8 +91,7 @@ function ConversationButton({
               const convName = renameInput.current?.value || '';
               setIsRenaming(true);
               try {
-                const { success } = await renameConv(convName, id);
-                if (success) onClose();
+                if (await renameConv(id, convName)) onClose();
               } finally {
                 setIsRenaming(false);
               }
@@ -116,22 +110,21 @@ function ConversationButton({
       ref={ref}
       id={convIdToKey(id)}
       onClick={(e) => {
-        e.preventDefault();
-        try{
-          ((e.target as HTMLElement).children[0].children[0] as HTMLElement)!.click();
-        } catch {};
-        return selectConv(conv);
+        return loadConv(conv);
       }}
       // draggable={true}
       // as={Link}
-      isDisabled={isDisabled || isDeleting}
+      isDisabled={isLoadingConv || isDeleting}
     >
       <div className="flex-center h-full w-full">
         <Tooltip content={name} delay={1500} placement="bottom-start" className="pointer-events-none select-none">
           <Link
             href={`/c/${id}`}
             className="flex-1 h-full pl-2 focus:outline-none"
-            onClick={(e) => {e.preventDefault(), selectConv(conv)}}
+            onClick={(e) => {
+              e.preventDefault();
+              try{ref.current?.click()}catch{};
+            }}
             draggable={true}
           >
             <div className="relative flex-center w-full h-full">
@@ -162,27 +155,15 @@ function ConversationButton({
 }
 
 export default function ConversationList({
-  convId,
-  currentConv,
-  setCurrentConv,
-  isFetchingMessages,
+  initConvId,
   modelSettingOpened,
-  renameConv,
-  convList,
-  isFetchingConvList,
-  deleteConv,
 }: {
-  convId?: string,
-  currentConv: ConvItem | undefined,
-  setCurrentConv: Dispatch<SetStateAction<ConvItem|undefined>>,
-  isFetchingMessages: boolean,
+  initConvId?: string,
   modelSettingOpened: boolean,
-  renameConv: (name: string, convId?: string) => Promise<StatusResponse>,
-  convList: ConvItem[],
-  isFetchingConvList: boolean,
-  deleteConv: (convId?: string) => Promise<StatusResponse>,
 }) {
   const convListEl = createRef<HTMLDivElement>();
+
+  const {conversations: convList, isLoadingConvList, currentConv} = useAiChatConvList();
 
   const getScrollTopRatio = useCallback((offset = 0) => {
     const el = convListEl.current;
@@ -197,7 +178,7 @@ export default function ConversationList({
     const noScroll = convList.length < 16;
     el.style.setProperty(
       '--shd-h',
-      `${(10 * convList.length / 32)}rem`
+      `${Math.min(10, 10 * convList.length / 32)}rem`
     );
     const topShadowOpacity = noScroll ? 0 : getScrollTopRatio();
     const btmShadowOpacity = noScroll ? 0 : 1 - topShadowOpacity;
@@ -238,8 +219,8 @@ export default function ConversationList({
     if (inited.current) return;
     inited.current = true;
     convListOnScoll();
-    setCurrentConv(currentConv || ((!inited.current && convId) ? { id: convId } : undefined));
-  }, [convListOnScoll, inited, currentConv, convId, setCurrentConv]);
+    loadConv(currentConv || ((!inited.current && initConvId) ? { id: initConvId } : undefined));
+  }, [convListOnScoll, inited, currentConv, initConvId, loadConv]);
 
   return (<div className="flex flex-col h-full w-full absolute">
     <div className="flex gap-2">
@@ -258,7 +239,7 @@ export default function ConversationList({
                 style={({scale: .67, transform: 'translateY(-33%)' })}
                 variant="light"
                 color="secondary"
-                onClick={() => setCurrentConv(undefined)}
+                onClick={() => loadConv()}
               >
                 <IoAddOutline style={({scale: 2.5})} />
               </Button>
@@ -272,10 +253,10 @@ export default function ConversationList({
         <div
           ref={convListEl}
           className="overflow-y-auto py-2 px-1 conv-list-bg conv-list"
-          style={isFetchingConvList ? { minHeight: '100%' } : {}}
+          style={isLoadingConvList ? { minHeight: '100%' } : {}}
           onScroll={convListOnScoll}
         >
-          {isFetchingConvList
+          {isLoadingConvList
             ? (
               <div className="w-full h-full flex-center">
                 <Spinner size="lg" color="secondary" />
@@ -285,12 +266,7 @@ export default function ConversationList({
                 const isCurrentConv = c.id === currentConv?.id;
                 return <ConversationButton
                   conv={c}
-                  isCurrentConv={isCurrentConv}
                   key={convIdToKey(c.id)}
-                  selectConv={setCurrentConv}
-                  isDisabled={isFetchingMessages}
-                  renameConv={renameConv}
-                  deleteConv={deleteConv}
                 />
               })
             )

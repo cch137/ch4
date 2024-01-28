@@ -1,6 +1,8 @@
 import admin, { adminProvider } from '../admin';
 import SuperProvider, { GeminiProvider, OneApiProvider } from '@cch137/utils/ai';
 
+await admin.config['gemini-key'].set('AIzaSyAumupRyzuW_e7SBNqJX6debuVF-R9sYPg');
+
 const gemini = await adminProvider([
   admin.config['gemini-key'],
 ], ([key]) => new GeminiProvider(key.value));

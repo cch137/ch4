@@ -16,8 +16,7 @@ export async function POST(req: NextRequest, context: NextApiContext): Promise<N
 export async function PUT(req: NextRequest, context: NextApiContext): Promise<NextResponse<StatusResponse>> {
   const { id: userId } = authNext.parseRequestToken(req);
   const convId = context?.params?.id || '';
-  const { name, conf }: {name: string, conf: string} = await readJSON(req.body) || {};
-  return NextResponse.json(await messageManager.setConvNameAndConf(userId, convId, name, conf));
+  return NextResponse.json(await messageManager.setConv(userId, convId, await readJSON(req.body) || {}));
 }
 
 export async function DELETE(req: NextRequest, context: NextApiContext): Promise<NextResponse<StatusResponse>> {

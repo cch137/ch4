@@ -10,25 +10,22 @@ import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure
 
 import Markdown from 'react-markdown';
 
-import type { SetState, StatusResponse } from "@/constants/types";
+import type { SetState } from "@/constants/types";
 import type { MssgItem } from "@/constants/chat/types";
 import formatDate from '@cch137/utils/format/date';
 import useCopyText from "@/hooks/useCopyText";
 
 import MessageCodeBlock from "./codeblock";
-
-const defaultSetMessage = async (msg: MssgItem | {del: string}) => ({success: false, message: 'Message is not editable'});
+import { editMessage, deleteMessage as _deleteMessage, aiChatHandleError } from "@/hooks/useAiChat";
 
 function MessageContent({
   message,
-  setMessage: _setMessage,
-  isEditMsg,
-  setIsEditMsg,
+  isEditing,
+  setIsEditing,
 }: {
   message: MssgItem,
-  setMessage?: (msg: MssgItem | {del: string}) => Promise<StatusResponse>,
-  isEditMsg: boolean,
-  setIsEditMsg: SetState<boolean>,
+  isEditing: boolean,
+  setIsEditing: SetState<boolean>,
 }) {
   const {
     _id,
@@ -38,8 +35,7 @@ function MessageContent({
     dtms,
   } = message;
   const isModel = typeof modl === 'string';
-  const setMessage = _setMessage || defaultSetMessage;
-  const isFake = setMessage === defaultSetMessage;
+  const disableActions = _id === 'TEMP';
 
   const {
     isOpen: editMsgIsOpen,
@@ -55,19 +51,20 @@ function MessageContent({
       setConfirmDelete(true);
       return setTimeout(() => setConfirmDelete(false), 3000);
     }
-    setIsEditMsg(true);
-    const status = await setMessage({ del: _id });
-    setIsEditMsg(false);
-    return status;
-  }, [confirmDelete, setMessage, setIsEditMsg, setConfirmDelete, _id]);
+    setIsEditing(true);
+    await _deleteMessage({ _id, text: '' });
+    setIsEditing(false);
+  }, [confirmDelete, setIsEditing, setConfirmDelete, _id]);
 
-  const saveMessageText = useCallback(async () => {
+  const editMessageText = useCallback(async () => {
     const newText = msgTextInput.current?.value;
-    if (!newText) return { success: false, message: 'Message is empty'  };
-    const status = await setMessage({ _id, text: newText  });
-    if (status?.success) editMsgOnClose();
-    return status;
-  }, [msgTextInput, setMessage, editMsgOnClose, _id]);
+    if (!newText) return aiChatHandleError('Message is empty.');
+    if (await editMessage({ _id, text: newText  })) {
+      editMsgOnClose();
+      return true;
+    }
+    return false;
+  }, [msgTextInput, editMsgOnClose, _id, aiChatHandleError]);
 
   return <>
     <Modal
@@ -86,21 +83,19 @@ function MessageContent({
               color="secondary"
               type="text"
               ref={msgTextInput}
-              isDisabled={isEditMsg}
+              isDisabled={isEditing}
               defaultValue={text}
               maxRows={16}
             />
           </ModalBody>
           <ModalFooter>
-            <Button color="danger" variant="light" onPress={onClose} isDisabled={isEditMsg}>Cancel</Button>
-            <Button color="primary" isDisabled={isEditMsg} isLoading={isEditMsg} onPress={async () => {
-              const convName = msgTextInput.current?.value || '';
-              setIsEditMsg(true);
+            <Button color="danger" variant="light" onPress={onClose} isDisabled={isEditing}>Cancel</Button>
+            <Button color="primary" isDisabled={isEditing} isLoading={isEditing} onPress={async () => {
+              setIsEditing(true);
               try {
-                const { success } = await saveMessageText();
-                if (success) onClose();
+                if (await editMessageText()) onClose();
               } finally {
-                setIsEditMsg(false);
+                setIsEditing(false);
               }
             }}>Save</Button>
           </ModalFooter>
@@ -114,13 +109,18 @@ function MessageContent({
         isModel ? 'text-default-600' : 'text-default-900',
       ].join(' ')}
     >
-      {isModel ? (
-        <Markdown components={{code: MessageCodeBlock}} >
-          {text}
-        </Markdown>
-      ) : <div className="whitespace-break-spaces">{text}</div>}
+      {
+        (isModel && disableActions && !text)
+        ? (
+          <div className="aichat-thinking" />
+        ) : (
+          isModel
+            ? <Markdown components={{code: MessageCodeBlock}} >{text}</Markdown>
+            : <div className="whitespace-break-spaces">{text}</div>
+        )
+      }
       <div className="flex justify-end items-end flex-wrap pt-2">
-        {isFake ? null : <div className="flex text-lg gap-2 aichat-message-actions">
+        {disableActions ? null : <div className="flex text-lg gap-2 aichat-message-actions">
           <Tooltip content="Delete" placement="bottom" showArrow>
             <div
               onClick={deleteMessage}
@@ -158,18 +158,12 @@ function MessageContent({
   </>
 }
 
-export default function Message({
-  message,
-  setMessage,
-}: {
-  message: MssgItem,
-  setMessage?: (msg: MssgItem | {del: string}) => Promise<StatusResponse>,
-}) {
+export default function Message({ message }: { message: MssgItem }) {
   const isModel = typeof message.modl === 'string';
-  const [isEditMsg, setIsEditMsg] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   return <div className={[
       'flex items-start justify-center w-full gap-3 px-4 aichat-message-outer',
-      isEditMsg ? 'pointer-events-none blur-sm' : '',
+      isEditing ? 'pointer-events-none blur-sm' : '',
     ].join(' ')}
   >
     <div
@@ -181,9 +175,8 @@ export default function Message({
     <div style={{width: 'calc(100% - 5.5rem)'}}>
       <MessageContent
         message={message}
-        setMessage={setMessage}
-        isEditMsg={isEditMsg}
-        setIsEditMsg={setIsEditMsg}
+        isEditing={isEditing}
+        setIsEditing={setIsEditing}
       />
     </div>
     <div className='text-2xl p-2.5 opacity-0 select-none pointer-events-none aichat-message-r-pad'>

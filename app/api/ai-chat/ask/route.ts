@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { aiProvider } from "@/server/aichat";
 import authNext from "@/server/auth-next";
 import { unpackData } from "@cch137/utils/shuttle";
-import type { UniOptions } from "@cch137/utils/ai/types";
+import type { UniOptions } from "@cch137/utils/ai";
 import { readStream } from "@cch137/utils/stream";
 import getIp from '@cch137/utils/server/get-ip';
 import RateLimiter from '@cch137/utils/server/rate-limiter';
@@ -44,18 +44,19 @@ export async function POST(req: NextRequest) {
         'X-Accel-Buffering': 'no',
       }
     });
+    console.log(typeof(res));
     const stream = aiProvider.ask(options);
     stream.pipe({
       data(s: any) {
-        writer.write(s);
+        writer.write(s).catch(() => void 0);
       },
       end() {
-        writer.close();
+        writer.close().catch(() => void 0);
       },
       error() {
         const error = stream.lastError;
         if (error instanceof Error) {
-          writer.write(error.message);
+          writer.write(error.message).catch(() => void 0);
         }
       }
     });
