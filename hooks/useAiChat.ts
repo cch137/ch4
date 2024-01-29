@@ -256,7 +256,7 @@ export const deleteMessage = async (msg: MssgItem) => {
 
 const _sortMessages = (messages: MssgItem[]) => messages.sort((a, b) => (a.ctms || 0) - (b.ctms || 0));
 
-export async function loadConv(id?: string | ConvItem): Promise<void> {
+export async function loadConv(id?: string | ConvItem, force = false): Promise<void> {
   if (!id) {
     chat.$assign({
       isLoadingConv: false,
@@ -271,10 +271,10 @@ export async function loadConv(id?: string | ConvItem): Promise<void> {
   if (typeof id === 'object') return await loadConv(id.id);
   if (id === chat.currentConv?.id) return;
   const conv = chat.conversations.find(c => c.id === id);
-  if (!conv) return await loadConv();
+  if (!conv && !force) return await loadConv();
   chat.$assign({
     isLoadingConv: true,
-    currentConv: conv,
+    currentConv: conv || {id},
     messages: [],
     convTail: undefined,
   });

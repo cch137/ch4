@@ -71,6 +71,7 @@ export default function AiChat() {
         setIsSidebarOpen(false);
         setTimeout(() => setIsReady(true), 1);
       } else setIsReady(true);
+      if (convId) loadConv(convId, true);
       inited.current = true;
     };
     return () => window.removeEventListener('resize', adjustSidebarProps)
