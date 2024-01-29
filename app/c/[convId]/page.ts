@@ -1,3 +1,3 @@
-import AiChat from "../page";
+import AiChatApp from "../page";
 
-export default AiChat;
+export default AiChatApp;

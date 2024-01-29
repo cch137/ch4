@@ -34,6 +34,7 @@ function SidebarFooter() {
 }
 
 export default function Sidebar({
+  appPath,
   initConvId,
   isSmallScreen,
   isSidebarOpen,
@@ -41,6 +42,7 @@ export default function Sidebar({
   toggleSidebarOpen,
   closeSidebar,
 }: {
+  appPath: string,
   initConvId?: string,
   isSmallScreen: boolean,
   isSidebarOpen: boolean,
@@ -69,6 +71,7 @@ export default function Sidebar({
             <ConversationList
               initConvId={initConvId}
               modelSettingOpened={modelSettingOpened}
+              appPath={appPath}
             />
           </div>
           <SidebarFooter />

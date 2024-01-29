@@ -1,6 +1,7 @@
 import qs, { type ParsedQs } from "qs"
 import type { ConvConfig, ModelType } from "./types";
 
+export const AICHAT_PATH = '/apps/ai-chat/';
 export const TEMP = '[TEMP]';
 export const SIDEBAR_WIDTH = 285;
 export const CONTENT_MAX_W = 870;

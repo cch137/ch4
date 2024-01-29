@@ -25,7 +25,13 @@ import {
 
 const convIdToKey = (id?: string) => 'aichat-conv-' + id || '';
 
-function ConversationButton({ conv }: { conv: ConvItem }) {
+function ConversationButton({
+  appPath,
+  conv,
+}: {
+  appPath: string,
+  conv: ConvItem,
+}) {
   const [isHover, setIsHover] = useState(false);
   const ref = createRef<HTMLButtonElement>();
   const { id, name: _name } = conv;
@@ -119,7 +125,7 @@ function ConversationButton({ conv }: { conv: ConvItem }) {
       <div className="flex-center h-full w-full">
         <Tooltip content={name} delay={1500} placement="bottom-start" className="pointer-events-none select-none">
           <Link
-            href={`/c/${id}`}
+            href={`${appPath}${id}`}
             className="flex-1 h-full pl-2 focus:outline-none"
             onClick={(e) => {
               e.preventDefault();
@@ -155,9 +161,11 @@ function ConversationButton({ conv }: { conv: ConvItem }) {
 }
 
 export default function ConversationList({
+  appPath,
   initConvId,
   modelSettingOpened,
 }: {
+  appPath: string,
   initConvId?: string,
   modelSettingOpened: boolean,
 }) {
@@ -270,6 +278,7 @@ export default function ConversationList({
               convList.map(c => {
                 const isCurrentConv = c.id === currentConv?.id;
                 return <ConversationButton
+                  appPath={appPath}
                   conv={c}
                   key={convIdToKey(c.id)}
                 />

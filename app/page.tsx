@@ -8,6 +8,7 @@ import { discordLink } from '@/constants/app';
 import AppNavbar from '@/app/components/app-navbar'
 import DiscordIcon from '@/app/components/discord-icon'
 import useVersion from '@/hooks/useVersion';
+import { AICHAT_PATH } from '@/constants/chat';
 
 export default function App() {
   const version = useVersion();
@@ -19,7 +20,7 @@ export default function App() {
         <div className="py-2">
           <Button
             as={Link}
-            href="/c/"
+            href={AICHAT_PATH}
             startContent={<div className="scale-125"><HiChatBubbleOvalLeftEllipsis/></div>}
             color="secondary"
             className="font-semibold"

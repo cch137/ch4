@@ -11,11 +11,12 @@ import Image from 'next/image'
 import DiscordIcon from './discord-icon'
 import { usePathname } from 'next/navigation'
 import useUserInfo from "@/hooks/useUserInfo";
+import { AICHAT_PATH } from "@/constants/chat";
 
 export default function AppNavbar() {
   const pathname = usePathname();
   const isSignInPage = pathname === '/auth/signin';
-  const isAiChatPage = `${pathname}/`.startsWith('/c/');
+  const isAiChatPage = `${pathname}/`.startsWith(AICHAT_PATH);
 
   const userInfo = useUserInfo();
   const { name: username, $inited, auth } = userInfo;
@@ -128,7 +129,7 @@ export default function AppNavbar() {
               className="w-full p-2 text-start h-8 rounded-md"
               onClick={closeMenu}
               as={Link}
-              href="/c/"
+              href={AICHAT_PATH}
             >
               <div className="w-full">AI Chat</div>
             </Button>}

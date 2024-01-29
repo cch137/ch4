@@ -4,8 +4,10 @@ import { Button } from '@nextui-org/button';
 import { Link } from "@nextui-org/link";
 
 export default function Entry({
+  appPath,
   isSmallScreen,
 }: {
+  appPath: string,
   isSmallScreen: boolean,
 }) {
   return (<>
@@ -24,7 +26,7 @@ export default function Entry({
             className="rounded-full"
             variant="shadow"
             as={Link}
-            href="/auth/signin?next=/c/"
+            href={`/auth/signin?next=/${appPath}/`}
           >
             Sign in
           </Button>
