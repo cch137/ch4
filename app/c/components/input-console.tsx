@@ -68,7 +68,6 @@ export default function InputConsole({
             value={textareaValue}
             onChange={(e) => setTextareaValue(e.target.value)}
             onKeyDown={(e) => (e.key === 'Enter' && !e.shiftKey) ? (e.preventDefault(), send()) : null}
-            isDisabled={isAnswering}
           />
         </div>
         <div className="bg-secondary-50 rounded-xl">

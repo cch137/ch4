@@ -186,8 +186,8 @@ export default function Message({ message }: { message: MssgItem }) {
       </div>
       <div className='w-11 ml-3 mt-2 aichat-message-r'>
         <div className="text-default-400 text-xs select-none text-center">
-          <div>1 / 2</div>
-          <div>{'< >'}</div>
+          <div> </div>
+          <div> </div>
         </div>
       </div>
     </div>

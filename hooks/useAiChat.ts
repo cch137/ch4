@@ -7,14 +7,17 @@ import Broadcaster from '@cch137/utils/dev/broadcaster';
 import type { UniOptions } from '@cch137/utils/ai';
 import { wrapMessages } from '@cch137/utils/ai/utils';
 import { packData } from '@cch137/utils/shuttle';
+import { analyzeLanguages } from '@cch137/utils/lang/analyze-languages';
 
 import { ConvCompleted, ConvItem, MssgItem, SaveMssg, SendMssg } from '@/constants/chat/types';
 import { StatusResponse } from '@/constants/types';
 import {
+  TEMP,
   parseConvConfig,
   getDefConvConfig,
   serializeConvConfig,
-  TEMP,
+  correctModelName,
+  MAX_CTXT,
 } from '@/constants/chat';
 
 import { vers, versionStore } from './useVersion';
@@ -150,22 +153,105 @@ export const editMessage = async (msg: MssgItem) => {
   }
 }
 
-export const deleteMessage = async (msg: MssgItem) => {
+export const regenerateMessage = async (msg: MssgItem) => {
   const convId = chat.currentConv?.id;
   if (!convId) return true;
   const msgId = msg._id;
   try {
     const status: StatusResponse = await (await fetch(`/api/ai-chat/conv/${convId}/${msgId}`, {
-      method: 'DELETE',
+      method: 'PUT',
+      body: JSON.stringify(msg)
     })).json();
     const { success, message } = status;
-    if (!success) throw new Error(message || 'Failed to delete message.');
-    chat.messages = chat.messages.filter(m => m._id !== msgId);
+    if (!success) throw new Error(message || 'Failed to edit message.');
+    chat.messages = chat.messages.map(m => m._id === msgId ? { ...m, ...msg } : m);
     return true;
   } catch (e) {
     handleError(e);
     return false;
   }
+}
+
+const _guessMaxInputToken = (_model?: string) => {
+  switch (correctModelName(_model)) {
+    case 'gpt-3.5-turbo':
+      return 4000;
+    case 'gpt-4':
+      return 8000;
+    case 'gemini-pro':
+      return 8000;
+    case 'claude-2':
+      return 80000;
+  }
+}
+
+const _countToken = (msgs: string | MssgItem | MssgItem[]): number => {
+  if (typeof msgs === 'string') return _countToken([{_id: '',text: msgs}]);
+  if (!Array.isArray(msgs)) return _countToken([msgs]);
+  const sampleText = msgs.map(m => m.text).join('\n')
+  const langs = analyzeLanguages(sampleText);
+  let tokens = 0;
+  for (const lang in langs) {
+    const percentage = langs[lang];
+    const weight = lang === 'en' ? 0.25 : 1;
+    tokens = sampleText.length * percentage * weight;
+  }
+  return Math.ceil(tokens * 1.1);
+}
+
+export const getHistory = (tail?: string, length = Infinity, model?: string) => {
+  const history: MssgItem[] = [];
+  const {messages} = chat;
+  if (!tail) tail = messages.at(-1)?._id;
+  if (!tail) return [];
+  const maxToken = _guessMaxInputToken(model);
+  while (history.length < length && tail) {
+    const msg = messages.find((m) => m._id === tail);
+    if (!msg) break;
+    if (length === Infinity && history.length > 0) {
+      const token = _countToken([...history, msg]);
+      if (token >= maxToken) {
+        break;
+      }
+    }
+    history.unshift(msg);
+    tail = msg?.root;
+  }
+  return history.map((m) => ({
+    role: typeof m.modl === 'string' ? 'model' : 'user',
+    text: m.text,
+  }));
+}
+
+let deleteMessagesTask: Promise<boolean>;
+
+export const deleteMessage = async (msg: MssgItem) => {
+  const oldTask = deleteMessagesTask;
+  const task = (async () => {
+    await oldTask;
+    const convId = chat.currentConv?.id;
+    if (!convId) return true;
+    const {_id: msgId, root} = msg;
+    try {
+      const status: StatusResponse = await (await fetch(`/api/ai-chat/conv/${convId}/${msgId}`, {
+        method: 'DELETE',
+      })).json();
+      const { success, message } = status;
+      if (!success) throw new Error(message || 'Failed to delete message.');
+      chat.$assign(({messages, convTail}) => ({
+        messages: messages.filter(m => m._id !== msgId)
+          .map((m) => m.root === msgId ? {...m, root} : m),
+        convTail: convTail === msgId ? root : convTail,
+      }));
+      if (chat.convTail === msgId) chat.convTail = root;
+      return true;
+    } catch (e) {
+      handleError(e);
+      return false;
+    }
+  })();
+  deleteMessagesTask = task;
+  return await task;
 }
 
 const _sortMessages = (messages: MssgItem[]) => messages.sort((a, b) => (a.ctms || 0) - (b.ctms || 0));
@@ -364,14 +450,10 @@ export async function askAiFromInput(msg: SendMssg, autoRenameConv = false): Pro
     const insertedQuestion = await _insertMessage({root, text: question, conv, vers: vers()});
     if (!insertedQuestion) throw new Error('Failed to insert message.');
     const answerRoot = insertedQuestion._id;
-    const {convConfig, messages} = chat;
-    const {length: end} = messages;
-    const {modl, temp, topP, topK, ctxt} = convConfig;
+    const {messages} = chat;
+    const {modl, temp, topP, topK, ctxt} = chat.convConfig;
     const options: UniOptions = {
-      messages: messages.slice(end - ctxt - 1, end).map((m) => ({
-        role: typeof m.modl === 'string' ? 'model' : 'user',
-        text: m.text,
-      })),
+      messages: getHistory(answerRoot, ctxt === MAX_CTXT ? Infinity : ctxt + 1),
       model: modl,
       temperature: temp,
       topP,
@@ -542,14 +624,14 @@ export function useAiChatInputConsole() {
 
 export function useAiChatContent() {
   const [currentConv, _currentConv] = useState(chat.currentConv);
-  const [messages, _messages] = useState(chat.messages);
+  const [sortedMessages, _sortedMessages] = useState(chat.messages);
   const [isAnswering, _isAnswering] = useState(chat.isAnswering);
   const [isLoadingConv, _isLoadingConv] = useState(chat.isLoadingConv);
 
   useEffect(() => {
     return chat.$on((o) => {
       _currentConv(o.currentConv ? {...o.currentConv} : void 0);
-      _messages([...o.messages]);
+      _sortedMessages([...o.messages]);
       _isAnswering(o.isAnswering);
       _isLoadingConv(o.isLoadingConv);
     });
@@ -557,7 +639,7 @@ export function useAiChatContent() {
 
   return {
     currentConv,
-    messages,
+    sortedMessages,
     isAnswering,
     isLoadingConv,
   };

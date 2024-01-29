@@ -163,10 +163,26 @@ const setMessage = async (userId: string, convId: string, _id?: ObjectId | strin
     })
 }
 
-const delMessage = async (userId: string, convId: string, _id?: ObjectId | string) => {
-  if (!await isOwnerOfConv(userId, convId)) return { success: false, message: 'Not owner' }
-  if (!_id) return { success: false, message: 'Message not found' }
-  return await AiChatMessage.deleteOne({ conv: convId, _id })
+const delMessage = async (userId?: string, convId?: string, _id?: ObjectId | string): Promise<StatusResponse> => {
+  if (!userId || !convId || !_id) return {success: false, message: 'Message not found'}
+  if (typeof _id !== 'string') return await delMessage(userId, convId, _id.toHexString());
+  if (!await isOwnerOfConv(userId, convId)) return {success: false, message: 'Not owner'}
+  const [message, child] = await Promise.all([
+    AiChatMessage.findOne({ conv: convId, _id }),
+    AiChatMessage.findOne({ conv: convId, root: _id }),
+  ])
+  if (!message) return {success: false, message: 'Message not found'}
+  const {root} = message
+  try {
+    await Promise.all([
+      AiChatMessage.deleteOne({ _id }),
+      AiChatMessage.updateMany({root: _id}, {$set: {root}}),
+      AiChatConversation.updateOne({tail: _id}, {$set: {tail: child?._id}}),
+    ])
+    return {success: true}
+  } catch {
+    return {success: true, message: 'Failed to delete message'}
+  }
 }
 
 const messageManager = {

@@ -15,7 +15,7 @@ export default function AiChatContent({isSmallScreen}: {isSmallScreen: boolean})
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isMessagesAutoScrolled, setIsMessagesAutoScrolled] = useState(false);
 
-  const { currentConv, messages, isAnswering, isLoadingConv } = useAiChatContent();
+  const { currentConv, sortedMessages, isAnswering, isLoadingConv } = useAiChatContent();
 
   const outerOnScroll = useCallback(() => {
     const outer = _outer.current;
@@ -67,10 +67,10 @@ export default function AiChatContent({isSmallScreen}: {isSmallScreen: boolean})
       </div> : null}
       <div className="flex-center w-full" ref={_inner}>
         <div className={`flex flex-col w-full py-8 pb-48 ${isSmallScreen ? 'px-4' : 'px-8'} gap-4`} style={{maxWidth: CONTENT_MAX_W}}>
-          <div className={`${messages.length == 0 ? 'py-12' : 'py-4'} mb-2 text-default-300 text-center select-none`}>
+          <div className={`${sortedMessages.length == 0 ? 'py-12' : 'py-4'} mb-2 text-default-300 text-center select-none`}>
             {"Let's start!"}
           </div>
-          {messages.map((m) => <Message key={m._id} message={m} />)}
+          {sortedMessages.map((m) => <Message key={m._id} message={m} />)}
         </div>
       </div>
       {isLoading ? null : <InputConsole

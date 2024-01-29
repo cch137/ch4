@@ -10,7 +10,7 @@ import { Tooltip } from '@nextui-org/tooltip';
 
 import { IoSettingsSharp, IoChevronUp, IoCloseOutline } from "react-icons/io5";
 
-import { correctModelName, models as _models } from '@/constants/chat';
+import { correctModelName, models as _models, MAX_CTXT } from '@/constants/chat';
 import type { ModelType, ConvConfig } from "@/constants/chat/types";
 import type { SetState } from "@/constants/types";
 import { useAiChatConvConfig, updateConv } from "@/hooks/useAiChat";
@@ -169,7 +169,7 @@ export default function ConversationConfig({
         <div id={MODEL_SETTINGS_ID} className={`flex flex-col ${isSmallScreen ? 'pb-2' : 'pb-0'}`}>
           {([
             ['Temperature', 'temp', 0, 1, 0.01, false, (v: number | number[]) => Number(v).toFixed(2)],
-            ['History messages', 'ctxt', 0, 16, 1, false, (v: number | number[]) => (v == 16 ? '16' : v == 0 ? 'none' : v).toString()],
+            ['History messages', 'ctxt', 0, MAX_CTXT, 1, false, (v: number | number[]) => (v == MAX_CTXT ? 'max' : v == 0 ? 'none' : v).toString()],
             ['Top P', 'topP', 0, 1, 0.01, true, (v: number | number[]) => Number(v).toFixed(2)],
             ['Top K', 'topK', 1, 16, 1, true],
           ] as [string, keyof ConvConfig, number, number, number, boolean, ((v: number | number[]) => string) | undefined][]).map(([label, name, min, max, step, isAdditional, getValue]) => (

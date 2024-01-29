@@ -4,6 +4,7 @@ import type { ConvConfig, ModelType } from "./types";
 export const TEMP = '[TEMP]';
 export const SIDEBAR_WIDTH = 285;
 export const CONTENT_MAX_W = 870;
+export const MAX_CTXT = 16;
 
 const correctNumber = (item: string | number | undefined | null, minValue: number, maxValue: number, defaultValue: number) => {
   if (item === undefined || item === null) return defaultValue;
@@ -19,10 +20,10 @@ const qsItemToString = (item?: string | string[] | ParsedQs | ParsedQs[]) => {
   return undefined;
 }
 
-export const DEFAULT_CONV_CONFIG: ConvConfig = Object.freeze({
+export const DEFAULT_CONV_CONFIG = Object.freeze({
   modl: 'gemini-pro',
   temp: 0.3,
-  ctxt: 16,
+  ctxt: MAX_CTXT,
   topP: 1,
   topK: 8,
 });
@@ -53,7 +54,7 @@ export const parseConvConfig = (conf: string = '') => {
   const temp = correctNumber(qsItemToString(_temp), 0, 1, c.temp);
   const topP = correctNumber(qsItemToString(_topP), 0, 1, c.topP);
   const topK = correctNumber(qsItemToString(_topK), 1, 16, c.topK);
-  const ctxt = correctNumber(qsItemToString(_ctxt), 0, 16, c.ctxt);
+  const ctxt = correctNumber(qsItemToString(_ctxt), 0, MAX_CTXT, c.ctxt);
   return { modl, temp, topP, topK, ctxt } as ConvConfig;
 }
 
@@ -69,7 +70,7 @@ export const serializeConvConfig = (conf: ConvConfig) => {
   const temp = correctNumber(_temp, 0, 1, c.temp);
   const topP = correctNumber(_topP, 0, 1, c.topP);
   const topK = correctNumber(_topK, 1, 16, c.topK);
-  const ctxt = correctNumber(_ctxt, 0, 16, c.ctxt);
+  const ctxt = correctNumber(_ctxt, 0, MAX_CTXT, c.ctxt);
   return qs.stringify({ modl, temp, topP, topK, ctxt });
 }
 
