@@ -25,7 +25,9 @@ export default function AiChat() {
   const convId: string | undefined = [params.convId || []].flat(2)[0];
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
-  errorBroadcaster.subscribe(({data}) => openErrorMessageBox(data.message, data.title));
+  useEffect(() => {
+    return errorBroadcaster.subscribe(({data}) => openErrorMessageBox(data.message, data.title));
+  }, []);
 
   // sidebar stuffs
   const [isSmallScreen, setIsSmallScreem] = useState(false);

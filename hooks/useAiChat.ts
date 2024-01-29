@@ -280,11 +280,13 @@ export async function loadConv(id?: string | ConvItem, force = false): Promise<v
   });
   try {
     const {
+      id: _reponsedId,
       name,
       conf,
       tail: _convTail,
       messages: _messages = [],
     }: ConvCompleted = await (await fetch(`/api/ai-chat/conv/${id}`, {method: 'POST'})).json();
+    if (!_reponsedId) throw new Error('Conversation not found.');
     const messages = _sortMessages(_messages);
     const convTail = _convTail || messages.at(-1)?._id;
     chat.$assign((o) => ({
