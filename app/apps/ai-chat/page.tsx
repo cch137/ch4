@@ -19,7 +19,7 @@ import useIsHeadlessBrowser from "@/hooks/useIsHeadlessBrowser";
 
 const SMALL_SCREEN_W = 720;
 
-export default function AiChat({appPath = AICHAT_PATH}: {appPath?: string}) {
+export default function AiChatApp({appPath = AICHAT_PATH}: {appPath?: string}) {
   const params = useParams();
   const router = useRouter();
   const convId: string | undefined = [params.convId || []].flat(2)[0];

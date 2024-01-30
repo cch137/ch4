@@ -1,5 +1,5 @@
-import AiChat from "@/app/apps/ai-chat/page";
+import AiChatApp from "@/app/apps/ai-chat/page";
 
-export default function AiChatApp() {
-  return <AiChat appPath="/c/" />;
+export default function AiChat() {
+  return <AiChatApp appPath="/c/" />;
 }
