@@ -21,6 +21,7 @@ export default function AppNavbar() {
   const userInfo = useUserInfo();
   const { name: username, $inited, auth } = userInfo;
   const isSignedIn = auth > 0;
+  const isAdmin = auth >= 5;
 
   const menuRef = createRef<HTMLDivElement>();
   const menuTriggerRef = createRef<HTMLSpanElement>();
@@ -133,6 +134,15 @@ export default function AppNavbar() {
             >
               <div className="w-full">AI Chat</div>
             </Button>}
+            {isAdmin ? <Button
+              variant="light"
+              className="w-full p-2 text-start h-8 rounded-md"
+              onClick={closeMenu}
+              as={Link}
+              href="/admin/"
+            >
+              <div className="w-full">Admin</div>
+            </Button> : null}
             {isSignedIn ? <Button
               variant="light"
               className="w-full p-2 text-start h-8 rounded-md"

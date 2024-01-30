@@ -1,5 +1,6 @@
 import { Admin } from '@/server/mongoose'
-import Shuttle from '@cch137/utils/shuttle'
+import Shuttle, { unpackDataWithHash } from '@cch137/utils/shuttle'
+import type { NextRequest } from 'next/server'
 
 class AdminItem<K = unknown, V = unknown> {
   readonly key: string
@@ -58,7 +59,7 @@ class AdminItem<K = unknown, V = unknown> {
  * @param _destructor - A function called when dependencies trigger onchange, before the new object is computed.
  * @param _errorConstructor - A function called when dependencies trigger onerror.
  */
-const adminProvider = async <I extends AdminItem,O>(
+export const adminProvider = async <I extends AdminItem,O>(
   _dependencies: I[] = [],
   _constructor: (items: readonly I[]) => O,
   _destructor?: (items: readonly I[]) => void,
@@ -92,7 +93,7 @@ const K10 = 'gpt-provider1-host'; // freegptasia
 const K11 = 'gpt-provider1-key';  // freegptasia
 const K12 = 'gemini-key';
 
-const config = Object.freeze({
+export const config = Object.freeze({
   [K01]: new AdminItem(K01, ''),
   [K02]: new AdminItem(K02, 'google' as SearchEngine),
   [K03]: new AdminItem(K03, false),
@@ -106,16 +107,32 @@ const config = Object.freeze({
   [K11]: new AdminItem(K11, ''),
   [K12]: new AdminItem(K12, ''),
 });
-
-const admin = Object.freeze({
-  config,
-});
-
 await Promise.all(Object.values(config).map(i => i.init));
 
-export default admin;
-
-export {
-  adminProvider,
-  config,
+export const validAdminPasswordReq = (req: NextRequest) => {
+  const _p = req.headers.get('a');
+  if (!_p) return false;
+  try {
+    const p = unpackDataWithHash<string>(_p, 256, 407717888, 137);
+    return p && p === config[K01].value;
+  } catch {}
+  return false;
 }
+
+export const getAdminConfig = () => {
+  const obj: [string, any][] = [];
+  // @ts-ignore
+  for (const k in config) obj.push([k, config[k].value]);
+  return obj;
+}
+
+export const setAdminItem = async <K extends string, V>(name: K, value: V) => {
+  // @ts-ignore
+  const item: AdminItem<K,V> | undefined = config[name];
+  if (!item) return;
+  return await item.set(value);
+}
+
+export default Object.freeze({
+  config,
+});
