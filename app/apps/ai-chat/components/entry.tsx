@@ -26,7 +26,7 @@ export default function Entry({
             className="rounded-full"
             variant="shadow"
             as={Link}
-            href={`/auth/signin?next=/${appPath}/`}
+            href={`/auth/signin?next=${appPath}`}
           >
             Sign in
           </Button>
