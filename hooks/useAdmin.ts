@@ -61,6 +61,7 @@ export async function updateConfig() {
 
 export async function setAdminItem(name: string, value: any) {
   const res = await fetchWithAdmin('/api/admin/config', {method: 'PUT', body: JSON.stringify({name, value})});
+  if (res.status !== 200) return handleAdminError((await res.json()).message);
   const newValue = await res.json();
   if (name === 'admin-password') admin.a = newValue;
   admin.config = admin.config.map((i) => i[0] === name ? [name, newValue] : i);

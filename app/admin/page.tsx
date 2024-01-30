@@ -1,6 +1,6 @@
 "use client"
 
-import useAdmin, { adminErrorBroadcaster, handleAdminError, loginAdmin, setAdminItem, updateConfig } from "@/hooks/useAdmin"
+import useAdmin, { adminErrorBroadcaster, adminStore, handleAdminError, loginAdmin, setAdminItem, updateConfig } from "@/hooks/useAdmin"
 import useErrorMessage from "@/hooks/useErrorMessage";
 import Broadcaster from "@cch137/utils/dev/broadcaster";
 import { Button } from "@nextui-org/button";
@@ -43,7 +43,7 @@ function AdminLogin() {
 }
 
 function AdminItemInput<K extends string, V = any>({name, value, isDisabled}: {name: K, value: V, isDisabled?: boolean}) {
-  const initStringifyValue = JSON.stringify(value);
+  const initStringifyValue = JSON.stringify(adminStore.config.find(i => i[0] === name)![1]);
   const initType = typeof value;
 
   const [isLoading, setIsLoading] = useState(false);
