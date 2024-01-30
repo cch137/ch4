@@ -22,21 +22,24 @@ interface MongoDbStats {
 
 export async function POST() {
   const [
+    dbStats,
     totalConversations,
     totalMessages,
     totalRegisteredUsers,
-    dbStats,
+    onlineUsers,
   ] = await Promise.all([
+    mongoose.connection.db.stats(),
     AiChatConversation.countDocuments(),
     AiChatMessage.countDocuments(),
     User.countDocuments({auth: { $gte: 1 }}),
-    mongoose.connection.db.stats()
+    User.countDocuments({atms: { $gte: Date.now() - 60000 }}),
   ])
   return NextResponse.json({
     models: status.table,
+    dataSize: (dbStats as MongoDbStats).dataSize,
     totalConversations,
     totalMessages,
     totalRegisteredUsers,
-    dataSize: (dbStats as MongoDbStats).dataSize
+    onlineUsers,
   })
 }
