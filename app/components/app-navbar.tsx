@@ -21,6 +21,7 @@ export default function AppNavbar() {
   const userInfo = useUserInfo();
   const { name: username, $inited, auth } = userInfo;
   const isSignedIn = auth > 0;
+  const isLvl2 = auth >= 2;
   const isAdmin = auth >= 5;
 
   const menuRef = createRef<HTMLDivElement>();
@@ -134,6 +135,15 @@ export default function AppNavbar() {
             >
               <div className="w-full">AI Chat</div>
             </Button>}
+            {isLvl2 ? <Button
+              variant="light"
+              className="w-full p-2 text-start h-8 rounded-md"
+              onClick={closeMenu}
+              as={Link}
+              href="/apps/harimau"
+            >
+              <div className="w-full">Harimau</div>
+            </Button> : null}
             {isAdmin ? <Button
               variant="light"
               className="w-full p-2 text-start h-8 rounded-md"
