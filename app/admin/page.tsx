@@ -62,7 +62,7 @@ function AdminItemInput<K extends string, V = any>({name, value, isDisabled}: {n
       const currType = typeof JSON.parse(s);
       setWarnMessage(currType === initType
         ? ''
-        : `TypeWaring: "${name}" changed from \`${initType}\` to \`${currType}\`.`
+        : `TypeWarning: "${name}" changed from \`${initType}\` to \`${currType}\`.`
       );
       setDangerMessage('');
     } catch (e) {
