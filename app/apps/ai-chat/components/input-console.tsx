@@ -28,7 +28,7 @@ export default function InputConsole({
     const textarea = _textarea.current;
     if (!textarea) return;
     if (!isAnswering && !isTouchScreen) textarea.focus();
-  }, [_textarea, isAnswering]);
+  }, [_textarea, isAnswering, isTouchScreen]);
 
   const send = useCallback(async () => {
     try {

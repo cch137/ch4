@@ -57,9 +57,6 @@ function AdminItemInput<K extends string, V = any>({name, value, isDisabled}: {n
   const [isSuccess, setIsSuccess] = useState(false);
   const successTimeout = useRef<NodeJS.Timeout>();
 
-  const resetValue = useCallback(() => setV(checkValue(initStringifyValue)), [setV, initStringifyValue]);
-  useEffect(() => resetBroadcaster.subscribe(resetValue), [resetValue]);
-
   const checkValue = useCallback((s: string) => {
     try {
       const currType = typeof JSON.parse(s);
@@ -73,7 +70,10 @@ function AdminItemInput<K extends string, V = any>({name, value, isDisabled}: {n
       setWarnMessage('');
     }
     return s;
-  }, [setDangerMessage, setWarnMessage, initType]);
+  }, [setDangerMessage, setWarnMessage, initType, name]);
+
+  const resetValue = useCallback(() => setV(checkValue(initStringifyValue)), [setV, initStringifyValue, checkValue]);
+  useEffect(() => resetBroadcaster.subscribe(resetValue), [resetValue]);
 
   return (<div>
     <div className="text-xl font-bold">{name}</div>
@@ -124,7 +124,7 @@ export default function Admin() {
   useEffect(() => {
     return adminErrorBroadcaster
       .subscribe(({data: {message, title}}) => openErrorMessageBox(message, title));
-  }, []);
+  }, [openErrorMessageBox]);
 
   return (<>
     {errorMessageBox}

@@ -27,7 +27,7 @@ export default function AiChat({appPath = AICHAT_PATH}: {appPath?: string}) {
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
   useEffect(() => {
     return errorBroadcaster.subscribe(({data}) => openErrorMessageBox(data.message, data.title));
-  }, []);
+  }, [openErrorMessageBox]);
 
   // sidebar stuffs
   const [isSmallScreen, setIsSmallScreem] = useState(false);
@@ -77,7 +77,7 @@ export default function AiChat({appPath = AICHAT_PATH}: {appPath?: string}) {
       inited.current = true;
     };
     return () => window.removeEventListener('resize', adjustSidebarProps)
-  }, [isSmallScreen, isSidebarOpen, inited, setIsReady]);
+  }, [isSmallScreen, isSidebarOpen, inited, setIsReady, convId]);
 
   const getPathnameData = () => {
     const pathname = `${location.pathname}${location.pathname.endsWith('/') ? '' : '/'}`;
@@ -113,7 +113,7 @@ export default function AiChat({appPath = AICHAT_PATH}: {appPath?: string}) {
     return () => {
       sessionStorage.setItem('in-aichat', '0');
     }
-  }, [router, currentConv]);
+  }, [router, currentConv, appPath]);
 
   const { auth, $inited } = useUserInfo();
 
