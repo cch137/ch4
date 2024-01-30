@@ -9,11 +9,11 @@ class URLParamsManager extends URLSearchParams {
   }
 
   replace() {
-    history.replaceState(0, '', this.toPathname())
+    history.replaceState(null, '', this.toPathname())
   }
 
   push() {
-    history.pushState(0, '', this.toPathname())
+    history.pushState(null, '', this.toPathname())
   }
 
   clear() {
