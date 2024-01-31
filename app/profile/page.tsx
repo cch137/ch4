@@ -15,6 +15,7 @@ import useErrorMessage from '@/hooks/useErrorMessage';
 import useCopyText from "@/hooks/useCopyText";
 import { userInfoStore } from "@/hooks/useUserInfo";
 import { packData } from "@cch137/utils/shuttle";
+import { userDetailsStore } from "@/hooks/useUserDetails";
 
 function RenderTableRow([key, value, editable, copiable, edit]: [string, string | undefined, boolean, boolean, () => void | undefined]) {
   const [copied, copyText] = useCopyText(value || '');
@@ -52,9 +53,18 @@ function RenderTableRow([key, value, editable, copiable, edit]: [string, string 
 type UserProfile = UserInfo & UserDetails;
 
 export default function Profile() {
-  const [user, setUser] = useState<UserProfile>(userInfoStore.$object);
+  const [user, setUser] = useState<UserProfile>({...userInfoStore.$object, ...userDetailsStore.$object});
+
+  const {
+    name = '',
+    eadd = '',
+    ctms,
+    mtms,
+    atms,
+  } = user || {};
   
   useEffect(() => userInfoStore.$on((o) => setUser((u) => ({...u, ...o}))), []);
+  useEffect(() => userDetailsStore.$on((o) => setUser((u) => ({...u, ...o}))), []);
 
   const color = 'secondary';
 
@@ -82,32 +92,11 @@ export default function Profile() {
   const [isSentCode, setIsSentCode] = useState(false);
   const [isPostingEmail, setIsPostingEmail] = useState<boolean|undefined>(false);
 
-  const {
-    id = '',
-    name = '',
-    eadd = '',
-    ctms,
-    mtms,
-    atms,
-  } = user || {};
-
-  const updateDetails = useCallback(async (controller = new AbortController()) => {
-    const { success, message, value: details } = await (await fetch('/api/auth/user/details', {
-      method: 'POST',
-      signal: controller.signal
-    })).json() as StatusResponse<UserDetails>;
-    if (controller.signal.aborted) return;
-    if (success && details) setUser((u) => ({...u, ...details}));
-    if (!success || message) openErrorMessageBox(message || 'Faied to fetch profile');
-  }, [setUser, openErrorMessageBox]);
-
   return (<>
     {errorMessageBox}
     <FullpageSpinner callback={async () => {
-      const controller = new AbortController();
-      const res = updateDetails(controller);
-      if ((await userInfoStore.$init()).auth <= 0) return controller.abort(), redirectToSignIn(), setIsPostingUsername(undefined);
-      await res;
+      if ((await userInfoStore.$init()).auth <= 0) return redirectToSignIn(), setIsPostingUsername(undefined);
+      await userDetailsStore.$init();
     }} />
     <Modal 
       size="sm"
@@ -197,7 +186,7 @@ export default function Profile() {
                   if (success) onClose();
                   else openErrorMessageBox(message);
                 } finally {
-                  await updateDetails();
+                  await userDetailsStore.$update();
                   setIsPostingEmail(false);
                 }
               } else {
