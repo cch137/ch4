@@ -186,6 +186,12 @@
 }
 
 /* Markdown format fixes */
+.aichat-message h1, .aichat-message h2, .aichat-message h3, .aichat-message h4 {
+  font-weight: 600;
+}
+.aichat-message h1 {font-size: x-large; margin-top: .500rem; margin-bottom: .250rem;}
+.aichat-message h2 {font-size:  larger; margin-top: .250rem; margin-bottom: .125rem;}
+.aichat-message h3 {font-size:   large; margin-top: .250rem; margin-bottom: .125rem;}
 .aichat-message p {
   white-space: break-spaces;
 }

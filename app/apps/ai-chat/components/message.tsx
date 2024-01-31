@@ -9,6 +9,7 @@ import { Tooltip } from "@nextui-org/tooltip";
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/modal";
 
 import Markdown from 'react-markdown';
+import remarkGfm  from 'remark-gfm';
 
 import type { SetState } from "@/constants/types";
 import type { MssgItem } from "@/constants/chat/types";
@@ -23,10 +24,12 @@ function MessageContent({
   message,
   isEditing,
   setIsEditing,
+  setIsDeleting,
 }: {
   message: MssgItem,
   isEditing: boolean,
   setIsEditing: SetState<boolean>,
+  setIsDeleting: SetState<boolean>,
 }) {
   const {
     _id,
@@ -52,10 +55,10 @@ function MessageContent({
       setConfirmDelete(true);
       return setTimeout(() => setConfirmDelete(false), 3000);
     }
-    setIsEditing(true);
+    setIsDeleting(true);
     await _deleteMessage({ _id, text: '' });
-    setIsEditing(false);
-  }, [confirmDelete, setIsEditing, setConfirmDelete, _id]);
+    setIsDeleting(false);
+  }, [confirmDelete, setIsDeleting, setConfirmDelete, _id]);
 
   const editMessageText = useCallback(async () => {
     const newText = msgTextInput.current?.value;
@@ -115,9 +118,10 @@ function MessageContent({
         ? (
           <div className="aichat-thinking" />
         ) : (
-          isModel
-            ? <Markdown components={{code: MessageCodeBlock}} >{text}</Markdown>
-            : <div className="whitespace-break-spaces">{text}</div>
+          <Markdown components={{code: MessageCodeBlock}} remarkPlugins={[remarkGfm]} >{text}</Markdown>
+          // isModel
+          //   ? <Markdown components={{code: MessageCodeBlock}} remarkPlugins={[remarkGfm]} >{text}</Markdown>
+          //   : <div className="whitespace-break-spaces">{text}</div>
         )
       }
       <div className="flex justify-end items-end flex-wrap pt-2">
@@ -162,7 +166,8 @@ function MessageContent({
 export default function Message({ message }: { message: MssgItem }) {
   const isModel = typeof message.modl === 'string';
   const [isEditing, setIsEditing] = useState(false);
-  return (
+  const [isDeleting, setIsDeleting] = useState(false);
+  return (<>{isDeleting ? null :
     <div className={[
         'flex items-start justify-center w-full aichat-message-outer',
         isEditing ? 'pointer-events-none blur-sm' : '',
@@ -182,6 +187,7 @@ export default function Message({ message }: { message: MssgItem }) {
           message={message}
           isEditing={isEditing}
           setIsEditing={setIsEditing}
+          setIsDeleting={setIsDeleting}
         />
       </div>
       <div className='w-11 ml-3 mt-2 aichat-message-r'>
@@ -191,5 +197,5 @@ export default function Message({ message }: { message: MssgItem }) {
         </div>
       </div>
     </div>
-  )
+  }</>)
 }
