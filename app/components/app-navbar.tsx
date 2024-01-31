@@ -11,7 +11,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import useUserInfo from "@/hooks/useUserInfo";
 import { AICHAT_PATH } from "@/constants/chat";
-import { IoLogoDiscord } from "react-icons/io5";
+import { IoChatboxEllipsesOutline, IoGlassesOutline, IoLogInOutline, IoLogOutOutline, IoLogoDiscord, IoSettingsOutline, IoStopwatchOutline } from "react-icons/io5";
 
 export default function AppNavbar() {
   const pathname = usePathname();
@@ -70,6 +70,7 @@ export default function AppNavbar() {
             className="font-semibold"
             variant="solid"
             size="sm"
+            startContent={<IoLogInOutline className="text-2xl" />}
           >
             Sign in
           </Button> : null}
@@ -86,7 +87,7 @@ export default function AppNavbar() {
             Join
           </Button>
         </div>
-          <Avatar
+          {isSignedIn ? <Avatar
             isBordered
             as="button"
             className={`transition-transform p-0 ${menuIsOpen ? 'opacity-75 scale-95' : ''}`}
@@ -94,15 +95,15 @@ export default function AppNavbar() {
             size="sm"
             icon={<AvatarIcon />}
             ref={menuTriggerRef}
-          />
+          /> : null}
           <div
             ref={menuRef}
             className={`app-navbar-menu shadow-2xl w-52 p-2 rounded-2xl border-1 border-default-50 bg-zinc-950 absolute ${menuIsOpen ? '' : 'close'}`}
             style={{top: '3.25rem', zIndex: 10000}}
           >
-            {isSignedIn ? <Button
+            <Button
               variant="light"
-              className="w-full p-2 rounded-md"
+              className="w-full p-2 rounded-md mb-2"
               as={Link}
               href="/profile"
             >
@@ -116,52 +117,57 @@ export default function AppNavbar() {
                 />
                 <p className="font-semibold text-base w-32 truncate text-start">{username}</p>
               </div>
-            </Button> : null}
-            {($inited && !isSignedIn && !isSignInPage) ? <Button
-              variant="light"
-              className="w-full p-2 text-start h-8 rounded-md"
-              onClick={closeMenu}
-              as={Link}
-              href="/auth/signin"
-            >
-              <div className="w-full">Sign in</div>
-            </Button>: null}
+            </Button>
             {isAiChatPage ? null : <Button
               variant="light"
-              className="w-full p-2 text-start h-8 rounded-md"
+              className="w-full pl-3 text-start h-8 rounded-md"
               onClick={closeMenu}
               as={Link}
               href={AICHAT_PATH}
+              startContent={<IoChatboxEllipsesOutline className="text-2xl" />}
             >
               <div className="w-full">AI Chat</div>
             </Button>}
+            <Button
+              variant="light"
+              className="w-full pl-3 text-start h-8 rounded-md"
+              onClick={closeMenu}
+              as={Link}
+              href="/apps/ai-asst"
+              startContent={<IoStopwatchOutline className="text-2xl" />}
+            >
+              <div className="w-full">AI Trigger</div>
+            </Button>
             {isLvl2 ? <Button
               variant="light"
-              className="w-full p-2 text-start h-8 rounded-md"
+              className="w-full pl-3 text-start h-8 rounded-md"
               onClick={closeMenu}
               as={Link}
               href="/apps/harimau"
+              startContent={<IoGlassesOutline className="text-2xl" />}
             >
               <div className="w-full">Harimau</div>
             </Button> : null}
             {isAdmin ? <Button
               variant="light"
-              className="w-full p-2 text-start h-8 rounded-md"
+              className="w-full pl-3 text-start h-8 rounded-md"
               onClick={closeMenu}
               as={Link}
               href="/admin/"
+              startContent={<IoSettingsOutline className="text-2xl" />}
             >
               <div className="w-full">Admin</div>
             </Button> : null}
-            {isSignedIn ? <Button
+            <Button
               variant="light"
-              className="w-full p-2 text-start h-8 rounded-md"
+              className="w-full pl-3 text-start h-8 rounded-md"
               onClick={closeMenu}
               as={Link}
               href="/auth/signout" color="danger"
+              startContent={<IoLogOutOutline className="text-2xl" />}
             >
               <div className="w-full">Sign out</div>
-            </Button> : null}
+            </Button>
           </div>
       </NavbarContent>
     </Navbar>
