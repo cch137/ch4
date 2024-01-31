@@ -147,18 +147,21 @@ const accessedUser = async (id?: string) => {
 }
 
 const setPass = async (id: string, newPassword: string) => {
+  if (!id) throw new Error('Id is empty');
   return await UserOp.find(id)
     .set('pass', _hashPass(newPassword))
     .save((s) => s ? modifiedUser(id) : void 0)
 }
 
 const setName = async (id: string, name: string) => {
+  if (!id) throw new Error('Id is empty');
   return await UserOp.find(id)
     .set('name', _safeUserName(name), true)
     .save((s) => s ? modifiedUser(id) : void 0)
 }
 
 const setEadd = async (id: string, eadd: string) => {
+  if (!id) throw new Error('Id is empty');
   return await UserOp.find(id)
     .set('eadd', eadd, true)
     .save((s) => s ? modifiedUser(id) : void 0)
