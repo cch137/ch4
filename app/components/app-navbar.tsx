@@ -1,17 +1,17 @@
 'use client'
 import "./app-navbar.css";
 
-import React, { createRef, useCallback, useEffect, useRef, useState } from 'react'
+import React, { createRef, useCallback, useEffect, useState } from 'react'
 import { Navbar, NavbarBrand, NavbarContent } from '@nextui-org/navbar'
 import { Avatar, AvatarIcon } from '@nextui-org/avatar'
 import { Button } from '@nextui-org/button'
 import { appName, discordLink } from '@/constants/app'
 import Link from 'next/link'
 import Image from 'next/image'
-import DiscordIcon from './discord-icon'
 import { usePathname } from 'next/navigation'
 import useUserInfo from "@/hooks/useUserInfo";
 import { AICHAT_PATH } from "@/constants/chat";
+import { IoLogoDiscord } from "react-icons/io5";
 
 export default function AppNavbar() {
   const pathname = usePathname();
@@ -77,9 +77,9 @@ export default function AppNavbar() {
             as={Link}
             href={discordLink}
             target="_blank"
-            startContent={<DiscordIcon />}
+            startContent={<span className="text-xl -mr-1"><IoLogoDiscord /></span>}
             color="secondary"
-            className="font-semibold"
+            className="text-sm font-semibold"
             variant="bordered"
             size="sm"
           >

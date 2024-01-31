@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (<>
     <title>{appTitle('404 Not Found')}</title>
-    <div className="fixed top-0 left-0 z-50 flex-center w-screen h-screen select-none">
+    <div className="fixed z-50" style={{top: '50%', left: '50%', transform: 'translate(-50%,-50%)'}}>
       <div className="flex-center flex-col gap-12">
-        <div className="flex-center gap-4">
-          <div className="text-2xl font-bold">404</div>
-          <div className="h-10 border-1 border-default-600"></div>
-          <div>{description}</div>
+        <div className="flex-center gap-4 text-default-700">
+          <div className="text-2xl font-semibold">404</div>
+          <div className="h-10 border-1 border-default-500"></div>
+          <div className="text-default-600">{description}</div>
         </div>
         <div>
           <Button color="secondary" href="/" variant="ghost" as={Link}>Back to Home</Button>

@@ -1,10 +1,8 @@
-const appName = 'CH4'
-const discordLink = 'https://discord.gg/5v49JKKmzJ'
+export const appName = 'CH4';
+export const discordLink = 'https://discord.gg/5v49JKKmzJ';
 
-const appTitle = (...title: string[]) => title.length ? `${title.join(' ')} | ${appName}` : appName
+export const appTitle = (...title: string[]) => title.length
+  ? `${title.join(' ')} | ${appName}`
+  : appName;
 
-export {
-  appName,
-  appTitle,
-  discordLink,
-}
+export const CONTENT_MAX_W = 870;

@@ -6,9 +6,8 @@ import type { StatusResponse } from '@/constants/types'
 config()
 
 mongoose.connect(process.env.MONGODB_KEY as string)
-  .then(() => {
-    console.log('Connected to MongoDB.');
-  })
+  .then(() => console.log('connected to MongoDB'))
+  .catch(() => console.error('failed to connect to MongoDB'));
 
 export default mongoose
 

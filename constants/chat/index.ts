@@ -1,10 +1,12 @@
 import qs, { type ParsedQs } from "qs"
 import type { ConvConfig, ModelType } from "./types";
+import { CONTENT_MAX_W } from '../app'
 
 export const AICHAT_PATH = '/apps/ai-chat/';
+export const AICHAT_DESC = 'A simple AI chat app by @cch137. Offers various models for free. This is for everyone.';
 export const TEMP = '[TEMP]';
 export const SIDEBAR_WIDTH = 285;
-export const CONTENT_MAX_W = 870;
+export {CONTENT_MAX_W};
 export const MAX_CTXT = 16;
 
 const correctNumber = (item: string | number | undefined | null, minValue: number, maxValue: number, defaultValue: number) => {
