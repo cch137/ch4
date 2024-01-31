@@ -6,16 +6,15 @@ import { Input } from "@nextui-org/input";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/table";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@nextui-org/modal";
 import Link from "next/link";
-import { createRef, useCallback, useEffect, useState } from "react";
+import { createRef, useState } from "react";
 import { IoCopyOutline, IoCreateOutline } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
-import type { StatusResponse, UserDetails, UserInfo } from "@/constants/types";
+import type { StatusResponse } from "@/constants/types";
 import { useRouter } from 'next/navigation';
 import useErrorMessage from '@/hooks/useErrorMessage';
 import useCopyText from "@/hooks/useCopyText";
-import { userInfoStore } from "@/hooks/useUserInfo";
+import { useUserProfile } from "@/hooks/useUserInfo";
 import { packData } from "@cch137/utils/shuttle";
-import { userDetailsStore } from "@/hooks/useUserDetails";
 
 function RenderTableRow([key, value, editable, copiable, edit]: [string, string | undefined, boolean, boolean, () => void | undefined]) {
   const [copied, copyText] = useCopyText(value || '');
@@ -50,10 +49,8 @@ function RenderTableRow([key, value, editable, copiable, edit]: [string, string 
   </TableRow>
 }
 
-type UserProfile = UserInfo & UserDetails;
-
 export default function Profile() {
-  const [user, setUser] = useState<UserProfile>({...userInfoStore.$object, ...userDetailsStore.$object});
+  const user = useUserProfile();
 
   const {
     name = '',
@@ -62,9 +59,6 @@ export default function Profile() {
     mtms,
     atms,
   } = user || {};
-  
-  useEffect(() => userInfoStore.$on((o) => setUser((u) => ({...u, ...o}))), []);
-  useEffect(() => userDetailsStore.$on((o) => setUser((u) => ({...u, ...o}))), []);
 
   const color = 'secondary';
 
@@ -95,8 +89,7 @@ export default function Profile() {
   return (<>
     {errorMessageBox}
     <FullpageSpinner callback={async () => {
-      if ((await userInfoStore.$init()).auth <= 0) return redirectToSignIn(), setIsPostingUsername(undefined);
-      await userDetailsStore.$init();
+      if ((await user.$init()).auth <= 0) return redirectToSignIn(), setIsPostingUsername(undefined);
     }} />
     <Modal 
       size="sm"
@@ -132,7 +125,7 @@ export default function Profile() {
                 if (success) onClose();
                 else openErrorMessageBox(message);
               } finally {
-                await userInfoStore.$update();
+                await user.$update();
                 setIsPostingUsername(false);
               }
             }}>Save</Button>
@@ -186,7 +179,7 @@ export default function Profile() {
                   if (success) onClose();
                   else openErrorMessageBox(message);
                 } finally {
-                  await userDetailsStore.$update();
+                  await user.$update();
                   setIsPostingEmail(false);
                 }
               } else {
