@@ -104,6 +104,7 @@ export default function AppNavbar() {
             <Button
               variant="light"
               className="w-full p-2 rounded-md mb-2"
+              onClick={closeMenu}
               as={Link}
               href="/profile"
             >
@@ -118,16 +119,16 @@ export default function AppNavbar() {
                 <p className="font-semibold text-base w-32 truncate text-start">{username}</p>
               </div>
             </Button>
-            {isAiChatPage ? null : <Button
+            <Button
               variant="light"
               className="w-full pl-3 text-start h-8 rounded-md"
               onClick={closeMenu}
-              as={Link}
-              href={AICHAT_PATH}
+              as={isAiChatPage ? void 0 : Link}
+              href={isAiChatPage ? void 0 : AICHAT_PATH}
               startContent={<IoChatboxEllipsesOutline className="text-2xl" />}
             >
               <div className="w-full">AI Chat</div>
-            </Button>}
+            </Button>
             <Button
               variant="light"
               className="w-full pl-3 text-start h-8 rounded-md"
