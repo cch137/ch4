@@ -12,5 +12,5 @@ export async function POST(req: NextRequest) {
   const ip = getIp(req);
   const rateCheck = rateLimiter.check(ip);
   if (!rateCheck.success) return NextResponse.json(rateCheck, { status: 429 });
-  return NextResponse.json(validAdminPasswordReq(req));
+  return NextResponse.json({success: validAdminPasswordReq(req)});
 }

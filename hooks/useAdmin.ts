@@ -1,5 +1,6 @@
 'use client';
 
+import type { StatusResponse } from '@/constants/types';
 import Broadcaster from '@cch137/utils/dev/broadcaster';
 import store from '@cch137/utils/dev/store';
 import { packDataWithHash } from '@cch137/utils/shuttle';
@@ -36,11 +37,17 @@ export async function fetchWithAdmin(input: RequestInfo | URL, init: RequestInit
 }
 
 export async function loginAdmin(a: string) {
-  admin.a = a;
-  const res = await fetchWithAdmin('/api/admin/login', {method: 'POST'});
-  const isLoggedIn: boolean = await res.json();
-  admin.isLoggedIn = isLoggedIn;
-  if (isLoggedIn) await updateConfig();
+  try {
+    admin.a = a;
+    const res = await fetchWithAdmin('/api/admin/login', {method: 'POST'});
+    const {success: isLoggedIn, message}: StatusResponse = await res.json();
+    if (isLoggedIn) {
+      admin.isLoggedIn = true;
+      await updateConfig();
+    } else if (message) throw new Error(message || `Unknown error`);
+  } catch (e) {
+    handleAdminError(e);
+  }
 }
 
 export async function updateConfig() {

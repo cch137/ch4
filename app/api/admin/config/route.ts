@@ -6,7 +6,7 @@ import { getAdminConfig, setAdminItem, validAdminPasswordReq } from "@/server/ad
 import { readJSON } from "@cch137/utils/stream";
 
 const rateLimiter = new RateLimiter([
-  { maxCount: 5, timeMs: 60000 * 15 },
+  { maxCount: 10, timeMs: 60000 * 15 },
 ]);
 
 export async function PUT(req: NextRequest) {
