@@ -15,6 +15,7 @@ import type { StatusResponse } from "@/constants/types";
 
 import ConversationList from "./conv-list";
 import ConversationConfig from "./conv-config";
+import useIsSmallScreen from "@/hooks/useIsSmallScreen";
 
 function SidebarFooter() {
   return (
@@ -36,7 +37,6 @@ function SidebarFooter() {
 export default function Sidebar({
   appPath,
   initConvId,
-  isSmallScreen,
   isSidebarOpen,
   sidebarWidth,
   toggleSidebarOpen,
@@ -44,12 +44,12 @@ export default function Sidebar({
 }: {
   appPath: string,
   initConvId?: string,
-  isSmallScreen: boolean,
   isSidebarOpen: boolean,
   sidebarWidth: number,
   toggleSidebarOpen: () => void,
   closeSidebar: () => void,
 }) {
+  const isSmallScreen = useIsSmallScreen();
   const [modelSettingOpened, setModelSettingOpened] = useState(false);
   return (
     <div className="chat-sidebar" style={{
@@ -62,7 +62,6 @@ export default function Sidebar({
       <div className="flex-1 w-full h-full overflow-x-hidden overflow-y-auto">
         <div className="flex h-full flex-col p-4 gap-2">
           <ConversationConfig
-            isSmallScreen={isSmallScreen}
             closeSidebar={closeSidebar}
             modelSettingOpened={modelSettingOpened}
             setModelSettingOpened={setModelSettingOpened}

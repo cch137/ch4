@@ -8,12 +8,14 @@ import { CONTENT_MAX_W } from "@/constants/chat";
 import Message from "./message";
 import InputConsole from "./input-console";
 import {useAiChatContent} from "@/hooks/useAiChat";
+import useIsSmallScreen from "@/hooks/useIsSmallScreen";
 
-export default function AiChatContent({isSmallScreen}: {isSmallScreen: boolean}) {
+export default function AiChatContent() {
   const _outer = createRef<HTMLDivElement>();
   const _inner = createRef<HTMLDivElement>();
   const [isAtBottom, setIsAtBottom] = useState(true);
   const [isMessagesAutoScrolled, setIsMessagesAutoScrolled] = useState(false);
+  const isSmallScreen = useIsSmallScreen();
 
   const { currentConv, sortedMessages, isAnswering, isLoadingConv } = useAiChatContent();
 

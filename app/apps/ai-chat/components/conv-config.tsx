@@ -14,6 +14,7 @@ import { correctModelName, models as _models, MAX_CTXT } from '@/constants/chat'
 import type { ModelType, ConvConfig } from "@/constants/chat/types";
 import type { SetState } from "@/constants/types";
 import { useAiChatConvConfig, updateConv } from "@/hooks/useAiChat";
+import useIsSmallScreen from "@/hooks/useIsSmallScreen";
 
 const MODEL_SETTINGS_ID = 'model-settings';
 
@@ -28,7 +29,6 @@ function ConvConfigSlider({
   hidden = false,
   isDisabled,
   getValue,
-  isSmallScreen,
 }: {
   model?: ModelType,
   conf: ConvConfig,
@@ -40,8 +40,8 @@ function ConvConfigSlider({
   hidden?: boolean,
   isDisabled?: boolean,
   getValue?: (v: number | number[]) => string,
-  isSmallScreen: boolean,
 }) {
+  const isSmallScreen = useIsSmallScreen();
   return (!hidden && (model?.configKeys || []).includes(name)) ? <Slider
     label={label}
     minValue={minValue}
@@ -67,12 +67,10 @@ function ConvConfigSlider({
 
 export default function ConversationConfig({
   closeSidebar,
-  isSmallScreen,
   modelSettingOpened,
   setModelSettingOpened,
 }: {
   closeSidebar: () => void;
-  isSmallScreen: boolean;
   modelSettingOpened: boolean;
   setModelSettingOpened: SetState<boolean>;
 }) {
@@ -83,6 +81,7 @@ export default function ConversationConfig({
   const models = _models.map((m) => ({ ...m, value: correctModelName(m.value) }));
   const selectedModel = models.find((m) => m.value === convConfig.modl);
   const selectedModels = selectedModel ? [selectedModel.value] : [];
+  const isSmallScreen = useIsSmallScreen();
 
   const setSelectedModel = useCallback(async (model: ModelType, update = true) => {
     updateConv({ ...convConfig, modl: model.value }, update);
@@ -185,7 +184,6 @@ export default function ConversationConfig({
               hidden={isAdditional && !showAdditional}
               isDisabled={isDisabled}
               getValue={getValue}
-              isSmallScreen={isSmallScreen}
             />
           ))}
           {showAdditional ? null : <div className="flex-center">

@@ -22,6 +22,7 @@ import {
   deleteConv as _deleteConv,
   loadConv
 } from "@/hooks/useAiChat";
+import useConfirm from "@/hooks/useConfirm";
 
 const convIdToKey = (id?: string) => 'aichat-conv-' + id || '';
 
@@ -54,13 +55,9 @@ function ConversationButton({
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isConfirmDelete, onConfirmDelete] = useConfirm();
   const deleteConv = useCallback(async () => {
-    if (!confirmDelete) {
-      setConfirmDelete(true);
-      setTimeout(() => setConfirmDelete(false), 3000);
-      return;
-    }
+    if (!onConfirmDelete()) return;
     setIsHover(false);
     setIsPopoverOpen(false);
     setIsDeleting(true);
@@ -68,7 +65,7 @@ function ConversationButton({
       await _deleteConv(id);
     } catch {}
     setIsDeleting(false);
-  }, [confirmDelete, setConfirmDelete, setIsHover, setIsPopoverOpen, setIsDeleting, id]);
+  }, [isConfirmDelete, onConfirmDelete, setIsHover, setIsPopoverOpen, setIsDeleting, id]);
 
   return <>
     <Modal
@@ -150,7 +147,7 @@ function ConversationButton({
                 <span>Rename</span>
               </Button>
               <Button className="w-full h-8 flex items-center justify-start" variant="light" color="danger" onClick={deleteConv}>
-                <span>{confirmDelete ? 'Confirm Delete' : 'Delete'}</span>
+                <span>{isConfirmDelete ? 'Confirm Delete' : 'Delete'}</span>
               </Button>
             </div>
           </PopoverContent>

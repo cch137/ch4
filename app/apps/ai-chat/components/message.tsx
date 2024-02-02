@@ -19,6 +19,7 @@ import useCopyText from "@/hooks/useCopyText";
 import MessageCodeBlock from "./codeblock";
 import { editMessage, deleteMessage as _deleteMessage, aiChatHandleError } from "@/hooks/useAiChat";
 import { TEMP } from "@/constants/chat";
+import useConfirm from "@/hooks/useConfirm";
 
 function MessageContent({
   message,
@@ -47,18 +48,18 @@ function MessageContent({
     onClose: editMsgOnClose
   } = useDisclosure();
   const [copied, copyText] = useCopyText(text);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+
   const msgTextInput = createRef<HTMLTextAreaElement>();
 
+  const [isConfirmDelete, onConfirmDelete] = useConfirm();
+
   const deleteMessage = useCallback(async () => {
-    if (!confirmDelete) {
-      setConfirmDelete(true);
-      return setTimeout(() => setConfirmDelete(false), 3000);
+    if (onConfirmDelete()) {
+      setIsDeleting(true);
+      await _deleteMessage({ _id, text: '' });
+      setIsDeleting(false);
     }
-    setIsDeleting(true);
-    await _deleteMessage({ _id, text: '' });
-    setIsDeleting(false);
-  }, [confirmDelete, setIsDeleting, setConfirmDelete, _id]);
+  }, [setIsDeleting, onConfirmDelete, _id]);
 
   const editMessageText = useCallback(async () => {
     const newText = msgTextInput.current?.value;
@@ -129,11 +130,11 @@ function MessageContent({
           <Tooltip content="Delete" placement="bottom" showArrow>
             <div
               onClick={deleteMessage}
-              className={confirmDelete ? 'flex-center text-danger-400 opacity-100' : ''}
-              style={{opacity: confirmDelete ? 1 : undefined}}
+              className={isConfirmDelete ? 'flex-center text-danger-400 opacity-100' : ''}
+              style={{opacity: isConfirmDelete ? 1 : undefined}}
             >
               <IoTrashOutline />
-              {confirmDelete ? <span className="text-xs pl-1">Confirm Delete</span> : ''}
+              {isConfirmDelete ? <span className="text-xs pl-1">Confirm Delete</span> : ''}
             </div>
           </Tooltip>
           <Tooltip content="Copy" placement="bottom" showArrow>

@@ -1,23 +1,27 @@
 'use client';
 
+import './signin-to-continue.css';
+import useIsSmallScreen from '@/hooks/useIsSmallScreen';
 import { Button } from '@nextui-org/button';
-import { Link } from "@nextui-org/link";
+import { useRouter } from 'next/navigation';
 
-export default function Entry({
-  appPath,
-  isSmallScreen,
+export default function SigninToContinue({
+  nextPath: nextPath,
+  title,
+  descriptions,
 }: {
-  appPath: string,
-  isSmallScreen: boolean,
+  nextPath: string,
+  title: string,
+  descriptions: string[] | string,
 }) {
+  const isSmallScreen = useIsSmallScreen();
+  const router = useRouter();
   return (<>
     <div className="flex-center px-8" style={{height: 'calc(100dvh - 4rem)'}}>
       <div className="flex flex-col gap-8 w-full max-w-4xl">
-        <h1 className="text-6xl font-bold">AI Chat</h1>
+        <h1 className="text-6xl font-bold">{title}</h1>
         <section className="text-xl">
-          <p>A simple AI chat app by @cch137.</p>
-          <p>Offers various models for free.</p>
-          <p>This is for everyone.</p>
+          {(typeof descriptions === 'string' ? [descriptions] : descriptions).map((d, i) => <p key={i}>{d}</p>)}
         </section>
         <div className="pt-4 py-8">
           <Button
@@ -25,8 +29,7 @@ export default function Entry({
             color="secondary"
             className="rounded-full"
             variant="shadow"
-            as={Link}
-            href={`/auth/signin?next=${appPath}`}
+            onClick={() => router.push(`/auth/signin?next=${nextPath}`)}
           >
             Sign in
           </Button>

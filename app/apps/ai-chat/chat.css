@@ -266,39 +266,3 @@
   content: '';
   background: linear-gradient(180deg, transparent, #000);
 }
-
-.crystal-outer {
-  gap: 32px;
-}
-
-.crystal {
-  content: ' ';
-  background: #303030;
-  height: 390px;
-  width: 60px;
-  transition: 1s ease-out;
-  --delay: 0s;
-  animation: crystal_flying 6s infinite var(--delay);
-  box-shadow: #0c0c0c 8px 8px 16px;
-}
-.crystal:nth-child(1) {
-  --delay: -2s;
-}
-.crystal:nth-child(2) {
-  --delay: -4s;
-}
-.crystal:nth-child(3) {
-  --delay: -6s;
-}
-
-@keyframes crystal_flying {
-  0% {
-    transform:translateY(32px);
-  }
-  50% {
-    transform:translateY(-28px);
-  }
-  100% {
-    transform:translateY(32px);
-  }
-}

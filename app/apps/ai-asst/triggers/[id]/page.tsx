@@ -1,7 +1,7 @@
 "use client";
 
-import { CONTENT_MAX_W, PluginObject, PluginType, Trigger, calcNextSche, parsePlugins, pluginDefs, serializePlugins } from "@/constants/asst";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { AIASST_DESC_LINES, AIASST_PATH, CONTENT_MAX_W, PluginObject, PluginType, Trigger, calcNextSche, parsePlugins, pluginDefs, serializePlugins } from "@/constants/asst";
+import { useEffect, useRef, useState } from "react";
 import { Input, Textarea } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Button } from "@nextui-org/button";
@@ -17,6 +17,9 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Spinner } from "@nextui-org/spinner";
 import { deleteTrigger, getTrigger, testTrigger, updateTrigger } from "@/hooks/useAiTriggers";
+import useUserInfo from "@/hooks/useUserInfo";
+import SigninToContinue from "@/app/components/signin-to-continue";
+import useConfirm from "@/hooks/useConfirm";
 
 type PluginObjectDisplay = PluginObject & {
   isNew?: boolean;
@@ -126,7 +129,6 @@ function PluginItem({
                 <Textarea
                   label={name}
                   classNames={{'input': 'text-base'}}
-                  autoFocus
                   variant="bordered"
                   color="secondary"
                   defaultValue={value}
@@ -186,8 +188,7 @@ function AsstTrigger({trigger}: {trigger: Trigger}) {
   const [selectedIntv, setSelectedIntv] = useState([`${form.intv}`]);
   const nextExec = calcNextSche(form.strt, form.intv);
 
-  const confirmDeleteTimeout = useRef<NodeJS.Timeout>();
-  const [isConfirmDelete, setIsConfirmDelete] = useState(false);
+  const [isConfirmDelete, onConfirmDelete] = useConfirm();
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTesting, setIsTesting] = useState(false);
@@ -207,19 +208,14 @@ function AsstTrigger({trigger}: {trigger: Trigger}) {
   }
 
   const _deleteTrigger = async () => {
-    if (isConfirmDelete) {
-      setIsConfirmDelete(false);
+    if (onConfirmDelete()) {
       setIsDeleting(true);
       try {
         if (await deleteTrigger(trigger._id)) {
-          return router.push('/apps/ai-asst/');
+          return router.push(AIASST_PATH);
         };
       } catch {}
       setIsDeleting(false);
-    } else {
-      setIsConfirmDelete(true);
-      clearTimeout(confirmDeleteTimeout.current);
-      confirmDeleteTimeout.current = setTimeout(() => setIsConfirmDelete(false), 3000);
     }
   }
 
@@ -271,8 +267,7 @@ function AsstTrigger({trigger}: {trigger: Trigger}) {
           <Tooltip content="Delete">
             <Button onClick={_deleteTrigger} color="danger" variant="flat" isIconOnly={!isConfirmDelete && !isDeleting} isLoading={isDeleting}>
               <IoTrashOutline className="text-lg" />
-              {isConfirmDelete ? <span>Confirm delete</span> : null}
-              {isDeleting ? <span>Deleting...</span> : null}
+              {isDeleting ? <span>Deleting...</span> : isConfirmDelete ? <span>Confirm delete</span> : null}
             </Button>
           </Tooltip>
         </div>
@@ -412,34 +407,31 @@ export default function AiAsst() {
       (async () => {
         const trigger = await getTrigger(id);
         setTrigger(trigger);
-        // if (!trigger) router.push('/apps/ai-asst/');
+        // if (!trigger) router.push(AIASST_PATH);
         // else setTrigger(trigger);
       })();
     };
   }, [id]);
 
-  return <>
+  const userInfo = useUserInfo();
+
+  return <>{(userInfo.auth > 0 || !userInfo.$inited) ?
     <div className="max-w-full px-4 py-8 m-auto" style={{width: CONTENT_MAX_W}}>
       <div className="flex">
-        <Button variant="light" size="sm" as={Link} href="/apps/ai-asst/">
+        <Button variant="light" size="sm" as={Link} href={AIASST_PATH}>
           <IoChevronBackOutline className="text-lg" />
           <span className="text-sm">Back</span>
         </Button>
       </div>
-      {isLoading
+      {(isLoading || !userInfo.$inited)
         ? (
           <div className="flex-center py-16">
             <Spinner size="lg" color="secondary" />
           </div>
         ) : trigger 
-          ? (
-            <AsstTrigger trigger={trigger} />
-          ) : (
-            <div className="flex-center py-16 text-default-300">
-              Trigger Not Found
-            </div>
-          )
+            ? <AsstTrigger trigger={trigger} />
+            : <div className="flex-center py-16 text-default-300">Trigger Not Found</div>
       }
     </div>
-  </>
+  : <SigninToContinue nextPath={AIASST_PATH} title="AI Assistant" descriptions={AIASST_DESC_LINES} />}</>
 }
