@@ -65,7 +65,7 @@ function ConversationButton({
       await _deleteConv(id);
     } catch {}
     setIsDeleting(false);
-  }, [isConfirmDelete, onConfirmDelete, setIsHover, setIsPopoverOpen, setIsDeleting, id]);
+  }, [onConfirmDelete, setIsHover, setIsPopoverOpen, setIsDeleting, id]);
 
   return <>
     <Modal
