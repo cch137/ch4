@@ -27,12 +27,16 @@ export async function POST() {
     totalMessages,
     totalRegisteredUsers,
     onlineUsers,
+    totalTriggers,
+    totalEnabledTriggers,
   ] = await Promise.all([
     mongoose.connection.db.stats(),
     AiChatConversation.countDocuments(),
     AiChatMessage.countDocuments(),
     User.countDocuments({auth: { $gte: 1 }}),
     User.countDocuments({atms: { $gte: Date.now() - 60000 }}),
+    AiAsstTrigger.countDocuments(),
+    AiAsstTrigger.countDocuments({enbl: true}),
   ])
   return NextResponse.json({
     models: status.table,
@@ -41,6 +45,8 @@ export async function POST() {
     totalMessages,
     totalRegisteredUsers,
     onlineUsers,
+    totalTriggers,
+    totalEnabledTriggers,
   })
 }
 
