@@ -147,9 +147,9 @@ const execTrigger = async (trigger: Trigger) => {
     const stream = aiProvider.ask({messages: [{role: 'user', text: prompt}], temperature: 0, topP: 1, topK: 1, model: defaultModel}, defaultModel);
     await stream.untilDone;
     mailer.sendHtml(eadd, `${trigger.name} - CH4`, await marked.parse(stream.read()));
-    log = `Success at ${formatDate(new Date())} took ${Date.now() - t0} milliseconds to execute.`;
+    log = `Success at ${formatDate(new Date())} (GMT+0) took ${Date.now() - t0} milliseconds to execute.`;
   } catch (e) {
-    log = `Error (${e instanceof Error ? e.message : 'Unknown'}) at ${formatDate(new Date())} took ${Date.now() - t0} milliseconds to execute.`;
+    log = `Error (${e instanceof Error ? e.message : 'Unknown'}) at ${formatDate(new Date())} (GMT+0) took ${Date.now() - t0} milliseconds to execute.`;
   } finally {
     const nextsche = calcNextSche(strt, intv);
     const nextScheIsNaN = isNaN(nextsche.getTime());
