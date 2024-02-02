@@ -4,7 +4,17 @@ export {CONTENT_MAX_W};
 
 export const USER_MAX_TRIGGERS = 3;
 
+export const AIASST_PATH = '/apps/ai-asst/';
+
+export const AIASST_TRIGGERS_PATH = '/apps/ai-asst/triggers/';
+
 export const AIASST_DESC = 'A timer-based task executor based on AI, used for scheduled emails, with AI capable of browsing the internet.';
+
+export const AIASST_DESC_LINES = [
+  'Scheduled AI Task Trigger,',
+  'capable of setting scheduled emails,',
+  'with internet browsing capability.',
+];
 
 export type PluginType = 'text' | 'google' | 'crawl' | 'time';
 
