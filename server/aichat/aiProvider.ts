@@ -18,6 +18,8 @@ const provider1 = await adminProvider([
   admin.config['gpt-provider1-key'],
 ], ([host, key]) => new OneApiProvider(host.value, key.value));
 
+export type SupportedModel = 'gemini-pro' | 'gpt-3.5-turbo' | 'gpt-4' | 'claude-2';
+
 const aiProvider = new SuperProvider(Object.freeze({
   get ['gemini-pro']() {return gemini.value},
   get ['gpt-3.5-turbo']() {return provider0.value},

@@ -57,6 +57,7 @@ export type Trigger = {
   user: string;
   name: string;
   enbl: boolean;
+  modl: string;
   main: string;
   strt: Date;
   // endt: Date;

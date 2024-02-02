@@ -5,8 +5,7 @@ import formatDate from "@cch137/utils/format/date"
 import { aiProvider } from "../aichat";
 import mailer from "../auth/mailer";
 import { marked } from "marked";
-
-const defaultModel = 'gemini-pro';
+import { SupportedModel } from "../aichat/aiProvider";
 
 const createTrigger = async (userId?: string) => {
   if (!userId) throw new Error('User Id is required');
@@ -21,7 +20,7 @@ const createTrigger = async (userId?: string) => {
       user: userId,
       name: 'New Trigger',
       type: 'mailer',
-      modl: defaultModel,
+      modl: 'gemini-pro',
       enbl: false,
       main: 'Hi.',
       strt,
@@ -104,7 +103,7 @@ const _execPlugin = async (type: PluginType, args: any[]) => {
     case 'google':
       return execGooglePlugin(...args);
     case 'time':
-      return formatDate(new Date());
+      return `Current time: ${formatDate(new Date())}`;
     case 'crawl':
       return execCrawlPlugin(...args);
   }
@@ -131,7 +130,7 @@ const testTrigger = async (userId: string, _id: string) => {
   if (!trigger) throw new Error('Trigger not found');
   const pluginsResult = (await execPlugins(trigger.plug)).join('\n');
   const prompt = `${trigger.main}\n\n${pluginsResult}`;
-  return aiProvider.ask({messages: [{role: 'user', text: prompt}], temperature: 0, topP: 1, topK: 1, model: defaultModel}, defaultModel);
+  return aiProvider.ask({messages: [{role: 'user', text: prompt}], temperature: 0, topP: 1, topK: 1, model: trigger.modl}, trigger.modl as SupportedModel);
 }
 
 const execTrigger = async (trigger: Trigger) => {
@@ -140,16 +139,16 @@ const execTrigger = async (trigger: Trigger) => {
   if (!eadd) throw new Error('User not found');
   const pluginsResult = (await execPlugins(trigger.plug)).join('\n');
   const prompt = `${trigger.main}\n\n${pluginsResult}`;
-  const {_id, user, strt, intv, execlogs} = trigger;
+  const {_id, user, strt, intv, execlogs, modl} = trigger;
   const t0 = Date.now();
   let log: string = '';
   try {
-    const stream = aiProvider.ask({messages: [{role: 'user', text: prompt}], temperature: 0, topP: 1, topK: 1, model: defaultModel}, defaultModel);
+    const stream = aiProvider.ask({messages: [{role: 'user', text: prompt}], temperature: 0, topP: 1, topK: 1, model: modl}, modl as SupportedModel);
     await stream.untilDone;
     mailer.sendHtml(eadd, `${trigger.name} - CH4`, await marked.parse(stream.read()));
-    log = `Success at ${formatDate(new Date())} (GMT+0) took ${Date.now() - t0} milliseconds to execute.`;
+    log = `Success at ${formatDate(new Date())} (GMT+0) took ${Date.now() - t0} milliseconds to execute by ${modl}.`;
   } catch (e) {
-    log = `Error (${e instanceof Error ? e.message : 'Unknown'}) at ${formatDate(new Date())} (GMT+0) took ${Date.now() - t0} milliseconds to execute.`;
+    log = `Error (${e instanceof Error ? e.message : 'Unknown'}) at ${formatDate(new Date())} (GMT+0) took ${Date.now() - t0} milliseconds to execute by ${modl}.`;
   } finally {
     const nextsche = calcNextSche(strt, intv);
     const nextScheIsNaN = isNaN(nextsche.getTime());
