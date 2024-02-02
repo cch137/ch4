@@ -93,7 +93,8 @@ const execCrawlPlugin = async (url?: string) => {
   url = url.trim();
   if (!url) return '';
   const res = await fetch(`https://api.cch137.link/crawl?url=${url}`);
-  return await res.text();
+  const {title='', description='', content=''}: {title: string, description: string, content: string} = await res.json();
+  return `title: ${title}\n\ndescription: ${description}\n\ncontent: ${content}`;
 }
 
 const _execPlugin = async (type: PluginType, args: any[]) => {
