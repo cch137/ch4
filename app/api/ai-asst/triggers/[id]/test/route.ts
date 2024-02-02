@@ -20,6 +20,6 @@ export async function POST(req: NextRequest, context: NextApiContext) {
   try {
     return sendNextResponseStream(await triggersManager.testTrigger(userId, triggerId));
   } catch (e) {
-    return `Failed to execute trigger: ${e instanceof Error ? e.message : 'Unknwon'}`;
+    return new NextResponse(`Failed to execute trigger: ${e instanceof Error ? e.message : 'Unknwon'}`, { status: 500 });
   }
 }
