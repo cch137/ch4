@@ -56,4 +56,6 @@ class NextCh4Token extends Token {
   }
 }
 
-export default NextCh4Token;
+const authNext = NextCh4Token;
+
+export default authNext;

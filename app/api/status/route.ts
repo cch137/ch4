@@ -1,5 +1,5 @@
 import status from '@/server/aichat/status'
-import mongoose, { AiChatConversation, AiChatMessage, User } from '@/server/mongoose/'
+import mongoose, { AiAsstTrigger, AiChatConversation, AiChatMessage, User } from '@/server/mongoose/'
 import { NextResponse } from 'next/server'
 
 interface MongoDbStats {
@@ -43,3 +43,25 @@ export async function POST() {
     onlineUsers,
   })
 }
+
+import random from "@cch137/utils/random";
+import {sleep} from "@cch137/utils/time";
+import fs from "fs";
+import { triggersManager } from '@/server/aiasst'
+
+const mchnCode = random.base64(8);
+fs.writeFileSync('.next/mchnCode.txt', mchnCode, 'utf-8');
+new Promise<void>(async (r) => {
+  while (true) {
+    const now = new Date();
+    const fileMchnCode = fs.readFileSync('.next/mchnCode.txt', 'utf-8');
+    if (fileMchnCode !== mchnCode) break;
+    const execNeededTriggers = await AiAsstTrigger.find({nextsche: {$lte: now}}).lean();
+    await Promise.all(execNeededTriggers.map(async (trigger) => {
+      const {_id, nextsche} = trigger;
+      return await triggersManager.execTrigger({...trigger, _id: _id.toHexString(), nextsche: new Date(nextsche||NaN)})
+    }));
+    await sleep(1000);
+  }
+  r();
+});

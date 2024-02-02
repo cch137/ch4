@@ -101,6 +101,7 @@ import Admin from './models/Admin'
 import User from './models/User'
 import AiChatMessage from './models/AiChatMessage'
 import AiChatConversation from './models/AiChatConversation'
+import AiAsstTrigger from './models/AiAsstTrigger'
 
 export {
   dataSetter,
@@ -108,4 +109,5 @@ export {
   User,
   AiChatConversation,
   AiChatMessage,
+  AiAsstTrigger,
 }

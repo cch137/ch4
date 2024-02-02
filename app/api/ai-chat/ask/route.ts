@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { aiProvider } from "@/server/aichat";
 import authNext from "@/server/auth-next";
 import { unpackData } from "@cch137/utils/shuttle";
 import type { UniOptions } from "@cch137/utils/ai";
 import { readStream } from "@cch137/utils/stream";
 import getIp from '@cch137/utils/server/get-ip';
 import RateLimiter from '@cch137/utils/server/rate-limiter';
+import { aiProvider, sendNextResponseStream } from "@/server/aichat";
 
 const rateLimiter = new RateLimiter([
   { maxCount:  10, timeMs: 60000 },
@@ -31,37 +31,6 @@ export async function POST(req: NextRequest) {
   if (!userId) return new NextResponse('Unauthorized, please sign in or refresh the page.', { status: 401 });
   const options = tryUnpackData(await readStream(req.body));
   if (!options) return new NextResponse('Failed to parse request (insecure)', { status: 400 });
-  try {
-    const { writable, readable } = new TransformStream();
-    const writer = writable.getWriter();
-    const res = new NextResponse(readable, {
-      status: 200,
-      headers: {
-        'Content-Type': 'text/event-stream',
-        'Transfer-Encoding': 'chunked',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'X-Accel-Buffering': 'no',
-      }
-    });
-    const stream = aiProvider.ask(options);
-    stream.pipe({
-      data(s: any) {
-        writer.write(s).catch(() => void 0);
-      },
-      end() {
-        writer.close().catch(() => void 0);
-      },
-      error() {
-        const error = stream.lastError;
-        if (error instanceof Error) {
-          writer.write(error.message).catch(() => void 0);
-        }
-      }
-    });
-    return res;
-  } catch (e) {
-    console.error('Failed to ask model:', e);
-    return new NextResponse('Failed to ask model', { status: 500 });
-  }
+  const stream = aiProvider.ask(options);
+  return sendNextResponseStream(stream);
 }

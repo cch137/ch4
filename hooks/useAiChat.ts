@@ -306,7 +306,11 @@ export async function loadConv(id?: string | ConvItem, force = false): Promise<v
   }
 }
 
-const _askAiModel = async (options: UniOptions) => {
+export const wrapStreamResponse = (res: Response, {
+  controller = new AbortController(),
+}: {
+  controller?: AbortController,
+} = {}) => {
   const t0 = Date.now();
   const getDtms = () => Date.now() - t0;
   const chunks = store([] as string[]);
@@ -316,12 +320,6 @@ const _askAiModel = async (options: UniOptions) => {
     clearTimeout(readTimeout);
     return setTimeout(() => handleError('Response Timeout'), 60000);
   }
-  const controller = new AbortController();
-  const res = await fetch('/api/ai-chat/ask', {
-    method: 'POST',
-    body: packData<UniOptions>(options, 4141414141, 4242424242),
-    signal: controller.signal,
-  });
   if (!res.body) throw new Error('Failed to request');
   const reader = res.body.getReader();
   const promise = new Promise<{dtms:number}>(async (resolve) => {
@@ -334,7 +332,7 @@ const _askAiModel = async (options: UniOptions) => {
         chunks.push(chunkText);
         readTimeout = extendTimeout();
       } catch (e) {
-        if (controller.signal.aborted) break;
+        if (controller && controller.signal.aborted) break;
         console.error(`Failed to read response${e instanceof Error ? ': ' + e.message : ''}`);
       }
     }
@@ -349,6 +347,16 @@ const _askAiModel = async (options: UniOptions) => {
     controller,
   }
   return value;
+}
+
+const _askAiModel = async (options: UniOptions) => {
+  const controller = new AbortController();
+  const res = await fetch('/api/ai-chat/ask', {
+    method: 'POST',
+    body: packData<UniOptions>(options, 4141414141, 4242424242),
+    signal: controller.signal,
+  });
+  return wrapStreamResponse(res, {controller});
 }
 
 const _askConvName = async (q = 'Hi', a = 'Hi') => {
