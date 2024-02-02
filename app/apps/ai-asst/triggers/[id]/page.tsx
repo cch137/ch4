@@ -155,7 +155,7 @@ function PluginItem({
   </>)
 }
 
-export function AiAsstTrigger({trigger}: {trigger: Trigger}) {
+function AsstTrigger({trigger}: {trigger: Trigger}) {
   const router = useRouter();
   const [form, setForm] = useState({...trigger, plug: store<PluginObjectDisplay[]>(parsePlugins(trigger.plug))});
 
@@ -433,7 +433,7 @@ export default function AiAsst() {
           </div>
         ) : trigger 
           ? (
-            <AiAsstTrigger trigger={trigger} />
+            <AsstTrigger trigger={trigger} />
           ) : (
             <div className="flex-center py-16 text-default-300">
               Trigger Not Found
