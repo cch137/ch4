@@ -62,7 +62,7 @@ new Promise<void>(async (r) => {
     const now = new Date();
     const fileMchnCode = fs.readFileSync('.next/mchnCode.txt', 'utf-8');
     if (fileMchnCode !== mchnCode) break;
-    const execNeededTriggers = await AiAsstTrigger.find({nextsche: {$lte: now}}).lean();
+    const execNeededTriggers = await AiAsstTrigger.find({nextsche: {$lte: now, enbl: true}}).lean();
     await Promise.all(execNeededTriggers.map(async (trigger) => {
       const {_id, nextsche} = trigger;
       return await triggersManager.execTrigger({...trigger, _id: _id.toHexString(), nextsche: new Date(nextsche||NaN)})
