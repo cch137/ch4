@@ -14,7 +14,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<StatusRespons
   try {
     const msg = unpackData<SaveMssg>(await readStream(req.body), 54715471, 77455463);
     // check version
-    if (parse(msg.vers).lt([0,6,4])) return NextResponse.json({ success: false, message: 'Version oudated, please reload.' });
+    if (parse(msg.vers).lt([0,6,5])) return NextResponse.json({ success: false, message: 'Version oudated, please reload.' });
     return NextResponse.json(await messageManager.insertMessage(userId, msg));
   } catch (e) {
     console.error(e);
