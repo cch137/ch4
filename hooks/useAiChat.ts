@@ -78,8 +78,8 @@ const getConvId = () => chat.currentConv?.id;
 const findMessage = (_id?: string | null): Message | undefined =>
   _id ? chat.messages.find(m => m._id === _id) : void 0;
 
-const findMessageByRoot = (root?: string): Message[] =>
-  sortMessagesByCtms(chat.messages.filter(m => m.root === root));
+const findMessagesByRoot = (root?: string): Message[] =>
+  sortMessagesByCtms(chat.messages.filter(m => root ? m.root === root : !m.root));
 
 const guessMaxInputToken = (_model?: string) => {
   switch (correctModelName(_model)) {
@@ -170,7 +170,23 @@ class Message {
   }
 
   get children() {
-    return findMessageByRoot(this._id);
+    return findMessagesByRoot(this._id);
+  }
+
+  get siblings() {
+    return this.parent?.children || findMessagesByRoot();
+  }
+
+  get nthChild() {
+    const {siblings} = this;
+    return siblings.indexOf(this);
+  }
+
+  gotoSibling(step: number) {
+    const {siblings} = this;
+    const nth = siblings.indexOf(this);
+    let goto = Math.max(0, Math.min(nth + step, siblings.length - 1));
+    siblings[goto].select();
   }
 
   get selectedChild(): Message | undefined {

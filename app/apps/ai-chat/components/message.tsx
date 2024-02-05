@@ -165,8 +165,8 @@ export default function MessageComponent({ message }: { message: Message }) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const cLength = message.children.length;
-  const cIndex = message.selectedChildIndex;
+  const cIndex = message.nthChild;
+  const cLength = message.siblings.length;
 
   return (<>{isDeleting ? null :
     <div className={[
@@ -184,9 +184,9 @@ export default function MessageComponent({ message }: { message: Message }) {
         </div>
         {(cLength > 1) ? (
           <div className="text-xs text-default-500 w-full flex-center select-none">
-            <span onClick={() => message.selectedChildIndex--} className={`cursor-pointer px-1 ${cIndex === 0 ? 'invisible' : ''}`}>{'<'}</span>
+            <span onClick={() => message.gotoSibling(-1)} className={`cursor-pointer px-1 ${cIndex === 0 ? 'invisible' : ''}`}>{'<'}</span>
             <span>{cIndex + 1}/{cLength}</span>
-            <span onClick={() => message.selectedChildIndex++} className={`cursor-pointer px-1 ${cIndex >= cLength - 1 ? 'invisible' : ''}`}>{'>'}</span>
+            <span onClick={() => message.gotoSibling(+1)} className={`cursor-pointer px-1 ${cIndex >= cLength - 1 ? 'invisible' : ''}`}>{'>'}</span>
           </div>
         ) : null}
       </div>
@@ -198,12 +198,7 @@ export default function MessageComponent({ message }: { message: Message }) {
           setIsDeleting={setIsDeleting}
         />
       </div>
-      <div className='w-11 ml-3 mt-2 aichat-message-r'>
-        <div className="text-default-400 text-xs select-none text-center">
-          <div> </div>
-          <div> </div>
-        </div>
-      </div>
+      <div className='w-11 ml-3 aichat-message-r' />
     </div>
   }</>)
 }
