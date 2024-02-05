@@ -59,13 +59,13 @@ function MessageContent({
       await message.delete();
       setIsDeleting(false);
     }
-  }, [setIsDeleting, onConfirmDelete, _id]);
+  }, [setIsDeleting, onConfirmDelete, message]);
 
   const editMessageText = useCallback(async () => {
     const newText = msgTextInput.current?.value;
     if (!newText) return aiChatHandleError('Message is empty.');
     return await message.edit(newText);
-  }, [msgTextInput, editMsgOnClose, _id]);
+  }, [msgTextInput, message]);
 
   return <>
     <Modal

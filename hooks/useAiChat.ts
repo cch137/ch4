@@ -665,20 +665,17 @@ export function useAiChatConvConfig() {
 };
 
 export function useAiChatInputConsole() {
-  const [convTail, _convTail] = useState(chat.convTail);
   const [isAnswering, _isAnswering] = useState(chat.isAnswering);
   const [isStoping, _isStoping] = useState(chat.isStoping);
 
   useEffect(() => {
     return chat.$on((o, p) => {
-      _convTail(p.convTail);
       _isAnswering(p.isAnswering);
       _isStoping(p.isStoping);
     });
   }, []);
 
   return {
-    convTail,
     isAnswering,
     isStoping,
   };

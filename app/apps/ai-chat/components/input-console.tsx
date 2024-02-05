@@ -20,7 +20,7 @@ export default function InputConsole({
   const _textarea = createRef<HTMLTextAreaElement>();
   const [textareaValue, setTextareaValue] = useState('');
 
-  const {convTail, isAnswering, isStoping} = useAiChatInputConsole();
+  const {isAnswering, isStoping} = useAiChatInputConsole();
   const isTouchScreen = typeof window === 'undefined'
     ? false
     : Boolean('ontouchstart' in window || navigator.maxTouchPoints)
@@ -38,7 +38,7 @@ export default function InputConsole({
       if (!res) return;
       setTextareaValue('');
     } catch {}
-  }, [textareaValue, setTextareaValue, convTail]);
+  }, [textareaValue, setTextareaValue]);
 
   return (<>
     <div className="absolute z-10 flex justify-end items-center flex-col w-full h-0 bottom-0" style={{paddingRight:12}}>
