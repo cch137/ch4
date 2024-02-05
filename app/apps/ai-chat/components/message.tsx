@@ -17,7 +17,7 @@ import useCopyText from "@/hooks/useCopyText";
 
 import MessageCodeBlock from "./codeblock";
 import type { Message } from "@/hooks/useAiChat";
-import { aiChatHandleError, aiChatStore } from "@/hooks/useAiChat";
+import { aiChatHandleError, useAiChatMessage } from "@/hooks/useAiChat";
 import { TEMP } from "@/constants/chat";
 import useConfirm from "@/hooks/useConfirm";
 
@@ -52,15 +52,16 @@ function MessageContent({
   const msgTextInput = createRef<HTMLTextAreaElement>();
 
   const [isConfirmDelete, onConfirmDelete] = useConfirm();
+  const {isDeletingMessage} = useAiChatMessage();
 
   const deleteMessage = useCallback(async () => {
-    if (aiChatStore.isDeletingMessage) return;
+    if (isDeletingMessage) return;
     if (onConfirmDelete()) {
       setIsDeleting(true);
       await message.delete();
       setIsDeleting(false);
     }
-  }, [setIsDeleting, onConfirmDelete, message]);
+  }, [isDeletingMessage, setIsDeleting, onConfirmDelete, message]);
 
   const editMessageText = useCallback(async () => {
     const newText = msgTextInput.current?.value;
@@ -127,7 +128,7 @@ function MessageContent({
           <Tooltip content="Delete" placement="bottom" showArrow>
             <div
               onClick={deleteMessage}
-              className={isConfirmDelete ? 'flex-center text-danger-400 opacity-100' : ''}
+              className={`${isConfirmDelete ? 'flex-center text-danger-400 opacity-100' : ''} ${(isDeletingMessage) ? 'hover:cursor-wait' : ''}`}
               style={{opacity: isConfirmDelete ? 1 : undefined}}
             >
               <IoTrashOutline />

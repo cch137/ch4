@@ -144,7 +144,7 @@ const updateMessages = (messages?: Message[]): void => {
     if (_tailMessage) _tailMessage.select();
     else updateTail();
   } else if (messages.includes(tailMessage)) {
-    updateTail(tailMessage._id);
+    tailMessage.select();
   } else {
     updateTail();
   }
@@ -256,8 +256,12 @@ class Message {
           body: packDataWithHash({...this.source, vers: vers()}, 256, 54715471, 77455463),
         })).json() as StatusResponse<MssgItem>;
         if (!success || !mssg) throw new Error(`Failed to insert message: ${message || 'Unknown'}`);
+        const oldId = this.source._id;
         Object.assign(this.source, mssg);
-        console.log('saved:', {...this.source}, success, message);
+        const newId = this.source._id;
+        chat.messages.forEach((m) => {
+          if (m.root === oldId) m.source.root = newId;
+        });
         updateMessages();
         return true;
       } catch (e) {
@@ -270,7 +274,6 @@ class Message {
           method: 'PUT',
           body: packDataWithHash({...this.source, vers: vers()}, 256, 54715471, 77455463)
         })).json();
-        console.log('saved(e):', {...this.source}, success, message);
         if (!success) throw new Error(message || 'Failed to edit message.');
         return true;
       } catch (e) {
@@ -309,7 +312,6 @@ class Message {
   }
 
   select() {
-    if (chat.currentThread.includes(this)) return;
     const thread = this.thread;
     chat.currentThread = thread;
     updateTail(thread.at(-1)?._id);
@@ -319,6 +321,24 @@ class Message {
 export type { Message };
 
 let lastAutoCreatedConvId: string | undefined;
+const _createConv = async () => {
+  try {
+    const res = await fetch('/api/ai-chat/conv', {method: 'PUT'});
+    const newConvId = (await res.json() as StatusResponse<string>).value;
+    if (!newConvId) throw new Error('Failed to create a new conversation.');
+    lastAutoCreatedConvId = newConvId;
+    chat.$assign({
+      currentConv: {id: newConvId},
+      conversations: [{id: newConvId}, ...chat.conversations],
+    });
+    updateConv();
+    return newConvId;
+  } catch (e) {
+    handleError(e);
+    throw e;
+  }
+}
+
 export const addMessage = async (message: Partial<MssgItem>): Promise<Message> => {
   const {text = '', conv = getConvId(), _id = generateTempMessageId(), ctms = Date.now()} = message;
   if (!conv) {
@@ -327,8 +347,6 @@ export const addMessage = async (message: Partial<MssgItem>): Promise<Message> =
       loadConv();
       throw new Error('Failed to create new conversation.');
     };
-    chat.currentConv = {id: conv};
-    lastAutoCreatedConvId = conv;
     return await addMessage({...message, text, conv, _id, ctms});
   }
   const m = new Message({...message, text, conv, _id, ctms});
@@ -347,6 +365,7 @@ export const askQuestion = async (_question: Message | string, root?: string) =>
       ? await addMessage({text: _question, root})
       : _question;
     const questionSaved = question.isTemp ? question.save() : void 0;
+    if (questionSaved) questionSaved.then(() => answer.source.root = question._id);
     const {modl, temp, topP, topK, ctxt} = chat.convConfig;
     const answer = await addMessage({modl, root: question._id});
     answer.select();
@@ -373,7 +392,6 @@ export const askQuestion = async (_question: Message | string, root?: string) =>
         if (!answer.source.text) answer.source.text = 'Model refused to respond.';
         answer.source.dtms = dtms;
         await questionSaved;
-        answer.source.root = question._id;
         await answer.save();
       })
       .finally(async () => {
@@ -581,19 +599,6 @@ const _askConvName = async (q = 'Hi', a = 'Hi') => {
   return '';
 }
 
-const _createConv = async () => {
-  try {
-    const res = await fetch('/api/ai-chat/conv', {method: 'PUT'});
-    const newConvId = (await res.json() as StatusResponse<string>).value;
-    if (!newConvId) throw new Error('Failed to create a new conversation.');
-    chat.conversations = [{id: newConvId}, ...chat.conversations];
-    return newConvId;
-  } catch (e) {
-    handleError(e);
-    throw e;
-  }
-}
-
 let _stopGeneration = async () => {};
 
 export function stopGeneration() {
@@ -722,5 +727,19 @@ export function useAiChatContent() {
     currentThread,
     isAnswering,
     isLoadingConv,
+  };
+};
+
+export function useAiChatMessage() {
+  const [isDeletingMessage, _isDeletingMessage] = useState(chat.isDeletingMessage);
+
+  useEffect(() => {
+    return chat.$on((o, p) => {
+      _isDeletingMessage(p.isDeletingMessage);
+    });
+  }, []);
+
+  return {
+    isDeletingMessage,
   };
 };
