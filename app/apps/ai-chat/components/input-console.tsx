@@ -7,7 +7,7 @@ import { Button } from "@nextui-org/button";
 import { Textarea } from "@nextui-org/input";
 
 import { CONTENT_MAX_W } from "@/constants/chat";
-import { askAiFromInput, stopGeneration, useAiChatInputConsole } from "@/hooks/useAiChat";
+import { aiChatStore, askQuestion, stopGeneration, useAiChatInputConsole } from "@/hooks/useAiChat";
 import { Tooltip } from "@nextui-org/tooltip";
 
 export default function InputConsole({
@@ -34,7 +34,7 @@ export default function InputConsole({
     try {
       const text = String(textareaValue).trim();
       if (!text) throw new Error('Text is empty');
-      const res = await askAiFromInput({root: convTail, text});
+      const res = await askQuestion(text, aiChatStore.convTail || void 0);
       if (!res) return;
       setTextareaValue('');
     } catch {}

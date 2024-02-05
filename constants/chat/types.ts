@@ -14,6 +14,7 @@ export type ConvItem = {
 
 export type MssgItem = {
   _id: string;
+  conv: string;
   text: string,
   modl?: string,
   root?: string,
@@ -24,21 +25,8 @@ export type MssgItem = {
   dtms?: number,
 }
 
-export type SaveMssg = {
-  conv: string;
-  text: string;
-  vers: string;
-  modl?: string;
-  root?: string;
-  urls?: string[];
-  args?: string[];
-  dtms?: number;
-}
-
-export type SaveMssgRes = {
-  isNewConv: boolean;
-  conv: string;
-  mssg: MssgItem;
+export type MssgItemWithVers = MssgItem & {
+  vers?: string;
 }
 
 export type ConvConfig = {

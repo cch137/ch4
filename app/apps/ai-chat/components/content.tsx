@@ -5,7 +5,7 @@ import { Spinner } from "@nextui-org/spinner";
 
 import { CONTENT_MAX_W } from "@/constants/chat";
 
-import Message from "./message";
+import MessageComponent from "./message";
 import InputConsole from "./input-console";
 import {useAiChatContent} from "@/hooks/useAiChat";
 import useIsSmallScreen from "@/hooks/useIsSmallScreen";
@@ -17,7 +17,7 @@ export default function AiChatContent() {
   const [isMessagesAutoScrolled, setIsMessagesAutoScrolled] = useState(false);
   const isSmallScreen = useIsSmallScreen();
 
-  const { currentConv, sortedMessages, isAnswering, isLoadingConv } = useAiChatContent();
+  const { currentConv, currentThread, isAnswering, isLoadingConv } = useAiChatContent();
 
   const outerOnScroll = useCallback(() => {
     const outer = _outer.current;
@@ -69,10 +69,10 @@ export default function AiChatContent() {
       </div> : null}
       <div className="flex-center w-full" ref={_inner}>
         <div className={`flex flex-col w-full py-8 pb-48 ${isSmallScreen ? 'px-4' : 'px-8'} gap-4`} style={{maxWidth: CONTENT_MAX_W}}>
-          <div className={`${sortedMessages.length == 0 ? 'py-12' : 'py-4'} mb-2 text-default-300 text-center select-none`}>
+          <div className={`${currentThread.length == 0 ? 'py-12' : 'py-4'} mb-2 text-default-300 text-center select-none`}>
             {"Let's start!"}
           </div>
-          {sortedMessages.map((m) => <Message key={m._id} message={m} />)}
+          {currentThread.map((m) => <MessageComponent key={m._id} message={m} />)}
         </div>
       </div>
       {isLoading ? null : <InputConsole

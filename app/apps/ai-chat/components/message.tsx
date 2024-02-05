@@ -12,12 +12,12 @@ import Markdown from 'react-markdown';
 import remarkGfm  from 'remark-gfm';
 
 import type { SetState } from "@/constants/types";
-import type { MssgItem } from "@/constants/chat/types";
 import formatDate from '@cch137/utils/format/date';
 import useCopyText from "@/hooks/useCopyText";
 
 import MessageCodeBlock from "./codeblock";
-import { editMessage, deleteMessage as _deleteMessage, aiChatHandleError } from "@/hooks/useAiChat";
+import type { Message } from "@/hooks/useAiChat";
+import { aiChatHandleError } from "@/hooks/useAiChat";
 import { TEMP } from "@/constants/chat";
 import useConfirm from "@/hooks/useConfirm";
 
@@ -27,7 +27,7 @@ function MessageContent({
   setIsEditing,
   setIsDeleting,
 }: {
-  message: MssgItem,
+  message: Message,
   isEditing: boolean,
   setIsEditing: SetState<boolean>,
   setIsDeleting: SetState<boolean>,
@@ -38,7 +38,7 @@ function MessageContent({
     modl,
     ctms,
     dtms,
-  } = message;
+  } = message.source;
   const isModel = typeof modl === 'string';
   const disableActions = _id.startsWith(TEMP);
 
@@ -56,7 +56,7 @@ function MessageContent({
   const deleteMessage = useCallback(async () => {
     if (onConfirmDelete()) {
       setIsDeleting(true);
-      await _deleteMessage({ _id, text: '' });
+      await message.delete();
       setIsDeleting(false);
     }
   }, [setIsDeleting, onConfirmDelete, _id]);
@@ -64,11 +64,7 @@ function MessageContent({
   const editMessageText = useCallback(async () => {
     const newText = msgTextInput.current?.value;
     if (!newText) return aiChatHandleError('Message is empty.');
-    if (await editMessage({ _id, text: newText  })) {
-      editMsgOnClose();
-      return true;
-    }
-    return false;
+    return await message.edit(newText);
   }, [msgTextInput, editMsgOnClose, _id]);
 
   return <>
@@ -150,12 +146,12 @@ function MessageContent({
           <Tooltip content="Edit" placement="bottom" showArrow>
             <div onClick={editMsgOnOpen}><IoCreateOutline /></div>
           </Tooltip>
-          {(0 && isModel) ? <Tooltip content="Regenerate" placement="bottom" showArrow>
-            <div><IoRefresh /></div>
+          {(isModel) ? <Tooltip content="Regenerate" placement="bottom" showArrow>
+            <div onClick={() => message.regenerate()}><IoRefresh className="rotate-45" /></div>
           </Tooltip> : null}
         </div>}
         <div className={`flex-1 flex justify-end items-center ${isModel ? 'opacity-30' : 'opacity-20'} gap-2 text-xs select-none whitespace-nowrap`}>
-          {(ctms) ? <span>{formatDate(new Date(ctms))}</span> : null}
+          {(ctms) ? <span>{formatDate(new Date(ctms), 'yyyy/MM/dd HH:mm')}</span> : null}
           {(isModel && modl) ? <span>{modl}</span> : null}
           {(isModel && dtms) ? <span>{`t:${Math.round(dtms/10)/100}s`}</span> : null}
         </div>
@@ -164,17 +160,21 @@ function MessageContent({
   </>
 }
 
-export default function Message({ message }: { message: MssgItem }) {
-  const isModel = typeof message.modl === 'string';
+export default function MessageComponent({ message }: { message: Message }) {
+  const isModel = message.isModel;
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const cLength = message.children.length;
+  const cIndex = message.selectedChildIndex;
+
   return (<>{isDeleting ? null :
     <div className={[
         'flex items-start justify-center w-full aichat-message-outer',
         isEditing ? 'pointer-events-none blur-sm' : '',
       ].join(' ')}
     >
-      <div className='w-11'>
+      <div className='w-11 flex flex-col gap-2'>
         <div
           className='text-2xl p-2.5 rounded-lg mt-2'
           // style={{background: isModel ? '#36634d' : '#3a3663', backdropFilter: 'blur(16px)', opacity: 0.75}}
@@ -182,6 +182,13 @@ export default function Message({ message }: { message: MssgItem }) {
         >
           {isModel ? <IoHardwareChipOutline /> : <IoPersonOutline />}
         </div>
+        {(cLength > 1) ? (
+          <div className="text-xs text-default-500 w-full flex-center select-none">
+            <span onClick={() => message.selectedChildIndex--} className={`cursor-pointer px-1 ${cIndex === 0 ? 'invisible' : ''}`}>{'<'}</span>
+            <span>{cIndex + 1}/{cLength}</span>
+            <span onClick={() => message.selectedChildIndex++} className={`cursor-pointer px-1 ${cIndex >= cLength - 1 ? 'invisible' : ''}`}>{'>'}</span>
+          </div>
+        ) : null}
       </div>
       <div className="flex-1 ml-3 aichat-message-c">
         <MessageContent

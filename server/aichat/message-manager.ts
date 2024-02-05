@@ -1,6 +1,6 @@
 import { AiChatMessage, AiChatConversation, dataSetter } from '../mongoose'
 import type { ObjectId } from 'mongodb'
-import type { ConvCompleted, ConvItem, MssgItem, SaveMssg } from "@/constants/chat/types";
+import type { ConvCompleted, ConvItem, MssgItem } from "@/constants/chat/types";
 import { correctConvConfig } from '@/constants/chat'
 import type { StatusResponse } from '@/constants/types'
 import random from '@cch137/utils/random'
@@ -24,7 +24,7 @@ const isOwnerOfConv = async (userId?: string, convId?: string) => {
 
 const getMessages = async (userId: string, convId: string) => {
   if (!await isOwnerOfConv(userId, convId)) return []
-  return (await AiChatMessage.find({ conv: convId }, { conv: 0 }).lean()) as MssgItem[]
+  return (await AiChatMessage.find({ conv: convId }).lean()) as MssgItem[]
 }
 
 const getConv = async (userId: string, convId: string) => {
@@ -113,7 +113,7 @@ const createConv = async (userId?: string): Promise<StatusResponse<string>> => {
   }
 }
 
-const insertMessage = async (userId?: string, msg?: SaveMssg): Promise<StatusResponse<MssgItem>> => {
+const insertMessage = async (userId?: string, msg?: MssgItem): Promise<StatusResponse<MssgItem>> => {
   if (!msg) return { success: false, message: 'Message is required' }
   const { conv, text, modl, root, urls, args, dtms } = msg
   if (!userId || !conv || !(await isOwnerOfConv(userId, conv))) return { success: false, message: 'Conversation is requried' }
@@ -133,14 +133,14 @@ const insertMessage = async (userId?: string, msg?: SaveMssg): Promise<StatusRes
     success: true,
     value: {
       _id: createdMsg._id.toHexString(),
-      text, modl, root, dtms, ctms
+      conv, text, modl, root, dtms, ctms
     }
   }
 }
 
 const getMessage = async (userId: string, convId: string, msgId: string) => {
   if (!await isOwnerOfConv(userId, convId)) return null
-  return (await AiChatMessage.findOne({ conv: convId, _id: msgId }, { conv: 0 }).lean()) as MssgItem
+  return (await AiChatMessage.findOne({ conv: convId, _id: msgId }).lean()) as MssgItem
 }
 
 const setMessage = async (userId: string, convId: string, _id?: ObjectId | string, msg?: MssgItem) => {
@@ -176,8 +176,8 @@ const delMessage = async (userId?: string, convId?: string, _id?: ObjectId | str
   try {
     await Promise.all([
       AiChatMessage.deleteOne({ _id }),
-      AiChatMessage.updateMany({root: _id}, {$set: {root}}),
-      AiChatConversation.updateOne({tail: _id}, {$set: {tail: child?._id}}),
+      AiChatMessage.updateMany({root: _id}, root ? {$set: {root}} : {$unset: {root: 1}}),
+      AiChatConversation.updateOne({tail: _id}, root ? {$set: {tail: root}} : {$unset: {tail: 1}}),
     ])
     return {success: true}
   } catch {
@@ -202,5 +202,18 @@ const messageManager = {
   modifiedConv,
   transferConvs,
 }
+
+// ;(async () => {
+//   const {default: User} = await import('@/server/mongoose/models/User');
+//   const [registeredUsers, conversations, messages] = await Promise.all([
+//     User.find({auth: {$gte: 1}}, {id: 1}),
+//     AiChatConversation.find({}, {_id: 1, user: 1}),
+//     AiChatMessage.find({}, {_id: 1, ctms: 1, conv: 1}).lean(),
+//   ]);
+//   const registeredUserIds = new Set(registeredUsers.map(u => u.id));
+//   for (const conv of conversations) {
+//     if (registeredUserIds.has(conv.user)) registeredUserIds
+//   }
+// })();
 
 export default messageManager

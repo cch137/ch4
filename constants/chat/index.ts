@@ -9,6 +9,8 @@ export const SIDEBAR_WIDTH = 285;
 export {CONTENT_MAX_W};
 export const MAX_CTXT = 16;
 
+export const isTempMsgId = (id?: string | null) => !id || id.startsWith(TEMP);
+
 const correctNumber = (item: string | number | undefined | null, minValue: number, maxValue: number, defaultValue: number) => {
   if (item === undefined || item === null) return defaultValue;
   const parsed = Number(item);

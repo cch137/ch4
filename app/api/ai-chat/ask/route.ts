@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import authNext from "@/server/auth-next";
-import { unpackData } from "@cch137/utils/shuttle";
+import { unpackDataWithHash } from "@cch137/utils/shuttle";
 import type { UniOptions } from "@cch137/utils/ai";
 import { readStream } from "@cch137/utils/stream";
 import getIp from '@cch137/utils/server/get-ip';
@@ -17,7 +17,7 @@ const rateLimiter = new RateLimiter([
 
 const tryUnpackData = (array: Uint8Array) => {
   try {
-    return unpackData<UniOptions>(array, 4141414141, 4242424242);
+    return unpackDataWithHash<UniOptions>(array, 256, 4141414141, 4242424242);
   } catch {
     return null;
   }
