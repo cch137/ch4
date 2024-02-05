@@ -122,7 +122,7 @@ const createUser = async (eadd: string, name: string, pass: string): Promise<Sta
       name,
       pass: hashedPass,
       auth: 1,
-      ctms: 1,
+      ctms: Date.now(),
     })
     return { success: true }
   } catch {
