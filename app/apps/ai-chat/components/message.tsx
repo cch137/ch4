@@ -7,6 +7,7 @@ import { Button } from "@nextui-org/button";
 import { Textarea } from "@nextui-org/input";
 import { Tooltip } from "@nextui-org/tooltip";
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from "@nextui-org/modal";
+import { Spinner } from "@nextui-org/spinner";
 
 import Markdown from 'react-markdown';
 import remarkGfm  from 'remark-gfm';
@@ -128,10 +129,14 @@ function MessageContent({
           <Tooltip content="Delete" placement="bottom" showArrow>
             <div
               onClick={deleteMessage}
-              className={`${isConfirmDelete ? 'flex-center text-danger-400 opacity-100' : ''} ${(isDeletingMessage) ? 'hover:cursor-wait' : ''}`}
+              className={`${isConfirmDelete ? 'flex-center text-danger-400 opacity-100' : ''} ${(isDeletingMessage) ? 'pointer-events-none' : ''}`}
               style={{opacity: isConfirmDelete ? 1 : undefined}}
             >
-              <IoTrashOutline />
+              {isDeletingMessage ? (
+                <div style={{height: 18, width: 18}} className="flex-center">
+                  <Spinner size="sm" color="default" />
+                </div>
+              ) : <IoTrashOutline />}
               {isConfirmDelete ? <span className="text-xs pl-1">Confirm Delete</span> : ''}
             </div>
           </Tooltip>
