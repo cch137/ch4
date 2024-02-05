@@ -62,7 +62,7 @@ const chat = store({
 }, async () => {
   versionStore.$init();
   return {
-    conversations: await fetchConvList(),
+    conversations: await fetchConvList(!getChatIsInited()),
   }
 }, {
   initAfterOn: true,
@@ -70,7 +70,10 @@ const chat = store({
   updateInterval: 15*60*1000,
 });
 
+const getChatIsInited = (): boolean => chat.$inited;
+
 userInfoStore.$on((o, p, keys) => {
+  chat.$assign({$inited: false});
   if (keys.includes('auth')) chat.$update();
 });
 
