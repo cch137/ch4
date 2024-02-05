@@ -53,6 +53,7 @@ const chat = store({
   convConfig: getDefConvConfig(),
   isAnswering: false,
   isStoping: false,
+  isDeletingMessage: false,
   isLoadingConv: false,
   isLoadingConvList: false,
   isUpdatingConv: false,
@@ -280,12 +281,14 @@ class Message {
   }
 
   async delete() {
+    if (chat.isDeletingMessage) return false;
     const _id = this._id;
     const parentId = this.parent?._id;
     for (const child of this.children) child.source.root = parentId;
     updateMessages(chat.messages.filter(m => m._id !== _id));
     if (this.isTemp) return true;
     try {
+      chat.isDeletingMessage = true;
       const status: StatusResponse = await (await fetch(`/api/ai-chat/conv/${this.conv}/${this._id}`, {
         method: 'DELETE',
       })).json();
@@ -295,6 +298,8 @@ class Message {
     } catch (e) {
       handleError(e);
       return false;
+    } finally {
+      chat.isDeletingMessage = false;
     }
   }
 

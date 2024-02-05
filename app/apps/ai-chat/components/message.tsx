@@ -17,7 +17,7 @@ import useCopyText from "@/hooks/useCopyText";
 
 import MessageCodeBlock from "./codeblock";
 import type { Message } from "@/hooks/useAiChat";
-import { aiChatHandleError } from "@/hooks/useAiChat";
+import { aiChatHandleError, aiChatStore } from "@/hooks/useAiChat";
 import { TEMP } from "@/constants/chat";
 import useConfirm from "@/hooks/useConfirm";
 
@@ -54,6 +54,7 @@ function MessageContent({
   const [isConfirmDelete, onConfirmDelete] = useConfirm();
 
   const deleteMessage = useCallback(async () => {
+    if (aiChatStore.isDeletingMessage) return;
     if (onConfirmDelete()) {
       setIsDeleting(true);
       await message.delete();
