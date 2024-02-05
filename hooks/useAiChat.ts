@@ -72,9 +72,14 @@ const chat = store({
 
 const getChatIsInited = (): boolean => chat.$inited;
 
-userInfoStore.$on((o, p, keys) => {
-  chat.$assign({$inited: false});
-  if (keys.includes('auth')) chat.$update();
+let lastAuthLevel = 0;
+userInfoStore.$on((o) => {
+  const {auth} = o;
+  if (lastAuthLevel !== auth) {
+    chat.$assign({$inited: false});
+    chat.$update();
+  }
+  lastAuthLevel = auth;
 });
 
 export {
