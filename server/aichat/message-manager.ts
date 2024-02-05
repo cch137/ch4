@@ -203,17 +203,4 @@ const messageManager = {
   transferConvs,
 }
 
-// ;(async () => {
-//   const {default: User} = await import('@/server/mongoose/models/User');
-//   const [registeredUsers, conversations, messages] = await Promise.all([
-//     User.find({auth: {$gte: 1}}, {id: 1}),
-//     AiChatConversation.find({}, {_id: 1, user: 1}),
-//     AiChatMessage.find({}, {_id: 1, ctms: 1, conv: 1}).lean(),
-//   ]);
-//   const registeredUserIds = new Set(registeredUsers.map(u => u.id));
-//   for (const conv of conversations) {
-//     if (registeredUserIds.has(conv.user)) registeredUserIds
-//   }
-// })();
-
 export default messageManager
