@@ -23,6 +23,7 @@ import {
 
 import { vers, versionStore } from './useVersion';
 import random from '@cch137/utils/random';
+import { userInfoStore } from './useUserInfo';
 
 type action = 'send' | 'stream';
 export const answerBroadcaster = new Broadcaster<action>('ai-chat-answer');
@@ -67,6 +68,10 @@ const chat = store({
   initAfterOn: true,
   lazyUpdate: true,
   updateInterval: 15*60*1000,
+});
+
+userInfoStore.$on((o, p, keys) => {
+  if (keys.includes('auth')) chat.$update();
 });
 
 export {
