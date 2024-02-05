@@ -65,6 +65,8 @@ const chat = store({
   }
 }, {
   initAfterOn: true,
+  lazyUpdate: true,
+  updateInterval: 15*60*1000,
 });
 
 export {
