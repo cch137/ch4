@@ -6,7 +6,7 @@ export default function useConfirm(confirmTimeoutMs = 3000) {
   const confirmTimeout = useRef<NodeJS.Timeout>();
   const [isConfirm, setIsConfirm] = useState(false);
 
-  const onConfirm = () => {
+  const onConfirm = (): boolean => {
     if (isConfirm) return true;
     clearTimeout(confirmTimeout.current);
     setIsConfirm(true);
