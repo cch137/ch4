@@ -53,7 +53,6 @@ function TriggerList() {
 
 export default function AiAsst() {
   const router = useRouter();
-  const [startDate, setStartDate] = useState(new Date());
   const [isLoading, setIsLoading] = useState(false);
   const {errorMessageBox, openErrorMessageBox} = useErrorMessage();
   
@@ -61,13 +60,13 @@ export default function AiAsst() {
     return triggersErrorBroadcaster.subscribe(({data: {message, title}}) => openErrorMessageBox(message, title));
   }, [openErrorMessageBox]);
 
-  const userInfo = useUserInfo();
+  const {$inited, auth} = useUserInfo();
 
   return (<>
     {errorMessageBox}
-    {!userInfo.$inited
+    {!$inited
       ? <FullpageSpinner />
-      : (userInfo.auth > 0 ? <>
+      : (auth > 0 ? <>
         <div className="max-w-full px-4 py-8 m-auto" style={{width: CONTENT_MAX_W}}>
           <div className="flex items-end">
             <h1 className="flex-1 text-3xl font-medium">My Triggers</h1>

@@ -61,6 +61,10 @@ const chat = store({
   isRenamingConv: false,
 }, async () => {
   versionStore.$init();
+  if ((await userInfoStore.$init()).auth <= 0) {
+    skippedInit = true;
+    return;
+  }
   return {
     conversations: await fetchConvList(!getChatIsInited()),
   }
@@ -72,14 +76,12 @@ const chat = store({
 
 const getChatIsInited = (): boolean => chat.$inited;
 
-let lastAuthLevel = 0;
+let skippedInit = false;
 userInfoStore.$on((o) => {
-  const {auth} = o;
-  if (lastAuthLevel !== auth) {
-    chat.$assign({$inited: false});
-    chat.$update();
-  }
-  lastAuthLevel = auth;
+  if (!skippedInit) return;
+  skippedInit = false;
+  chat.$assign({$inited: false});
+  chat.$update();
 });
 
 export {
