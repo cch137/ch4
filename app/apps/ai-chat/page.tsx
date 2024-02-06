@@ -2,7 +2,7 @@
 
 import "./chat.css";
 import { useEffect, useRef, useState } from "react";
-import { AICHAT_PATH, SIDEBAR_WIDTH } from '@/constants/chat';
+import { AICHAT_PATH, AICHAT_SHORTPATH, SIDEBAR_WIDTH } from '@/constants/chat';
 import { Link } from "@nextui-org/link";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { useParams } from "next/navigation";
@@ -64,7 +64,7 @@ export default function AiChatApp({appPath = AICHAT_PATH}: {appPath?: string}) {
 
   const getPathnameData = () => {
     const pathname = `${location.pathname}${location.pathname.endsWith('/') ? '' : '/'}`;
-    const [_0, _1, convId] = pathname.split('/');
+    const convId = pathname.split('/').at(pathname.startsWith(AICHAT_SHORTPATH) ? 2 : 3);
     return {
       pathname,
       convId: convId || undefined,
@@ -83,12 +83,11 @@ export default function AiChatApp({appPath = AICHAT_PATH}: {appPath?: string}) {
       if (pConvId !== convId) history.pushState(null, '', `${appPath}${convId || ''}`);
     } catch { router.push(`${appPath}${convId || ''}`) }
     const handlePopstat = (e: PopStateEvent) => {
-      const { pathname, isNotInAiChat } = getPathnameData();
+      const { pathname, isNotInAiChat, convId } = getPathnameData();
       if (isNotInAiChat) {
         if (pathname.startsWith(`${appPath}`)) router.replace(location.pathname);
         return;
       }
-      const [_0, _1, convId] = pathname.split('/');
       loadConv(convId ? { id: convId } : undefined);
     }
     window.onpopstate = handlePopstat;
