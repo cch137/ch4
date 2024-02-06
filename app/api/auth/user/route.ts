@@ -7,6 +7,6 @@ export async function POST(req: NextRequest) {
   const res = NextResponse.json({ success: true, value: { id, name, auth } });
   await token.check();
   token.setCookie(res);
-  if (await token.transferUser(req)) authNext.removeOldTokenCookie(res);
+  authNext.removeOldTokenCookie(req, res);
   return res;
 }

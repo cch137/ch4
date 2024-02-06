@@ -5,30 +5,6 @@ import { base64ToBase64Url, base64UrlToBase64 } from '@cch137/utils/format/base6
 import admin from '../admin';
 import { d as trollDecrypt } from "@cch137/utils/troll"
 
-const readOldToken = (() => {
-  const seed = 168813145203000
-  type OldTokenObject = {
-    uid: string;
-    ip: string;
-    checked: number;
-    authlvl?: number;
-  }
-  return function read(token?: string) {
-    try {
-      if (!token) return null;
-      const encrypted = trollDecrypt(token, 1, seed)
-      if (typeof encrypted === 'object' && encrypted !== null) {
-        if ('user' in encrypted) {
-          encrypted.uid = encrypted.user
-          delete encrypted['user']
-        }
-        return encrypted as OldTokenObject
-      }
-    } catch {}
-    return null
-  }
-})();
-
 type TokenType = {
   id: string;
   name: string;
@@ -156,8 +132,6 @@ class Token implements TokenType {id: string;
   toString() {
     return Token.serialize(this);
   }
-
-  static parseOldToken = readOldToken;
 
   static parse(token: AnyTokenType) {
     return new Token(token);
