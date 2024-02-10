@@ -92,6 +92,7 @@ const K09 = 'gpt-provider0-key';  // mikuapi
 const K10 = 'gpt-provider1-host'; // freegptasia
 const K11 = 'gpt-provider1-key';  // freegptasia
 const K12 = 'gemini-key';
+const K13 = 'bot-ask-key';
 
 export const config = Object.freeze({
   [K01]: new AdminItem(K01, ''),
@@ -106,6 +107,7 @@ export const config = Object.freeze({
   [K10]: new AdminItem(K10, ''),
   [K11]: new AdminItem(K11, ''),
   [K12]: new AdminItem(K12, ''),
+  [K13]: new AdminItem(K13, ''),
 });
 await Promise.all(Object.values(config).map(i => i.init));
 
