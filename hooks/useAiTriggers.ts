@@ -2,10 +2,10 @@ import { Trigger, TriggerItem } from "@/constants/asst";
 import { StatusResponse } from "@/constants/types";
 import Broadcaster from "@cch137/utils/dev/broadcaster";
 import store from "@cch137/utils/dev/store";
-import { ShuttleWithHash, packDataWithHash, unpackDataWithHash } from "@cch137/utils/shuttle";
+import { packDataWithHash, unpackDataWithHash } from "@cch137/utils/shuttle";
 import { readStream } from "@cch137/utils/stream";
 import { useEffect, useState } from "react";
-import { wrapStreamResponse } from "./useAiChat";
+import wrapStreamResponse from '@cch137/utils/crawl/wrap-stream-response';
 
 export const triggersErrorBroadcaster = new Broadcaster<{message:string,title?:string}>('aiasst-trigger-error');
 
@@ -64,7 +64,7 @@ export const testTrigger = async (_id?: string) => {
   try {
     if (!_id) throw new Error('Trigger id not provided');
     const res = await fetch(`/api/ai-asst/triggers/${_id}/test`, {method: 'POST'});
-    return wrapStreamResponse(res);
+    return wrapStreamResponse(res, {handleError: handleTriggersError});
   } catch (e) {
     handleTriggersError(e);
     return null;

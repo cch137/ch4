@@ -8,6 +8,7 @@ import type { UniOptions } from '@cch137/utils/ai';
 import { wrapMessages } from '@cch137/utils/ai/utils';
 import { packDataWithHash } from '@cch137/utils/shuttle';
 import { analyzeLanguages } from '@cch137/utils/lang/analyze-languages';
+import wrapStreamResponse from '@cch137/utils/crawl/wrap-stream-response';
 
 import { ConvCompleted, ConvItem, MssgItem } from '@/constants/chat/types';
 import { StatusResponse } from '@/constants/types';
@@ -554,49 +555,6 @@ export async function loadConv(id?: string | ConvItem, force = false): Promise<v
   }
 }
 
-export const wrapStreamResponse = (res: Response, {
-  controller = new AbortController(),
-}: {
-  controller?: AbortController,
-} = {}) => {
-  const t0 = Date.now();
-  const getDtms = () => Date.now() - t0;
-  const chunks = store([] as string[]);
-  const decoder = new TextDecoder('utf8');
-  let readTimeout: NodeJS.Timeout;
-  const extendTimeout = () => {
-    clearTimeout(readTimeout);
-    return setTimeout(() => handleError('Response Timeout'), 60000);
-  }
-  if (!res.body) throw new Error('Failed to request');
-  const reader = res.body.getReader();
-  const promise = new Promise<{dtms:number}>(async (resolve) => {
-    readTimeout = extendTimeout();
-    while (true) {
-      try {
-        const { value, done } = await reader.read();
-        if (done) break;
-        const chunkText = decoder.decode(value);
-        chunks.push(chunkText);
-        readTimeout = extendTimeout();
-      } catch (e) {
-        if (controller && controller.signal.aborted) break;
-        console.error(`Failed to read response${e instanceof Error ? ': ' + e.message : ''}`);
-      }
-    }
-    clearTimeout(readTimeout);
-    resolve({dtms: getDtms()});
-  });
-  const value = {
-    get answer() {return chunks.join('')},
-    get dtms() {return getDtms()},
-    chunks,
-    promise,
-    controller,
-  }
-  return value;
-}
-
 const _askAiModel = async (options: UniOptions) => {
   const controller = new AbortController();
   const res = await fetch('/api/ai-chat/ask', {
@@ -604,7 +562,7 @@ const _askAiModel = async (options: UniOptions) => {
     body: packDataWithHash<UniOptions>(options, 256, 4141414141, 4242424242),
     signal: controller.signal,
   });
-  return wrapStreamResponse(res, {controller});
+  return wrapStreamResponse(res, {controller, handleError});
 }
 
 const _askConvName = async (q = 'Hi', a = 'Hi') => {
