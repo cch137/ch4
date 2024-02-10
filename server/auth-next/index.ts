@@ -2,6 +2,7 @@ import type { NextRequest, NextResponse } from "next/server";
 import messageManager from '../aichat/message-manager';
 import Token from '../auth/tokenizer';
 import { TOKEN_COOKIE_NAME, OLD_TOKEN_COOKIE_NAME } from "@/constants/cookies";
+import { validBotAuthKey } from "../admin";
 
 const getTokenString = (req: NextRequest) => req.cookies.get(TOKEN_COOKIE_NAME)?.value;
 
@@ -31,6 +32,11 @@ class NextCh4Token extends Token {
 
   static removeOldTokenCookie(req: NextRequest, res: NextResponse) {
     if (req.cookies.has(OLD_TOKEN_COOKIE_NAME)) res.cookies.delete(OLD_TOKEN_COOKIE_NAME);
+  }
+
+  static validBotAuthKey(req: NextRequest) {
+    const auth = req.headers.get('Authorization') || '';
+    return validBotAuthKey(auth.trim().replace(/^Bearer /i, '').trim());
   }
 
   setCookie(res: NextResponse) {

@@ -92,7 +92,7 @@ const K09 = 'gpt-provider0-key';  // mikuapi
 const K10 = 'gpt-provider1-host'; // freegptasia
 const K11 = 'gpt-provider1-key';  // freegptasia
 const K12 = 'gemini-key';
-const K13 = 'bot-ask-key';
+const K13 = 'bot-auth-key';
 
 export const config = Object.freeze({
   [K01]: new AdminItem(K01, ''),
@@ -135,6 +135,11 @@ export const setAdminItem = async <K extends string, V>(name: K, value: V) => {
   return await item.set(value);
 }
 
+export const validBotAuthKey = (s?: string | null) => {
+  return s === config['bot-auth-key'].value;
+}
+
 export default Object.freeze({
   config,
+  validBotAuthKey,
 });
