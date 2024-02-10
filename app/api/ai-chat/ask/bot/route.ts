@@ -15,7 +15,7 @@ const tryUnpackData = <T=UniOptions>(array: Uint8Array) => {
 
 export async function POST(req: NextRequest) {
   if (!authNext.validBotAuthKey(req)) return new NextResponse('Unauthorized', { status: 400 });
-  const options = tryUnpackData<UniOptions & {key: string}>(await readStream(req.body));
+  const options = tryUnpackData<UniOptions>(await readStream(req.body));
   if (!options) return new NextResponse('Failed to parse request', { status: 400 });
   const stream = aiProvider.ask(options);
   return sendNextResponseStream(stream);
