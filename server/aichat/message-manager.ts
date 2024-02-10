@@ -27,7 +27,8 @@ const getMessages = async (userId: string, convId: string) => {
   return (await AiChatMessage.find({ conv: convId }).lean()) as MssgItem[]
 }
 
-const getConv = async (userId: string, convId: string) => {
+const getConv = async (userId?: string, convId?: string): Promise<ConvItem | null> => {
+  if (!userId || !convId) return null;
   accessedConv(userId, convId)
   return (await ConvOp.find(userId, convId).get({ _id: 0, user: 0 })) as ConvItem || null
 }

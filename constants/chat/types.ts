@@ -9,6 +9,7 @@ export type ConvItem = {
   id: string;
   name?: string;
   mtms?: number;
+  conf?: string;
   tail?: string;
 }
 
@@ -38,7 +39,6 @@ export type ConvConfig = {
 }
 
 export type ConvCompleted = ConvItem & {
-  conf?: string;
   messages?: MssgItem[];
 }
 
