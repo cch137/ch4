@@ -97,6 +97,18 @@ const getUserIdByUserIdentity = async (nameOrEadd: string) => {
   }
 }
 
+const getTotalRegisteredUsers = async (minAuth = 1) => {
+  return await User.countDocuments({auth: { $gte: minAuth }});
+}
+
+const getTotalOnlineUsers = async (lastMs = 1.5*60000) => {
+  return await User.countDocuments({atms: { $gte: Date.now() - lastMs }});
+}
+
+const getOnlineUsers = async (lastMs = 1.5*60000) => {
+  return await User.find({atms: { $gte: Date.now() - lastMs }}, {id: 1, name: 1, ctms: 1, atms: 1, mtms: 1, auth: 1}).lean();
+}
+
 /** Warning: please ONLY use it in authNext. */
 const _createUserTemporary = async (): Promise<StatusResponse<string>> => {
   try {
@@ -177,6 +189,9 @@ const userManager = {
   getUserByUserIdentityAndPass,
   getUserDetailsById,
   getUserIdByUserIdentity,
+  getTotalRegisteredUsers,
+  getTotalOnlineUsers,
+  getOnlineUsers,
   createUser,
   _createUserTemporary,
   accessedUser,

@@ -1,5 +1,5 @@
 import status from '@/server/aichat/status'
-import mongoose, { AiAsstTrigger, AiChatConversation, AiChatMessage, User } from '@/server/mongoose/'
+import mongoose, { AiAsstTrigger, AiChatConversation, AiChatMessage } from '@/server/mongoose/'
 import { NextResponse } from 'next/server'
 
 interface MongoDbStats {
@@ -33,8 +33,8 @@ export async function POST() {
     mongoose.connection.db.stats(),
     AiChatConversation.countDocuments(),
     AiChatMessage.countDocuments(),
-    User.countDocuments({auth: { $gte: 1 }}),
-    User.countDocuments({atms: { $gte: Date.now() - 60000 }}),
+    userManager.getTotalRegisteredUsers(),
+    userManager.getTotalOnlineUsers(),
     AiAsstTrigger.countDocuments(),
     AiAsstTrigger.countDocuments({enbl: true}),
   ])
@@ -54,6 +54,7 @@ import random from "@cch137/utils/random";
 import {sleep} from "@cch137/utils/time";
 import fs from "fs";
 import { triggersManager } from '@/server/aiasst'
+import { userManager } from '@/server/auth'
 
 const mchnCode = random.base64(8);
 fs.writeFileSync('.next/mchnCode.txt', mchnCode, 'utf-8');
