@@ -406,8 +406,11 @@ export const askQuestion = async (_question: Message | string, root?: string) =>
     }
     res.promise
       .then(async ({dtms}) => {
-        if (!answer.source.text) answer.source.text = 'Model refused to respond.';
         answer.source.dtms = dtms;
+        if (!answer.source.text) {
+          answer.source.text = 'Model does not respond.';
+          return handleError(answer.source.text);
+        }
         await questionSaved;
         await answer.save();
       })
