@@ -175,7 +175,7 @@ export default function ConversationList({
 }) {
   const convListEl = createRef<HTMLDivElement>();
 
-  const {conversations: convList, isLoadingConvList, currentConv} = useAiChatConvList();
+  const {conversations: convList, isLoadingConvList, currentConv, isLoadingConv} = useAiChatConvList();
 
   const getScrollTopRatio = useCallback((offset = 0) => {
     const el = convListEl.current;
@@ -256,6 +256,7 @@ export default function ConversationList({
                 style={({scale: .67, transform: 'translateY(-33%)' })}
                 variant="light"
                 color="secondary"
+                isDisabled={isLoadingConvList || isLoadingConv}
                 onClick={() => loadConv()}
               >
                 <IoAddOutline style={({scale: 2.5})} />

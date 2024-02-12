@@ -114,18 +114,24 @@ export default function AiChatApp({appPath = AICHAT_PATH}: {appPath?: string}) {
           ? (
             <>
               {errorMessageBox}
-              <div className="overflow-hidden">
-                <Sidebar
-                  appPath={appPath}
-                  initConvId={convId}
-                  sidebarWidth={sidebarWidth}
-                  isSidebarOpen={isSidebarOpen}
-                  toggleSidebarOpen={toggleSidebarOpen}
-                  closeSidebar={closeSidebar}
-                />
+              <div
+                id="aichat"
+                className="absolute top-0 left-0"
+                style={{width: '100dvw', height: '100dvh'}}
+              >
+                <div className="overflow-hidden" style={{maxWidth: '100dvw'}}>
+                  <Sidebar
+                    appPath={appPath}
+                    initConvId={convId}
+                    sidebarWidth={sidebarWidth}
+                    isSidebarOpen={isSidebarOpen}
+                    toggleSidebarOpen={toggleSidebarOpen}
+                    closeSidebar={closeSidebar}
+                  />
+                </div>
                 <div className="chat-content" style={{
                   top: '3.5rem',
-                  left: isSmallScreen ? 0 : isSidebarOpen ? sidebarWidth : 0,
+                  right: 0,
                   width: isSmallScreen ? '100dvw' : `calc(100dvw - ${sidebarWidth}px)`,
                   height: 'calc(100dvh - 3.5rem)',
                 }}>

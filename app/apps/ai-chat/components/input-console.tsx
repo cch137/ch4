@@ -52,7 +52,7 @@ export default function InputConsole({
           </div>
         </div>
       }
-      <div className="w-full flex items-start justify-end gap-2 m-4 px-4" style={{maxWidth: CONTENT_MAX_W}}>
+      <div className="w-full flex items-start justify-end gap-2 m-4" style={{maxWidth: CONTENT_MAX_W}}>
         <div className="bg-secondary-50 rounded-xl select-none pointer-events-none opacity-0">
           <Button isIconOnly color="secondary" variant="flat">
             <IoSend style={{scale:1.5}} />

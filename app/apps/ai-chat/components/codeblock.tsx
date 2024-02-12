@@ -1,15 +1,14 @@
 "use client"
 
 import type { ClassAttributes, HTMLAttributes } from "react";
-import { IoCopyOutline } from "react-icons/io5";
-
-import { Button } from "@nextui-org/button";
+import { IoCheckmark, IoCopyOutline } from "react-icons/io5";
 
 import type { ExtraProps } from 'react-markdown';
 import Prism from 'react-syntax-highlighter/dist/esm/prism';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import useCopyText from "@/hooks/useCopyText";
+import { fontClassName } from '@/constants/font';
 
 export default function MessageCodeBlock({
   node,
@@ -20,25 +19,27 @@ export default function MessageCodeBlock({
   const match = /language-(\w+)/.exec(className || '');
   const [copied, copyCode] = useCopyText(String(children));
   return match ? (
-    <div className="my-2 rounded-2xl overflow-hidden">
-      <div className="relative w-full">
+    <div className="my-2 rounded-lg overflow-hidden">
+      <div className="relative w-full text-xs">
         <div
-          className="absolute flex items-center w-full py-1 px-3 border-b-1 border-default-200"
-          style={{borderRadius: '1rem 1rem 0 0', background: '#ffffff12'}}
+          className={`absolute flex items-center w-full py-0.5 px-4 border-b-1 border-default-200 ${fontClassName}`}
+          style={{borderRadius: '.5rem .5rem 0 0', background: '#202020'}}
         >
           <div className="flex-1 text-default-600 pointer-events-none select-none">
             {match[1]}
           </div>
-          <Button
-            size="sm"
-            className="h-7 text-sm"
-            startContent={<IoCopyOutline />}
-            onClick={copyCode}
-            variant={copied ? 'flat' : 'bordered'}
-            color={copied ? 'success' : 'default'}
-          >
-            <span className="opacity-90">{copied ? 'Copied' : 'Copy'}</span>
-          </Button>
+          <div className="flex-center cursor-pointer">
+            <div
+              className={[
+                'flex-center gap-1.5 h-6 cursor-pointer',
+                copied ? 'text-success-500' : 'text-default-600',
+              ].join(' ')}
+              onClick={copyCode}
+            >
+              {copied ? <IoCheckmark className="text-sm" /> : <IoCopyOutline className="text-sm" />}
+              <span>{copied ? 'Copied!' : 'Copy code'}</span>
+            </div>
+          </div>
         </div>
       </div>
       <Prism
@@ -46,7 +47,7 @@ export default function MessageCodeBlock({
         language={match[1]}
         // @ts-ignore
         style={vscDarkPlus}
-        className="aichat-message-md-codeblock rounded-2xl"
+        className="aichat-message-md-codeblock rounded-lg"
         {...props}
       >
         {String(children).replace(/\n$/, '')}

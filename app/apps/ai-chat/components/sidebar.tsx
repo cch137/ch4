@@ -6,7 +6,7 @@ import { Button } from '@nextui-org/button';
 import { Link } from "@nextui-org/link";
 import { Tooltip } from '@nextui-org/tooltip';
 
-import { IoMenuOutline } from "react-icons/io5";
+import { IoEllipsisVertical } from "react-icons/io5";
 
 import { SIDEBAR_WIDTH, models as _models } from '@/constants/chat';
 
@@ -49,13 +49,16 @@ export default function Sidebar({
   const isSmallScreen = useIsSmallScreen();
   const [modelSettingOpened, setModelSettingOpened] = useState(false);
   return (
-    <div className="chat-sidebar" style={{
-      width: isSmallScreen ? '100dvw' : `${SIDEBAR_WIDTH}px`,
-      height: 'calc(100dvh - 3.5rem)',
-      top: '3.5rem',
-      left: isSmallScreen ? `${isSidebarOpen ? 0 : -100}dvw` : `${sidebarWidth-SIDEBAR_WIDTH}px`,
-      zIndex: 20,
-    }}>
+    <div
+      className="chat-sidebar"
+      style={{
+        width: isSmallScreen ? '100dvw' : `${SIDEBAR_WIDTH}px`,
+        height: 'calc(100dvh - 3.5rem)',
+        top: '3.5rem',
+        left: isSmallScreen ? `${isSidebarOpen ? 0 : -100}dvw` : `${sidebarWidth-SIDEBAR_WIDTH}px`,
+        zIndex: 20,
+      }}
+    >
       <div className="flex-1 w-full h-full overflow-x-hidden overflow-y-auto">
         <div className="flex h-full flex-col p-4 gap-2">
           <ConversationConfig
@@ -75,14 +78,14 @@ export default function Sidebar({
         </div>
       </div>
       <div
-        className="chat-sidebar-button-ctn flex-center overflow-hidden h-full absolute right-0"
-        style={{width: isSmallScreen ? isSidebarOpen ? 0 : '3.6rem' : '1.8rem'}}
+        className="chat-sidebar-button-ctn flex-center h-0 right-0 absolute"
+        style={{width: isSmallScreen ? isSidebarOpen ? 0 : '2.8rem' : '1.8rem'}}
       >
         {isSmallScreen
-          ? <div className="bg-background mb-20 rounded-xl overflow-hidden">
+          ? <div className="bg-inherit mb-8 rounded-full overflow-hidden">
             <Tooltip content="Menu" placement="right">
-              <Button isIconOnly variant="bordered" color="secondary">
-                <IoMenuOutline style={{scale: 1.75}} onClick={toggleSidebarOpen} />
+              <Button isIconOnly variant="light" size="sm">
+                <IoEllipsisVertical className="text-default-500 text-xl" onClick={toggleSidebarOpen} />
               </Button>
             </Tooltip>
           </div>

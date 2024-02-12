@@ -4,7 +4,7 @@ import { CONTENT_MAX_W } from "@/constants/asst";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import {Table, TableHeader, TableColumn, TableBody, TableRow, TableCell} from "@nextui-org/table";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import { IoRefreshOutline } from "react-icons/io5";
 import { StatusResponse, UserOnlineState } from "@/constants/types";
@@ -20,7 +20,7 @@ export default function Online() {
   const [userList, setUserList] = useState<UserOnlineState[]>([]);
   const [lastMs, setLastMs] = useState(defLastMs);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     try {
       setIsLoading(true);
       const res = await fetch('/api/auth/online', {method: 'POST', body: JSON.stringify({lastMs})});
@@ -38,7 +38,7 @@ export default function Online() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [setIsLoading, setUserList, openErrorMessageBox, lastMs]);
   
   const inited = useRef(false);
 

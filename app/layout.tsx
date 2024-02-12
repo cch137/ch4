@@ -1,9 +1,9 @@
-import { Inter } from 'next/font/google'
 import './optimize.css'
 import './globals.css'
 
 import type { Metadata } from 'next';
 import { appTitle } from '@/constants/app';
+import { font } from '@/constants/font';
 
 export const metadata: Metadata = {
   title: appTitle(),
@@ -14,8 +14,6 @@ export const metadata: Metadata = {
   // },
 }
 
-const inter = Inter({ subsets: ['latin'] })
-
 export default function RootLayout({
   children,
 }: {
@@ -23,7 +21,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={inter.className} suppressHydrationWarning>
+      <body className={font.className} suppressHydrationWarning>
+        <style suppressHydrationWarning>{`.${font.className}{font-family:${font.style.fontFamily};font-style:${font.style.fontStyle}`}</style>
         {children}
       </body>
     </html>
