@@ -1,6 +1,5 @@
 'use client';
 
-import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react"
 
 import { Button } from '@nextui-org/button';
@@ -10,8 +9,6 @@ import { Tooltip } from '@nextui-org/tooltip';
 import { IoMenuOutline } from "react-icons/io5";
 
 import { SIDEBAR_WIDTH, models as _models } from '@/constants/chat';
-import type { ConvConfig, ConvItem } from "@/constants/chat/types";
-import type { StatusResponse } from "@/constants/types";
 
 import ConversationList from "./conv-list";
 import ConversationConfig from "./conv-config";
@@ -57,7 +54,8 @@ export default function Sidebar({
       height: 'calc(100dvh - 3.5rem)',
       top: '3.5rem',
       left: isSmallScreen ? `${isSidebarOpen ? 0 : -100}dvw` : `${sidebarWidth-SIDEBAR_WIDTH}px`,
-      zIndex: isSmallScreen ? 50 : 'auto',
+      zIndex: 50,
+      // zIndex: isSmallScreen ? 50 : 'auto',
     }}>
       <div className="flex-1 w-full h-full overflow-x-hidden overflow-y-auto">
         <div className="flex h-full flex-col p-4 gap-2">
@@ -68,6 +66,7 @@ export default function Sidebar({
           />
           <div className="flex-1 bottom-b-1 w-full relative">
             <ConversationList
+              closeSidebar={closeSidebar}
               initConvId={initConvId}
               modelSettingOpened={modelSettingOpened}
               appPath={appPath}

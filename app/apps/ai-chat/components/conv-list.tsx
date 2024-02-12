@@ -23,21 +23,25 @@ import {
   loadConv
 } from "@/hooks/useAiChat";
 import useConfirm from "@/hooks/useConfirm";
+import useIsSmallScreen from "@/hooks/useIsSmallScreen";
 
 const convIdToKey = (id?: string) => 'aichat-conv-' + id || '';
 
 function ConversationButton({
   appPath,
   conv,
+  closeSidebar,
 }: {
   appPath: string,
   conv: ConvItem,
+  closeSidebar: () => void;
 }) {
   const [isHover, setIsHover] = useState(false);
   const ref = createRef<HTMLButtonElement>();
   const { id, name: _name } = conv;
   const name = _name || baseConverter.convert(id, '64w', 10);
 
+  const isSmallScreen = useIsSmallScreen();
   const {currentConv, isLoadingConv} = useAiChatConv();
 
   const isCurrentConv = conv.id === currentConv?.id;
@@ -113,7 +117,8 @@ function ConversationButton({
       ref={ref}
       id={convIdToKey(id)}
       onClick={(e) => {
-        return loadConv(conv);
+        loadConv(conv);
+        if (isSmallScreen) closeSidebar();
       }}
       // draggable={true}
       // as={Link}
@@ -161,10 +166,12 @@ export default function ConversationList({
   appPath,
   initConvId,
   modelSettingOpened,
+  closeSidebar,
 }: {
   appPath: string,
   initConvId?: string,
   modelSettingOpened: boolean,
+  closeSidebar: () => void;
 }) {
   const convListEl = createRef<HTMLDivElement>();
 
@@ -278,6 +285,7 @@ export default function ConversationList({
                   appPath={appPath}
                   conv={c}
                   key={convIdToKey(c.id)}
+                  closeSidebar={closeSidebar}
                 />
               })
             )
