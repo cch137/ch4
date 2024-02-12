@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={font.className} suppressHydrationWarning>
-        <style suppressHydrationWarning>{`.${font.className}{font-family:${font.style.fontFamily};font-style:${font.style.fontStyle}`}</style>
+        <style suppressHydrationWarning dangerouslySetInnerHTML={{__html: `.${font.className}{font-family:${font.style.fontFamily};font-style:${font.style.fontStyle}`}} />
         {children}
       </body>
     </html>
