@@ -54,8 +54,7 @@ export default function Sidebar({
       height: 'calc(100dvh - 3.5rem)',
       top: '3.5rem',
       left: isSmallScreen ? `${isSidebarOpen ? 0 : -100}dvw` : `${sidebarWidth-SIDEBAR_WIDTH}px`,
-      zIndex: 50,
-      // zIndex: isSmallScreen ? 50 : 'auto',
+      zIndex: 20,
     }}>
       <div className="flex-1 w-full h-full overflow-x-hidden overflow-y-auto">
         <div className="flex h-full flex-col p-4 gap-2">
