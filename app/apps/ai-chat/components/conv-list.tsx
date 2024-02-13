@@ -30,18 +30,17 @@ const convIdToKey = (id?: string) => 'aichat-conv-' + id || '';
 function ConversationButton({
   appPath,
   conv,
-  closeSidebar,
+  sidebarLoadConv,
 }: {
   appPath: string,
   conv: ConvItem,
-  closeSidebar: () => void;
+  sidebarLoadConv: (c: ConvItem) => void;
 }) {
   const [isHover, setIsHover] = useState(false);
   const ref = createRef<HTMLButtonElement>();
   const { id, name: _name } = conv;
   const name = _name || baseConverter.convert(id, '64w', 10);
 
-  const isSmallScreen = useIsSmallScreen();
   const {currentConv, isLoadingConv} = useAiChatConv();
 
   const isCurrentConv = conv.id === currentConv?.id;
@@ -116,10 +115,7 @@ function ConversationButton({
       onMouseLeave={() => isHover ? setIsHover(false) : null}
       ref={ref}
       id={convIdToKey(id)}
-      onClick={(e) => {
-        loadConv(conv);
-        if (isSmallScreen) closeSidebar();
-      }}
+      onClick={() => sidebarLoadConv(conv)}
       // draggable={true}
       // as={Link}
       isDisabled={isLoadingConv || isDeleting}
@@ -231,6 +227,13 @@ export default function ConversationList({
   }, [_lastConvId, currentConv, scrollToCurrentConvInConvList, convListEl]);
 
   const inited = useRef(false);
+  
+  const isSmallScreen = useIsSmallScreen();
+
+  const sidebarLoadConv = useCallback((conv?: ConvItem) => {
+    loadConv(conv);
+    if (isSmallScreen) closeSidebar();
+  }, [isSmallScreen, closeSidebar]);
 
   useEffect(() => {
     convListOnScoll();
@@ -257,7 +260,7 @@ export default function ConversationList({
                 variant="light"
                 color="secondary"
                 isDisabled={isLoadingConvList || isLoadingConv}
-                onClick={() => loadConv()}
+                onClick={() => sidebarLoadConv()}
               >
                 <IoAddOutline style={({scale: 2.5})} />
               </Button>
@@ -285,8 +288,8 @@ export default function ConversationList({
                 return <ConversationButton
                   appPath={appPath}
                   conv={c}
+                  sidebarLoadConv={sidebarLoadConv}
                   key={convIdToKey(c.id)}
-                  closeSidebar={closeSidebar}
                 />
               })
             )

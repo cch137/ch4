@@ -22,7 +22,7 @@ export default function MessageCodeBlock({
     <div className="my-2 rounded-lg overflow-hidden">
       <div className="relative w-full text-xs">
         <div
-          className={`absolute flex items-center w-full py-0.5 px-4 border-b-1 border-default-200 ${fontClassName}`}
+          className={`absolute flex items-center w-full py-0.5 px-4 ${fontClassName}`}
           style={{borderRadius: '.5rem .5rem 0 0', background: '#202020'}}
         >
           <div className="flex-1 text-default-600 pointer-events-none select-none">

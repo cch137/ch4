@@ -126,7 +126,7 @@ function MessageContent({
         </>)}
       </ModalContent>
     </Modal>
-    <div className="aichat-message w-full p-2 pb-0">
+    <div className="aichat-message w-full">
       <div className={isModel ? 'text-default-600' : 'text-default-800'}>{
         (isModel && disableActions && !text)
         ? (
@@ -198,7 +198,7 @@ export default function MessageComponent({ message }: { message: Message }) {
   return (<>{isDeleting ? null :
     <div
       className={[
-        'w-full aichat-message-wrapper flex-center py-4',
+        'w-full aichat-message-wrapper flex-center pt-6 pb-4',
         isSmallScreen ? 'px-4' : 'px-8',
         isModel ? 'model' : 'user',
       ].join(' ')}
@@ -212,14 +212,14 @@ export default function MessageComponent({ message }: { message: Message }) {
         <div className='w-8 flex flex-col gap-2'>
           <div className="flex items-start justify-start">
             <div
-              className='flex-center p-2 text-lg rounded-full mt-2'
+              className='flex-center p-2 text-lg rounded-full'
               style={{background: isModel ? '#284A39' : '#2B284A'}}
             >
               {isModel ? <IoHardwareChipOutline /> : <IoPersonOutline />}
             </div>
           </div>
         </div>
-        <div className="flex-1 ml-3 aichat-message-c">
+        <div className="flex-1 ml-3 px-2 aichat-message-c">
           <MessageContent
             message={message}
             isEditing={isEditing}
