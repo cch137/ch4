@@ -13,7 +13,6 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (<>
-    <AppNavbar />
     <div className="fixed z-50" style={{top: '50%', left: '50%', transform: 'translate(-50%,-50%)'}}>
       <div className="flex-center flex-col gap-12">
         <div className="flex-center gap-4 text-default-700">
