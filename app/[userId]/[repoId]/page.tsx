@@ -12,8 +12,8 @@ export default function App() {
   const repoId: string = Array.isArray(params.repoId) ? params.repoId[0] : params.repoId;
 
   switch (userId.toLowerCase() + '/' + repoId.toLocaleLowerCase()) {
-    // case 'tools/ls': // old stuff redirect
-    //   return <FullpageSpinner redirectTo={'/apps/harimau'} />
+    case 'tools/ls': // old stuff redirect
+      return <FullpageSpinner redirectTo={'/apps/harimau'} />
   }
 
   return <NotFound />
