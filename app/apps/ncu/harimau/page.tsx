@@ -1,14 +1,16 @@
 "use client"
 
-import { BOOKBASE_URL, BOOKLIST_URL, QUESTIONBASE_URL, QUERY_URL_PARAM, CHAPTERS_URL_PARAM, LOCK_URL_PARAM } from "@/constants/apps/harimau";
+import { BOOKBASE_URL, BOOKLIST_URL, QUESTIONBASE_URL, QUERY_URL_PARAM, CHAPTERS_URL_PARAM, LOCK_URL_PARAM } from "@/constants/apps/ncu";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Accordion, AccordionItem } from "@nextui-org/accordion";
 import { Button } from "@nextui-org/button";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { IoCloseOutline } from "react-icons/io5";
+import { IoCloseOutline, IoMenuOutline } from "react-icons/io5";
+import Link from "next/link";
 import { Link as UiLink } from "@nextui-org/link";
 import { Spinner } from "@nextui-org/spinner";
 import toolUrlParams from "@/app/tools/toolUrlParams";
+import useUserInfo from "@/hooks/useUserInfo";
 
 interface Book {
   name: string
@@ -133,11 +135,10 @@ export default function Harimau() {
     setSelectedBooknames([bookname]);
   }
 
+  const {auth} = useUserInfo();
+
   return <div className="flex-center flex-col w-full">
     <div className="max-w-2xl w-full py-8 px-4">
-      <div className="text-center text-tiny text-default-400 pb-4 select-none">
-        {`Belum try belum tau, sekali try hari hari mau. That's why harimau.`}
-      </div>
       <div className="flex-center w-full">
         <div className="flex-1 h-16">
           <div className="relative">
@@ -165,9 +166,15 @@ export default function Harimau() {
           </div>
         </div>
         <div className="flex-center">
-          {hasBookSelected && !lock ? <Button variant="light" isIconOnly onClick={() => selectBook()}>
-            <IoCloseOutline style={({scale:1.5})} />
-          </Button> : null}
+          {lock ? null : hasBookSelected ? (
+            <Button variant="light" isIconOnly onClick={() => selectBook()}>
+              <IoCloseOutline className="text-2xl text-default-300" />
+            </Button>
+          ) : (auth < 1 ? null :
+            <Button variant="light" isIconOnly as={Link} href="/apps/ncu">
+              <IoMenuOutline className="text-2xl text-default-300" />
+            </Button>
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-8 py-8 pb-16">

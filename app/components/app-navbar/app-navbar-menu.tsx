@@ -130,10 +130,10 @@ export default function AppNavbarMenu() {
         className="w-full pl-3 text-start h-8 rounded-md"
         onClick={closeMenu}
         as={Link}
-        href="/apps/harimau"
+        href="/apps/ncu"
         startContent={<IoGlassesOutline className="text-2xl" />}
       >
-        <div className="w-full">Harimau</div>
+        <div className="w-full">NCU</div>
       </Button> : null}
       {isAdmin ? <Button
         variant="light"
