@@ -66,7 +66,7 @@ export default function Laundry() {
         }));
       }
       const _filename = `${filename || `${Date.now()}.pdf`}`;
-      setMessage('coverting...');
+      setMessage('converting...');
       const res = await fetch(`${origin}/images-to-pdf/convert/${taskId.current}/${_filename}`, {method: 'POST'});
       if (!res.body) return;
       const pdf = await readStream(res.body);
