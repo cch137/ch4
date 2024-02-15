@@ -11,10 +11,20 @@ export default function NCU() {
       color="secondary"
       variant="ghost"
       className="w-full"
-      href="/apps/ncu/harimau"
+      href="/apps/ncu/weather"
     >
-      Harimau
+      Weather
     </Button>
+      <Button
+        as={Link}
+        size="lg"
+        color="secondary"
+        variant="ghost"
+        className="w-full"
+        href="/apps/ncu/harimau"
+      >
+        Harimau
+      </Button>
     <Button
       as={Link}
       size="lg"
