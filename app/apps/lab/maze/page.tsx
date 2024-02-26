@@ -48,7 +48,7 @@ class Maze {
         this.walls.add(wall);
       }
 
-      // Connect short walls
+      // Merge short walls
       while (true) {
         const shortWalls: MazeTileGroup[] = [...this.walls]
           .filter(w => w.size < size / 4);
@@ -93,7 +93,7 @@ class Maze {
         }
       }
 
-      // start and end
+      // Set start and end
       this.columns[0][1].isWall = false;
       if (size % 2 === 0) {
         this.columns[size - 1][size - 3].isWall = false;
