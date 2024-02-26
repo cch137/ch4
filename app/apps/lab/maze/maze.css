@@ -5,5 +5,5 @@
 }
 
 .maze-cell.wall {
-  background: grey;
+  background: currentColor;
 }
