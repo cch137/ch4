@@ -6,16 +6,21 @@ import { Button } from "@nextui-org/button";
 import random, { Random } from "@cch137/utils/random";
 import { useRef, useState } from "react";
 import useInit from "@/hooks/useInit";
-import { IoRefreshOutline } from "react-icons/io5";
+import { IoKeypadOutline, IoRefreshOutline } from "react-icons/io5";
 
 export default function Maze() {
-  const [seed, setSeed] = useState(0);
+  const [seed, _seed] = useState(0);
   const SIZE = 35;
   const rd = useRef(new Random(0));
 
-  const generateSeed = () => {
-    const seed = random.randInt(0, 2147483647);
-    setSeed(seed);
+  const inputSeed = () => {
+    const seed = (prompt('Seed:')||'').trim();
+    if (!seed) return;
+    setSeed(Number(seed));
+  }
+
+  const setSeed = (seed: number = random.randInt(0, 2147483647)) => {
+    _seed(seed);
     rd.current = new Random(seed);
     return seed;
   }
@@ -25,7 +30,7 @@ export default function Maze() {
   }
 
   const inited = useInit(() => {
-    generateSeed();
+    setSeed();
   });
 
   return (inited.current ? <div className="flex justify-start items-start">
@@ -34,7 +39,10 @@ export default function Maze() {
         <span>seed:</span>
         <span>{seed}</span>
         <span className="flex-1" />
-        <Button isIconOnly size="sm" className="h-8" variant="bordered" onClick={generateSeed}>
+        <Button isIconOnly size="sm" className="h-8" variant="bordered" onClick={inputSeed}>
+          <IoKeypadOutline className="text-lg" />
+        </Button>
+        <Button isIconOnly size="sm" className="h-8" variant="bordered" onClick={() => setSeed()}>
           <IoRefreshOutline className="text-lg" />
         </Button>
       </div>
