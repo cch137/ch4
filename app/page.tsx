@@ -75,6 +75,7 @@ export default function App() {
         <div className="flex-center gap-2 text-default-400 text-sm select-none">
           <span className="opacity-70">@cch137 </span>
           <span suppressHydrationWarning>{version ? `v${version}` : ''}</span>
+          <Link href="/apps/lab" className="opacity-70">lab</Link>
         </div>
       </div>
     </div>

@@ -1,0 +1,9 @@
+.maze-cell {
+  content: " ";
+  height: 1rem;
+  width: 1rem;
+}
+
+.maze-cell.wall {
+  background: #ffffff87;
+}
