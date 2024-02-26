@@ -26,6 +26,7 @@ class Maze {
     this.cells = new Set(this.columns.flat());
     this.wallNodes = new Set([...this.cells].filter(({x, y}) => x % 2 === 0 && y % 2 === 0));
 
+    const walls: MazeCell[][] = [];
     while (true) {
       const wallNodes = [...this.wallNodes].filter(c => !c.isWall);
       if (wallNodes.length === 0) break;
@@ -40,6 +41,11 @@ class Maze {
         this.connectNodes(lastNode, selected);
         if (rd.random() < 1/16) break;
       }
+      walls.push(nodes);
+    }
+    for (const wall of walls) {
+      if (wall.length !== 1) continue;
+      this.connectNodes(wall[0], rd.choice(wall[0].siblingWallNodes))
     }
   }
 
@@ -130,7 +136,7 @@ export default function MazeLab() {
             <div
               key={y}
               className={[
-                "maze-cell outline-1 outline outline-default-300",
+                "maze-cell",
                 cell.isWall ? "wall" : '',
               ].join(' ')}
               id={`maze-${x}-${y}`}
