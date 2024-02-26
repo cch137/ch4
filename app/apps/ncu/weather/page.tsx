@@ -33,7 +33,7 @@ export default function Laundry() {
     };
     const interval = setInterval(() => update(false), 60000);
     return () => clearInterval(interval);
-  }, [inited]);
+  }, [inited, update]);
 
   return (
     <div className="max-w-sm m-auto py-8 px-4">

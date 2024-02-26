@@ -40,11 +40,12 @@ export default function Maze() {
       </div>
       <div className="flex">
         {Array.from({ length: SIZE }, (_, i) => i).map((x) => (
-          <div className="maze-col">{
+          <div className="maze-col" key={x}>{
             Array.from({ length: SIZE }, (_, i) => i).map((y) => {
               const isWallTilte = x % 2 === 0 || y % 2 === 0;
               const isWall = isWallTilte ? rd.current.random() < 0.5 : false;
               return <div
+                key={y}
                 className={[
                   "maze-cell outline-1 outline outline-default-300",
                   isWall ? "wall" : '',
