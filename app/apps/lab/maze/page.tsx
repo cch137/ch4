@@ -107,11 +107,11 @@ class Maze {
   }
 
   get pathNodes() {
-    return [...this.tiles].filter(({x, y}) => x % 2 !== 0 && y % 2 !== 0);
+    return [...this.tiles].filter(t => t.isPathNode);
   }
 
   get wallNodes() {
-    return [...this.tiles].filter(({x, y}) => x % 2 === 0 && y % 2 === 0);
+    return [...this.tiles].filter(t => t.isWallNode);
   }
 
   get paths() {
@@ -173,6 +173,10 @@ class MazeTile {
     return this.x % 2 === 0 && this.y % 2 === 0;
   }
 
+  get isPathNode() {
+    return this.x % 2 !== 0 && this.y % 2 !== 0;
+  }
+
   get siblingNodes() {
     const nodes: MazeTile[] = [];
     const {x, y, maze} = this;
@@ -190,7 +194,7 @@ class MazeTile {
   }
 
   get siblingPathNodes() {
-    return this.isWallNode
+    return this.isPathNode
       ? []
       : this.siblingNodes;
   }
