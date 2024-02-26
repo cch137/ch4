@@ -195,8 +195,8 @@ class MazeTile {
 
   get siblingPathNodes() {
     return this.isPathNode
-      ? []
-      : this.siblingNodes;
+      ? this.siblingNodes
+      : [];
   }
 
   get neighbourTile() {
