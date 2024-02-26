@@ -241,17 +241,15 @@ export default function MazeLab() {
   const [isLoading, _isLoading] = useState(true);
   const [seed, _seed] = useState(0);
   const [size, _size] = useState(0);
-  const rd = useRef(new Random(0));
   const [maze, _maze] = useState<Maze>();
 
   const generateMaze = useCallback(async (_seed: number = seed, _size: number = size) => {
-    rd.current = new Random(_seed);
     _isLoading(true);
     setTimeout(() => {
       _maze(new Maze(_seed, _size));
       _isLoading(false);
     }, 0);
-  }, [seed, size, _isLoading, _maze, rd]);
+  }, [seed, size, _isLoading, _maze]);
 
   const inputSeed = () => {
     const value = (prompt('Seed:')||'').trim();
