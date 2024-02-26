@@ -4,10 +4,10 @@ import "./maze.css";
 
 import { Button } from "@nextui-org/button";
 import random, { Random } from "@cch137/utils/random";
-import { RefObject, createRef, useRef, useState } from "react";
+import { RefObject, createRef, useCallback, useRef, useState } from "react";
 import useInit from "@/hooks/useInit";
 
-const SIZE = 35;
+const SIZE = 127;
 class Maze {
   readonly seed: number;
   readonly rd: Random;
@@ -39,7 +39,7 @@ class Maze {
         const selected = rd.choice(siblings);
         nodes.push(selected);
         this.connectNodes(lastNode, selected);
-        if (rd.random() < 1/16) break;
+        if (rd.random() < 1/size) break;
       }
       walls.push(nodes);
     }
@@ -93,9 +93,10 @@ class MazeCell {
 import { IoKeypadOutline, IoRefreshOutline } from "react-icons/io5";
 
 export default function MazeLab() {
+  const [isLoading, _isLoading] = useState(true);
   const [seed, _seed] = useState(0);
   const rd = useRef(new Random(0));
-  const [maze, _maze] = useState(new Maze(0));
+  const [maze, _maze] = useState(new Maze(0, 0));
 
   const inputSeed = () => {
     const seed = (prompt('Seed:')||'').trim();
@@ -103,11 +104,15 @@ export default function MazeLab() {
     setSeed(Number(seed));
   }
 
-  const setSeed = (seed: number = random.randInt(0, 2147483647)) => {
+  const setSeed = useCallback((seed: number = random.randInt(0, 2147483647)) => {
     _seed(seed);
     rd.current = new Random(seed);
-    _maze(new Maze(seed));
-  }
+    _isLoading(true);
+    setTimeout(() => {
+      _maze(new Maze(seed));
+      _isLoading(false);
+    }, 1);
+  }, [_seed, _isLoading, _maze, rd]);
 
   const getCell = (x: number, y: number) => {
     return document.getElementById(`maze-${x}-${y}`);
@@ -123,10 +128,10 @@ export default function MazeLab() {
         <span>seed:</span>
         <span>{seed}</span>
         <span className="flex-1" />
-        <Button isIconOnly size="sm" className="h-8" variant="bordered" onClick={inputSeed}>
+        <Button isIconOnly size="sm" className="h-8" variant="bordered" onClick={inputSeed} isDisabled={isLoading}>
           <IoKeypadOutline className="text-lg" />
         </Button>
-        <Button isIconOnly size="sm" className="h-8" variant="bordered" onClick={() => setSeed()}>
+        <Button isIconOnly size="sm" className="h-8" variant="bordered" onClick={() => setSeed()} isDisabled={isLoading}>
           <IoRefreshOutline className="text-lg" />
         </Button>
       </div>
@@ -141,7 +146,6 @@ export default function MazeLab() {
               ].join(' ')}
               id={`maze-${x}-${y}`}
               ref={cell.ref}
-              onClick={() => console.log(cell)}
             />
           ))}
         </div>))}

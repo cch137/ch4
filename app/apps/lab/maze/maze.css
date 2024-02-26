@@ -1,7 +1,7 @@
 .maze-cell {
   content: " ";
-  height: 1rem;
-  width: 1rem;
+  height: 4px;
+  width: 4px;
 }
 
 .maze-cell.wall {
