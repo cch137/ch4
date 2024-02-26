@@ -295,7 +295,7 @@ export default function MazeLab() {
   });
 
   return (inited.current ? <div className="flex justify-start items-start">
-    <div className="flex-center w-full flex-col p-8 gap-4 m-auto">
+    <div className="flex-center flex-col p-8 gap-4 m-auto">
       <div className="flex-center flex-col w-full gap-2">
         <div className="flex-center max-w-sm w-full gap-2 text-lg text-default-600">
           <span>seed:</span>
