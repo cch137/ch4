@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@nextui-org/button";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Spinner } from '@nextui-org/spinner';
 import { Input } from '@nextui-org/input';
 import Link from 'next/link';
@@ -14,7 +14,7 @@ export default function Laundry() {
   const [content, setContent] = useState('');
   const inited = useRef(false);
 
-  const update = async (useLoading = true) => {
+  const update = useCallback(async (useLoading = true) => {
     if (useLoading) setIsLoading(true);
     try {
       const res = await fetch('https://api.cch137.link/weather-text', {
@@ -24,7 +24,7 @@ export default function Laundry() {
       setContent(await res.text());
     } catch {}
     setIsLoading(false);
-  }
+  }, [setIsLoading, setContent, city]);
 
   useEffect(() => {
     if (!inited.current) {
