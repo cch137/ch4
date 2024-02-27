@@ -7,8 +7,9 @@ import { Spinner } from "@nextui-org/spinner";
 import random, { Random } from "@cch137/utils/random";
 import { useCallback, useEffect, useState } from "react";
 import useInit from "@/hooks/useInit";
-import { IoAddOutline, IoKeypadOutline, IoRefreshOutline, IoRemoveOutline } from "react-icons/io5";
+import { IoAddOutline, IoKeypadOutline, IoPlay, IoRefreshOutline, IoRemoveOutline, IoTrashBinOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
+import { Switch } from "@nextui-org/react";
 
 class Maze {
   readonly seed: number;
@@ -63,18 +64,20 @@ class Maze {
     }
 
     const groupMazeTile = (
-      tile: MazeTile,
-      group = new MazeTileGroup()
+      tile: MazeTile
     ) => {
-      group.add(tile);
-      const neighbour: MazeTile[] = [];
-      const { x, y, isWall: isWall } = tile;
-      if (x - 1 >= 0) neighbour.push(map[x - 1][y]);
-      if (y - 1 >= 0) neighbour.push(map[x][y - 1]);
-      if (x + 1 < size) neighbour.push(map[x + 1][y]);
-      if (y + 1 < size) neighbour.push(map[x][y + 1]);
-      neighbour.filter(t => t.isWall === isWall && !group.has(t))
-        .forEach(t => groupMazeTile(t, group));
+      const visited = new Set<MazeTile>();
+      const group = new MazeTileGroup([tile]);
+      while (group.size !== visited.size) {
+        const _group = [...group];
+        for (const tile of _group) {
+          if (visited.has(tile)) continue;
+          const { isWall } = tile;
+          tile.neighbours.filter(t => t.isWall === isWall)
+            .forEach(t => group.add(t));
+          visited.add(tile);
+        }
+      }
       return group;
     }
 
@@ -192,6 +195,16 @@ class MazeTile {
     return this.x % 2 !== 0 && this.y % 2 !== 0;
   }
 
+  get neighbours() {
+    const neighbours: MazeTile[] = [];
+    const { x, y, maze: {map, size} } = this;
+    if (x - 1 >= 0) neighbours.push(map[x - 1][y]);
+    if (y - 1 >= 0) neighbours.push(map[x][y - 1]);
+    if (x + 1 < size) neighbours.push(map[x + 1][y]);
+    if (y + 1 < size) neighbours.push(map[x][y + 1]);
+    return neighbours;
+  }
+
   get siblingNodes() {
     const nodes: MazeTile[] = [];
     const {x, y, maze: {map, size}} = this;
@@ -215,18 +228,116 @@ class MazeTile {
   }
 }
 
-function Tile({tile}: {tile: MazeTile}) {
+class MazeWalker {
+  maze: Maze;
+  branches: MazeBranch[] = [];
+  locked = false;
+
+  constructor(maze: Maze) {
+    this.maze = maze;
+    this.branches = [new MazeBranch(this, [maze.startTile])];
+  }
+
+  getTileStatus() {
+    const status = new Map<MazeTile,number>();
+    const targetLength = Math.max(...this.branches.map(b => b.walked.length));
+    this.branches.forEach(b => {
+      b.getTileStatus(targetLength).forEach((v, t) => {
+        const s = status.get(t);
+        if (s === undefined || v > s) status.set(t, v);
+      });
+    });
+    const isSuccess = this.branches.find(b => b.success);
+    if (isSuccess) status.forEach((s, t) => s <= 1 ? status.set(t, -1) : null);
+    if (Math.max(...status.values()) > 1) this.locked = true;
+    return status;
+  }
+
+  forward() {
+    if (this.locked) return;
+    this.branches = this.branches.map(b => b.forward()).flat();
+  }
+}
+
+class MazeBranch {
+  readonly walker: MazeWalker; 
+  readonly walked: MazeTile[] = [];
+  dead = false;
+  success = false;
+  
+  constructor(walker: MazeWalker, tiles: MazeTile[] = []) {
+    this.walker = walker;
+    this.walked = tiles;
+  }
+
+  copy(...tiles: MazeTile[]) {
+    return new MazeBranch(this.walker, [...this.walked, ...tiles]);
+  }
+
+  isEqual(other: MazeBranch): boolean {
+    const { walked } = this;
+    return other.walked.every((t, i) => walked[i] === t);
+  }
+
+  forward() {
+    if (this.dead) return [this];
+    const { walked } = this;
+    const nexts = walked.at(-1)!.neighbours.filter(t => !t.isWall && !walked.includes(t));
+    const { length } = nexts;
+    if (length === 0) return [this];
+    if (length > 1) return nexts.map(n => this.copy(n));
+    this.walked.push(nexts[0]);
+    return [this];
+  }
+
+  getTileStatus(targetLength: number) {
+    const { walked } = this;
+    const status = new Map<MazeTile,number>();
+    if (this.dead) {
+      walked.forEach(t => status.set(t, -1));
+      return status;
+    }
+    const headTile = walked.at(-1)!;
+    const isSuccessEnd = headTile === this.walker.maze.endTile;
+    if (isSuccessEnd) {
+      this.success = true;
+      walked.forEach(t => status.set(t, 2));
+      return status;
+    }
+    const isDeadEnd = walked.length !== targetLength
+      || this.walker.branches.find(b => b !== this && (b.walked.includes(headTile) && headTile !== b.walked.at(-1)));
+    if (isDeadEnd) {
+      this.dead = true;
+      walked.forEach(t => status.set(t, -1));
+      return status;
+    }
+    let i = walked.length - 1;
+    status.set(walked[i], 1);
+    let s = 80;
+    for (; s > 50; s -= 3) {
+      const tile = walked[--i];
+      if (!tile) return status;
+      status.set(tile, s / 100);
+    }
+    while (true) {
+      const tile = walked[--i];
+      if (!tile) return status;
+      status.set(tile, s / 100);
+    }
+  }
+}
+
+function Tile({tile, showMark, status, clearMarkSymbol}: {tile: MazeTile, showMark: boolean, status?: number, clearMarkSymbol: symbol}) {
   const [marked, setMarked] = useState(false);
   const { isWall } = tile;
 
   useEffect(() => {
-    if (tile) setMarked(false);
-  }, [tile]);
+    if (tile || clearMarkSymbol) setMarked(false);
+  }, [tile, clearMarkSymbol]);
 
   return <div
     className={[
       "maze-tile",
-      marked ? "marked" : "",
       isWall ? "wall" : "path cursor-pointer",
     ].join(' ').replace(/\s+/g, ' ')}
     onMouseOver={isWall ? void 0 : (e) => {
@@ -237,7 +348,17 @@ function Tile({tile}: {tile: MazeTile}) {
     onContextMenu={isWall ? void 0 : (e) => {e.preventDefault(); setMarked(false)}}
     draggable={false}
   >
-    {marked ? <div className="relative w-full h-full bg-primary-500 pointer-events-none opacity-50" /> : null}
+    {!(marked && showMark) ? null :
+      <div className="relative w-full h-full bg-primary-600 pointer-events-none" />}
+    {status === undefined ? null :
+      <div
+        className={[
+          "relative w-full h-full pointer-events-none",
+          status === -1 ? "bg-danger-100" : status === 2 ? "bg-success-600" : "bg-warning-600",
+          `stat-${status}`,
+        ].join(' ')}
+        style={{opacity: Math.max(0.5, status)}}
+      />}
   </div>
 }
 
@@ -247,16 +368,48 @@ export default function MazeLab() {
   const [seed, _seed] = useState(0);
   const [size, _size] = useState(0);
   const [maze, _maze] = useState<Maze>();
+  const [mazeWalker, _mazeWalker] = useState<MazeWalker>();
+  const [status, _status] = useState<Map<MazeTile,number>>(new Map());
 
-  const generateMaze = useCallback(async (_seed: number = seed, _size: number = size) => {
-    _isLoading(true);
-    setTimeout(() => {
-      console.time('maze');
-      _maze(new Maze(_seed, _size));
-      console.timeEnd('maze');
-      _isLoading(false);
-    }, 0);
+  const [clearMarkSymbol, _clearMarkSymbol] = useState(Symbol());
+  const [showMark, setShowMark] = useState(true);
+  const clearMark = () => _clearMarkSymbol(Symbol());
+
+  const createMazeWalker = useCallback((maze: Maze) => {
+    const walker = new MazeWalker(maze);
+    walker.locked = true;
+    _mazeWalker(walker);
+    _status(walker.getTileStatus());
+    return walker;
+  }, [_mazeWalker, _status]);
+
+  const generateMaze = useCallback((_seed: number = seed, _size: number = size) => {
+    return new Promise<Maze>((resolve, reject) => {
+      try {
+        _isLoading(true);
+        clearMark();
+        setTimeout(() => {
+          console.time('maze');
+          const maze = new Maze(_seed, _size);
+          _maze(maze);
+          createMazeWalker(maze);
+          console.timeEnd('maze');
+          _isLoading(false);
+          resolve(maze);
+        }, 0);
+      } catch (e) {
+        reject(e);
+      }
+    });
   }, [seed, size, _isLoading, _maze]);
+
+  const walkerGoForward = useCallback(() => {
+    if (mazeWalker) {
+      mazeWalker.forward();
+      const status = mazeWalker.getTileStatus();
+      _status(status);
+    }
+  }, [mazeWalker, _status]);
 
   const inputSeed = () => {
     const value = (prompt('Seed:')||'').trim();
@@ -273,19 +426,12 @@ export default function MazeLab() {
   const setSeed = useCallback((seed: number = random.randInt(0, 2147483647), generate = true, save = false) => {
     _seed(seed);
     if (generate) generateMaze(seed, size);
-    const params = new URLSearchParams(location.href.split('?').at(2) || '');
-    if (save) params.set('seed', String(seed));
-    else params.delete('seed');
-    router.replace(`${location.pathname}?${params.toString()}`);
     return seed;
   }, [_seed, generateMaze]);
 
-  const setSize = useCallback((size: number = 99, generate = true) => {
+  const setSize = useCallback((size: number = 63, generate = true) => {
     _size(size = Math.max(5, size));
     if (generate) generateMaze(seed, size);
-    const params = new URLSearchParams(location.href.split('?').at(2) || '');
-    params.set('size', String(size));
-    router.replace(`${location.pathname}?${params.toString()}`);
     return size;
   }, [_size, generateMaze]);
 
@@ -297,13 +443,24 @@ export default function MazeLab() {
       if (key === 'size') _size = setSize(Number(value) || size, false);
       else if (key === 'seed') _seed = setSeed(Number(value) || seed, false);
     }
+    router.replace(location.pathname);
     generateMaze(_seed, _size);
   });
 
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    const runWalker = () => {
+      timeout = setTimeout(runWalker, 10);
+      walkerGoForward();
+    }
+    runWalker();
+    return () => clearTimeout(timeout);
+  }, [walkerGoForward]);
+
   return (inited.current ? <div className="flex justify-start items-start">
     <div className="flex-center flex-col p-8 gap-4 m-auto">
-      <div className="flex-center flex-col w-full gap-2">
-        <div className="flex-center max-w-sm w-full gap-2 text-lg text-default-600">
+      <div className="flex-center flex-col w-full gap-2 text-default-600">
+        <div className="flex-center max-w-sm w-full gap-2 text-lg">
           <span>seed:</span>
           <span>{seed}</span>
           <span className="flex-1" />
@@ -314,7 +471,7 @@ export default function MazeLab() {
             <IoRefreshOutline className="text-lg" />
           </Button>
         </div>
-        <div className="flex-center max-w-sm w-full gap-2 text-lg text-default-600">
+        <div className="flex-center max-w-sm w-full gap-2 text-lg">
           <span>size:</span>
           <span>{size}</span>
           <span className="flex-1" />
@@ -328,13 +485,30 @@ export default function MazeLab() {
             <IoAddOutline className="text-lg" />
           </Button>
         </div>
+        <div className="flex-center max-w-sm w-full gap-2 text-lg">
+          <span>walker:</span>
+          <span className="flex-1" />
+          <Button isIconOnly size="sm" className="h-8" variant="bordered" onClick={() => {if (maze) {const w = createMazeWalker(maze); w.locked = false}}}>
+            <IoPlay className="text-lg" />
+          </Button>
+        </div>
       </div>
-      <div className={`flex text-gray-300 transition ${isLoading ? 'opacity-75' : ''}`} onContextMenu={(e) => e.preventDefault()} draggable={false}>
+      <div className={`flex text-stone-600 transition ${isLoading ? 'opacity-75' : ''}`} onContextMenu={(e) => e.preventDefault()} draggable={false}>
         {!maze ? null : maze.map.map((c, x) => (
           <div className="maze-col" key={x} onContextMenu={(e) => e.preventDefault()} draggable={false}>
-            {c.map((tile, y) => <Tile tile={tile} key={y} />)}
+            {c.map((tile, y) => <Tile tile={tile} showMark={showMark} clearMarkSymbol={clearMarkSymbol} key={y} status={status ? status.get(tile) : void 0} />)}
           </div>
         ))}
+      </div>
+      <div className="flex-center flex-col w-full gap-2 text-default-600">
+        <div className="flex-center max-w-sm w-full gap-2 text-lg">
+          <span>show mark:</span>
+          <span className="flex-1" />
+          <Switch size="sm" isSelected={showMark} onValueChange={setShowMark} />
+          <Button isIconOnly size="sm" className="h-8" variant="bordered" onClick={clearMark}>
+            <IoTrashBinOutline className="text-lg" />
+          </Button>
+        </div>
       </div>
     </div>
   </div> : <div className="flex-center py-48">
