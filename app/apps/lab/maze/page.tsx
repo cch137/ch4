@@ -14,7 +14,6 @@ class Maze {
   readonly seed: number;
   readonly size: number;
   readonly map: readonly (readonly MazeTile[])[];
-  readonly tiles: readonly MazeTile[];
 
   constructor(seed: number = 0, size: number) {
     this.seed = seed;
@@ -22,15 +21,15 @@ class Maze {
     const rd = new Random(seed);
 
     while (true) {
-      this.map = Object.freeze(Array.from(
+      const map = Object.freeze(Array.from(
         {length: size},
         (_, x) => Object.freeze(Array.from(
           {length: size},
           (_, y) => new MazeTile(this, x, y)
         ))
       ));
-      const tiles = Object.freeze(this.map.flat());
-      this.tiles = tiles;
+      this.map = map;
+      const tiles = Object.freeze(map.flat());
       const wallNodes = Object.freeze(tiles.filter(t => t.isWallNode));
       const walls = new Set<MazeTileGroup>();
 
@@ -46,8 +45,8 @@ class Maze {
           node1.isWall = isWall;
           node2.isWall = isWall;
         }
-        if (x1 === x2) this.map[x1][(y1 + y2) / 2].isWall = isWall;
-        if (y1 === y2) this.map[(x1 + x2) / 2][y1].isWall = isWall;
+        if (x1 === x2) map[x1][(y1 + y2) / 2].isWall = isWall;
+        if (y1 === y2) map[(x1 + x2) / 2][y1].isWall = isWall;
       }
 
       // Generating the main structure
@@ -89,58 +88,43 @@ class Maze {
 
       // Build outer wall
       for (let n = 0; n < size; n++) {
-        this.map[0][n].isWall = true;
-        this.map[n][0].isWall = true;
-        this.map[size - 1][n].isWall = true;
-        this.map[n][size - 1].isWall = true;
+        map[0][n].isWall = true;
+        map[n][0].isWall = true;
+        map[size - 1][n].isWall = true;
+        map[n][size - 1].isWall = true;
       }
 
       // Open enclosed spaces
-      const paths = new Set(this.paths);
-      while (paths.size > 1) {
-        const _paths = [...paths];
-        for (const path of _paths) {
-          if (!paths.has(path)) continue;
+      const paths = tiles.filter(t => !t.isWall).reduce((paths: MazeTileGroup[], t) => {
+        if (!paths.find(p => p.has(t))) paths.push(groupMazeTile(t));
+        return paths;
+      }, []);
+      while (paths.length > 1) {
+        paths.forEach((path, i) => {
+          if (!paths.includes(path)) return;
           const neighbourPathTilePairs = path.map(tile => tile.siblingPathNodes
             .filter(t => !path.has(t)).map(t => [tile, t] as [MazeTile, MazeTile])).flat();
-          if (neighbourPathTilePairs.length === 0) continue;
+          if (neighbourPathTilePairs.length === 0) return;
           const [t1, t2] = rd.choice(neighbourPathTilePairs);
           const toMergeGroup = [...paths].find(g => g.has(t2));
-          if (!toMergeGroup) continue;
+          if (!toMergeGroup) return;
           connectNodes(t1, t2, false);
           toMergeGroup.merge(path);
-          paths.delete(path);
-        }
+          paths.splice(i, 1);
+        });
       }
 
       // Set start and end
-      this.map[0][1].isWall = false;
+      map[0][1].isWall = false;
       if (size % 2 === 0) {
-        this.map[size - 1][size - 3].isWall = false;
-        this.map[size - 2][size - 3].isWall = false;
+        map[size - 1][size - 3].isWall = false;
+        map[size - 2][size - 3].isWall = false;
       } else {
-        this.map[size - 1][size - 2].isWall = false;
+        map[size - 1][size - 2].isWall = false;
       }
 
       break;
     }
-  }
-
-  get paths() {
-    const paths: MazeTileGroup[] = [];
-    const pathTiles = this.tiles.filter(t => !t.isWall);
-    for (const pathTile of pathTiles) {
-      let hasGrouped = false;
-      for (const path of paths) {
-        if (path.has(pathTile)) {
-          hasGrouped = true;
-          break;
-        }
-      }
-      if (hasGrouped) continue;
-      paths.push(pathTile.group);
-    }
-    return paths;
   }
 }
 
@@ -179,11 +163,11 @@ class MazeTile {
 
   get siblingNodes() {
     const nodes: MazeTile[] = [];
-    const {x, y, maze} = this;
-    if (x + 2 < maze.size) nodes.push(maze.map[x + 2][y]);
-    if (y + 2 < maze.size) nodes.push(maze.map[x][y + 2]);
-    if (x - 2 >= 0) nodes.push(maze.map[x - 2][y]);
-    if (y - 2 >= 0) nodes.push(maze.map[x][y - 2]);
+    const {x, y, maze: {map, size}} = this;
+    if (x + 2 < size) nodes.push(map[x + 2][y]);
+    if (y + 2 < size) nodes.push(map[x][y + 2]);
+    if (x - 2 >= 0) nodes.push(map[x - 2][y]);
+    if (y - 2 >= 0) nodes.push(map[x][y - 2]);
     return nodes;
   }
 
@@ -198,42 +182,23 @@ class MazeTile {
       ? this.siblingNodes
       : [];
   }
+}
 
-  get neighbourTile() {
+const groupMazeTile = (tile: MazeTile) => {
+  const group = new MazeTileGroup();
+  const findGroupMember = (tile: MazeTile) => {
+    group.add(tile);
     const neighbour: MazeTile[] = [];
-    const { x: _x, y: _y } = this;
-    for (let x = _x - 1; x < _x + 2; x++) {
-      if (x < 0) continue; 
-      for (let y = _y - 1; y < _y + 2; y++) {
-        if (y < 0) continue;
-        const col = this.maze.map.at(x);
-        if (!col) continue;
-        const tile = col.at(y);
-        if (tile && tile !== this) neighbour.push(tile);
-      }
-    }
-    return neighbour;
+    const { x, y, maze: {map, size}, isWall } = tile;
+    if (x - 1 >= 0) neighbour.push(map[x - 1][y]);
+    if (y - 1 >= 0) neighbour.push(map[x][y - 1]);
+    if (x + 1 < size) neighbour.push(map[x + 1][y]);
+    if (y + 1 < size) neighbour.push(map[x][y + 1]);
+    neighbour.filter(t => t.isWall === isWall && !group.has(t))
+      .forEach(n => findGroupMember(n));
   }
-
-  get neighbourWall() {
-    return this.neighbourTile.filter(t => t.isWall);
-  }
-
-  get neighbourPath() {
-    return this.neighbourTile.filter(t => !t.isWall);
-  }
-
-  get group() {
-    const findGroupMember = (tile: MazeTile, group = new MazeTileGroup()) => {
-      if (group.has(tile)) return group;
-      group.add(tile);
-      (tile.isWall ? tile.neighbourWall : tile.neighbourPath)
-        .filter(t => !group.has(t))
-        .forEach(n => findGroupMember(n, group));
-      return group;
-    }
-    return findGroupMember(this);
-  }
+  findGroupMember(tile);
+  return group;
 }
 
 export default function MazeLab() {
