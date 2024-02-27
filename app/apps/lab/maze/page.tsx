@@ -5,7 +5,7 @@ import "./maze.css";
 import { Button } from "@nextui-org/button";
 import { Spinner } from "@nextui-org/spinner";
 import random, { Random } from "@cch137/utils/random";
-import { RefObject, createRef, useCallback, useRef, useState } from "react";
+import { RefObject, createRef, useCallback, useState } from "react";
 import useInit from "@/hooks/useInit";
 import { IoAddOutline, IoKeypadOutline, IoRefreshOutline, IoRemoveOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
@@ -20,123 +20,119 @@ class Maze {
     this.size = size;
     const rd = new Random(seed);
 
-    while (true) {
-      const map = Object.freeze(Array.from(
+    const map = Object.freeze(Array.from(
+      {length: size},
+      (_, x) => Object.freeze(Array.from(
         {length: size},
-        (_, x) => Object.freeze(Array.from(
-          {length: size},
-          (_, y) => new MazeTile(this, x, y)
-        ))
-      ));
-      this.map = map;
-      const tiles = Object.freeze(map.flat());
-      const wallNodes = Object.freeze(tiles.filter(t => t.isWallNode));
-      const walls = new Set<MazeTileGroup>();
+        (_, y) => new MazeTile(this, x, y)
+      ))
+    ));
+    this.map = map;
+    const tiles = Object.freeze(map.flat());
+    const wallNodes = Object.freeze(tiles.filter(t => t.isWallNode));
+    const walls = new Set<MazeTileGroup>();
 
-      const connectNodes = (
-        node1: MazeTile,
-        node2: MazeTile,
-        isWall = true,
-      ) => {
-        const {x: x1, y: y1} = node1;
-        const {x: x2, y: y2} = node2;
-        node1.isWall = isWall;
-        node2.isWall = isWall;
-        if (x1 === x2) map[x1][(y1 + y2) / 2].isWall = isWall;
-        if (y1 === y2) map[(x1 + x2) / 2][y1].isWall = isWall;
-      }
+    const connectNodes = (
+      node1: MazeTile,
+      node2: MazeTile,
+      isWall = true,
+    ) => {
+      const {x: x1, y: y1} = node1;
+      const {x: x2, y: y2} = node2;
+      node1.isWall = isWall;
+      node2.isWall = isWall;
+      if (x1 === x2) map[x1][(y1 + y2) / 2].isWall = isWall;
+      if (y1 === y2) map[(x1 + x2) / 2][y1].isWall = isWall;
+    }
 
-      const groupMazeTile = (
-        tile: MazeTile,
-        group = new MazeTileGroup()
-      ) => {
-        group.add(tile);
-        const neighbour: MazeTile[] = [];
-        const { x, y, isWall } = tile;
-        if (x - 1 >= 0) neighbour.push(map[x - 1][y]);
-        if (y - 1 >= 0) neighbour.push(map[x][y - 1]);
-        if (x + 1 < size) neighbour.push(map[x + 1][y]);
-        if (y + 1 < size) neighbour.push(map[x][y + 1]);
-        neighbour.filter(t => t.isWall === isWall && !group.has(t))
-          .forEach(t => groupMazeTile(t, group));
-        return group;
-      }
+    const groupMazeTile = (
+      tile: MazeTile,
+      group = new MazeTileGroup()
+    ) => {
+      group.add(tile);
+      const neighbour: MazeTile[] = [];
+      const { x, y, isWall } = tile;
+      if (x - 1 >= 0) neighbour.push(map[x - 1][y]);
+      if (y - 1 >= 0) neighbour.push(map[x][y - 1]);
+      if (x + 1 < size) neighbour.push(map[x + 1][y]);
+      if (y + 1 < size) neighbour.push(map[x][y + 1]);
+      neighbour.filter(t => t.isWall === isWall && !group.has(t))
+        .forEach(t => groupMazeTile(t, group));
+      return group;
+    }
 
-      // Generate the main structure
+    // Generate the main structure
+    while (true) {
+      const emptyWallNodes = wallNodes.filter(c => !c.isWall);
+      if (emptyWallNodes.length === 0) break;
+      let lastAddedTile = rd.choice(emptyWallNodes)
+      const wall = new MazeTileGroup([lastAddedTile]);
+      lastAddedTile.isWall = true;
       while (true) {
-        const emptyWallNodes = wallNodes.filter(c => !c.isWall);
-        if (emptyWallNodes.length === 0) break;
-        let lastAddedTile = rd.choice(emptyWallNodes)
-        const wall = new MazeTileGroup([lastAddedTile]);
-        lastAddedTile.isWall = true;
-        while (true) {
-          const siblings = lastAddedTile.siblingWallNodes.filter(s => !s.isWall);
-          if (siblings.length === 0) break;
-          const selected = rd.choice(siblings);
-          connectNodes(selected, lastAddedTile);
-          wall.add(selected);
-          lastAddedTile = selected;
-          if (wall.size >= size) break;
-        }
-        walls.add(wall);
+        const siblings = lastAddedTile.siblingWallNodes.filter(s => !s.isWall);
+        if (siblings.length === 0) break;
+        const selected = rd.choice(siblings);
+        connectNodes(selected, lastAddedTile);
+        wall.add(selected);
+        lastAddedTile = selected;
+        if (wall.size >= size) break;
       }
+      walls.add(wall);
+    }
 
-      // Merge short walls
-      while (true) {
-        const shortWalls: MazeTileGroup[] = [...walls].filter(w => w.size < size / 4);
-        if (!shortWalls.length) break;
-        for (const wall of shortWalls) {
-          if (!walls.has(wall)) continue;
-          const neighbourWallTilePairs = wall.map(tile => tile.siblingWallNodes
-            .filter(t => !wall.has(t)).map(t => [tile, t] as [MazeTile, MazeTile])).flat();
-          if (neighbourWallTilePairs.length === 0) continue;
-          const [t1, t2] = rd.choice(neighbourWallTilePairs);
-          const toMergeGroup = [...walls].find(g => g.has(t2));
-          if (!toMergeGroup) continue;
-          connectNodes(t1, t2);
-          toMergeGroup.merge(wall);
-          walls.delete(wall);
-        }
+    // Merge short walls
+    while (true) {
+      const shortWalls: MazeTileGroup[] = [...walls].filter(w => w.size < size / 4);
+      if (!shortWalls.length) break;
+      for (const wall of shortWalls) {
+        if (!walls.has(wall)) continue;
+        const neighbourWallTilePairs = wall.map(tile => tile.siblingWallNodes
+          .filter(t => !wall.has(t)).map(t => [tile, t] as [MazeTile, MazeTile])).flat();
+        if (neighbourWallTilePairs.length === 0) continue;
+        const [t1, t2] = rd.choice(neighbourWallTilePairs);
+        const toMergeGroup = [...walls].find(g => g.has(t2));
+        if (!toMergeGroup) continue;
+        connectNodes(t1, t2);
+        toMergeGroup.merge(wall);
+        walls.delete(wall);
       }
+    }
 
-      // Build outer wall
-      for (let n = 0; n < size; n++) {
-        map[0][n].isWall = true;
-        map[n][0].isWall = true;
-        map[size - 1][n].isWall = true;
-        map[n][size - 1].isWall = true;
-      }
+    // Build outer wall
+    for (let n = 0; n < size; n++) {
+      map[0][n].isWall = true;
+      map[n][0].isWall = true;
+      map[size - 1][n].isWall = true;
+      map[n][size - 1].isWall = true;
+    }
 
-      // Open enclosed spaces
-      const paths = tiles.filter(t => !t.isWall).reduce((paths: MazeTileGroup[], t) => {
-        if (!paths.find(p => p.has(t))) paths.push(groupMazeTile(t));
-        return paths;
-      }, []);
-      while (paths.length > 1) {
-        paths.forEach((path, i) => {
-          if (!paths.includes(path)) return;
-          const neighbourPathTilePairs = path.map(tile => tile.siblingPathNodes
-            .filter(t => !path.has(t)).map(t => [tile, t] as [MazeTile, MazeTile])).flat();
-          if (neighbourPathTilePairs.length === 0) return;
-          const [t1, t2] = rd.choice(neighbourPathTilePairs);
-          const toMergeGroup = [...paths].find(g => g.has(t2));
-          if (!toMergeGroup) return;
-          connectNodes(t1, t2, false);
-          toMergeGroup.merge(path);
-          paths.splice(i, 1);
-        });
-      }
+    // Open enclosed spaces
+    const paths = tiles.filter(t => !t.isWall).reduce((paths: MazeTileGroup[], t) => {
+      if (!paths.find(p => p.has(t))) paths.push(groupMazeTile(t));
+      return paths;
+    }, []);
+    while (paths.length > 1) {
+      paths.forEach((path, i) => {
+        if (!paths.includes(path)) return;
+        const neighbourPathTilePairs = path.map(tile => tile.siblingPathNodes
+          .filter(t => !path.has(t)).map(t => [tile, t] as [MazeTile, MazeTile])).flat();
+        if (neighbourPathTilePairs.length === 0) return;
+        const [t1, t2] = rd.choice(neighbourPathTilePairs);
+        const toMergeGroup = [...paths].find(g => g.has(t2));
+        if (!toMergeGroup) return;
+        connectNodes(t1, t2, false);
+        toMergeGroup.merge(path);
+        paths.splice(i, 1);
+      });
+    }
 
-      // Set start and end
-      map[0][1].isWall = false;
-      if (size % 2 === 0) {
-        map[size - 1][size - 3].isWall = false;
-        map[size - 2][size - 3].isWall = false;
-      } else {
-        map[size - 1][size - 2].isWall = false;
-      }
-
-      break;
+    // Set start and end
+    map[0][1].isWall = false;
+    if (size % 2 === 0) {
+      map[size - 1][size - 3].isWall = false;
+      map[size - 2][size - 3].isWall = false;
+    } else {
+      map[size - 1][size - 2].isWall = false;
     }
   }
 }
@@ -249,7 +245,8 @@ export default function MazeLab() {
 
   const inited = useInit(() => {
     const params = new URLSearchParams(location.href.split('?').at(-1)).entries();
-    let _size = setSize(void 0, false), _seed = setSeed(void 0, false);
+    let _seed = setSeed(void 0, false);
+    let _size = setSize(void 0, false);
     for (const [key, value] of params) {
       if (key === 'size') _size = setSize(Number(value) || size, false);
       else if (key === 'seed') _seed = setSeed(Number(value) || seed, false);
