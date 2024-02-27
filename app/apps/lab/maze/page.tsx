@@ -5,7 +5,7 @@ import "./maze.css";
 import { Button } from "@nextui-org/button";
 import { Spinner } from "@nextui-org/spinner";
 import random, { Random } from "@cch137/utils/random";
-import { RefObject, createRef, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useInit from "@/hooks/useInit";
 import { IoAddOutline, IoKeypadOutline, IoRefreshOutline, IoRemoveOutline } from "react-icons/io5";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,8 @@ class Maze {
   readonly seed: number;
   readonly size: number;
   readonly map: readonly (readonly MazeTile[])[];
+  readonly startTile: MazeTile;
+  readonly endTile: MazeTile; 
 
   constructor(seed: number = 0, size: number) {
     this.seed = seed;
@@ -31,18 +33,33 @@ class Maze {
     const tiles = Object.freeze(map.flat());
     const wallNodes = Object.freeze(tiles.filter(t => t.isWallNode));
     const walls = new Set<MazeTileGroup>();
+    const wallMap = new Map<MazeTile, MazeTileGroup>();
 
     const connectNodes = (
       node1: MazeTile,
       node2: MazeTile,
-      isWall: boolean | MazeTileGroup = true,
+      isWall: boolean,
+      group?: MazeTileGroup,
     ) => {
       const {x: x1, y: y1} = node1;
       const {x: x2, y: y2} = node2;
-      node1.wall = isWall;
-      node2.wall = isWall;
-      if (x1 === x2) map[x1][(y1 + y2) / 2].wall = isWall;
-      if (y1 === y2) map[(x1 + x2) / 2][y1].wall = isWall;
+      const middle = x1 === x2
+        ? map[x1][(y1 + y2) / 2]
+        : y1 === y2
+          ? map[(x1 + x2) / 2][y1]
+          : null;
+      if (!middle) return;
+      node1.isWall = isWall;
+      node2.isWall = isWall;
+      middle.isWall = isWall;
+      if (group) {
+        group.add(node1);
+        group.add(node2);
+        group.add(middle);
+        wallMap.set(node1, group);
+        wallMap.set(node2, group);
+        wallMap.set(middle, group);
+      }
     }
 
     const groupMazeTile = (
@@ -51,29 +68,28 @@ class Maze {
     ) => {
       group.add(tile);
       const neighbour: MazeTile[] = [];
-      const { x, y, wall: isWall } = tile;
+      const { x, y, isWall: isWall } = tile;
       if (x - 1 >= 0) neighbour.push(map[x - 1][y]);
       if (y - 1 >= 0) neighbour.push(map[x][y - 1]);
       if (x + 1 < size) neighbour.push(map[x + 1][y]);
       if (y + 1 < size) neighbour.push(map[x][y + 1]);
-      neighbour.filter(t => t.wall === isWall && !group.has(t))
+      neighbour.filter(t => t.isWall === isWall && !group.has(t))
         .forEach(t => groupMazeTile(t, group));
       return group;
     }
 
     // Generate the main structure
     while (true) {
-      const emptyWallNodes = wallNodes.filter(c => !c.wall);
+      const emptyWallNodes = wallNodes.filter(c => !c.isWall);
       if (emptyWallNodes.length === 0) break;
       let lastAddedTile = rd.choice(emptyWallNodes)
       const wall = new MazeTileGroup([lastAddedTile]);
-      lastAddedTile.wall = true;
+      lastAddedTile.isWall = true;
       while (true) {
-        const siblings = lastAddedTile.siblingWallNodes.filter(s => !s.wall);
+        const siblings = lastAddedTile.siblingWallNodes.filter(s => !s.isWall);
         if (siblings.length === 0) break;
         const selected = rd.choice(siblings);
-        connectNodes(selected, lastAddedTile, wall);
-        wall.add(selected);
+        connectNodes(selected, lastAddedTile, true, wall);
         lastAddedTile = selected;
         if (wall.size >= size) break;
       }
@@ -88,27 +104,27 @@ class Maze {
         const pairs: [MazeTile, MazeTile][] = [];
         wall.forEach(tile => {
           tile.siblingWallNodes.forEach(t => {
-            if (t.wall !== wall) pairs.push([tile, t]);
+            if (wallMap.get(t) !== wall) pairs.push([tile, t]);
           });
         });
         if (pairs.length === 0) continue;
         const [t1, t2] = rd.choice(pairs);
-        connectNodes(t1, t2, wall);
-        (t2.wall as MazeTileGroup).merge(wall);
+        connectNodes(t1, t2, true, wall);
+        (wallMap.get(t2) as MazeTileGroup).merge(wall);
         walls.delete(wall);
       }
     }
 
     // Build outer wall
     for (let n = 0; n < size; n++) {
-      map[0][n].wall = true;
-      map[n][0].wall = true;
-      map[size - 1][n].wall = true;
-      map[n][size - 1].wall = true;
+      map[0][n].isWall = true;
+      map[n][0].isWall = true;
+      map[size - 1][n].isWall = true;
+      map[n][size - 1].isWall = true;
     }
 
     // Open enclosed spaces
-    const paths = tiles.filter(t => !t.wall).reduce((paths: MazeTileGroup[], t) => {
+    const paths = tiles.filter(t => !t.isWall).reduce((paths: MazeTileGroup[], t) => {
       if (!paths.find(p => p.has(t))) paths.push(groupMazeTile(t));
       return paths;
     }, []).sort((a, b) => b.size - a.size);
@@ -133,13 +149,15 @@ class Maze {
     }
 
     // Set start and end
-    map[0][1].wall = false;
+    this.startTile = map[0][1];
+    this.startTile.isWall = false;
     if (size % 2 === 0) {
-      map[size - 1][size - 3].wall = false;
-      map[size - 2][size - 3].wall = false;
+      map[size - 2][size - 3].isWall = false;
+      this.endTile = map[size - 1][size - 3];
     } else {
-      map[size - 1][size - 2].wall = false;
+      this.endTile = map[size - 1][size - 2];
     }
+    this.endTile.isWall = false;
   }
 }
 
@@ -157,15 +175,13 @@ class MazeTile {
   readonly maze: Maze;
   readonly x: number;
   readonly y: number;
-  readonly ref: RefObject<HTMLDivElement>;
 
-  wall: boolean | MazeTileGroup = false;
+  isWall: boolean = false;
 
   constructor(maze: Maze, x: number, y: number) {
     this.maze = maze;
     this.x = x;
     this.y = y;
-    this.ref = createRef<HTMLDivElement>();
   }
 
   get isWallNode() {
@@ -199,12 +215,9 @@ class MazeTile {
   }
 }
 
-let marking = false;
-let earsing = false;
-
 function Tile({tile}: {tile: MazeTile}) {
   const [marked, setMarked] = useState(false);
-  const { x, y, ref, wall } = tile;
+  const { isWall } = tile;
 
   useEffect(() => {
     if (tile) setMarked(false);
@@ -214,18 +227,18 @@ function Tile({tile}: {tile: MazeTile}) {
     className={[
       "maze-tile",
       marked ? "marked" : "",
-      wall ? "wall" : "path cursor-pointer",
-    ].join(' ')}
-    id={`maze-${x}-${y}`}
-    ref={ref}
-    onMouseOver={wall ? void 0 : (e) => {
+      isWall ? "wall" : "path cursor-pointer",
+    ].join(' ').replace(/\s+/g, ' ')}
+    onMouseOver={isWall ? void 0 : (e) => {
       if (e.buttons === 1) setMarked(true);
       else if (e.buttons === 2) setMarked(false);
     }}
-    onClick={wall ? void 0 : (e) => {e.preventDefault(); setMarked(true)}}
-    onContextMenu={wall ? void 0 : (e) => {e.preventDefault(); setMarked(false)}}
+    onClick={isWall ? void 0 : (e) => {e.preventDefault(); setMarked(true)}}
+    onContextMenu={isWall ? void 0 : (e) => {e.preventDefault(); setMarked(false)}}
     draggable={false}
-  />
+  >
+    {marked ? <div className="relative w-full h-full bg-primary-500 pointer-events-none opacity-50" /> : null}
+  </div>
 }
 
 export default function MazeLab() {
@@ -316,10 +329,12 @@ export default function MazeLab() {
           </Button>
         </div>
       </div>
-      <div className={`flex text-gray-300 transition ${isLoading ? 'opacity-75' : ''}`}>
-        {!maze ? null : maze.map.map((c, x) => (<div className="maze-col" key={x}>
-          {c.map((tile, y) => <Tile tile={tile} key={y} />)}
-        </div>))}
+      <div className={`flex text-gray-300 transition ${isLoading ? 'opacity-75' : ''}`} onContextMenu={(e) => e.preventDefault()} draggable={false}>
+        {!maze ? null : maze.map.map((c, x) => (
+          <div className="maze-col" key={x} onContextMenu={(e) => e.preventDefault()} draggable={false}>
+            {c.map((tile, y) => <Tile tile={tile} key={y} />)}
+          </div>
+        ))}
       </div>
     </div>
   </div> : <div className="flex-center py-48">

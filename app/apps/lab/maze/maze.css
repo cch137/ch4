@@ -1,13 +1,9 @@
 .maze-tile {
-  content: " ";
-  height: 4px;
-  width: 4px;
+  height: 5px;
+  width: 5px;
+  user-select: none;
 }
 
 .maze-tile.wall {
   background: currentColor;
-}
-
-.maze-tile.path.marked {
-  background: red;
 }
