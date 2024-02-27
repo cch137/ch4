@@ -255,7 +255,11 @@ class MazeWalker {
 
   forward() {
     if (this.locked) return;
-    this.branches = this.branches.map(b => b.forward()).flat();
+    this.branches = this.branches.map(b => b.forward()).flat()
+      .reduce((p: MazeBranch[], branche) => {
+        if (!p.find(b => b.isEqual(branche))) p.push(branche);
+        return p;
+      }, []);
   }
 }
 
