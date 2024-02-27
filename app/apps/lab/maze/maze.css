@@ -1,9 +1,13 @@
-.maze-cell {
+.maze-tile {
   content: " ";
   height: 4px;
   width: 4px;
 }
 
-.maze-cell.wall {
+.maze-tile.wall {
   background: currentColor;
+}
+
+.maze-tile.path.marked {
+  background: red;
 }
