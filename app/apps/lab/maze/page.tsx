@@ -206,11 +206,6 @@ function Tile({tile}: {tile: MazeTile}) {
   const [marked, setMarked] = useState(false);
   const { x, y, ref, wall } = tile;
 
-  const markingStart = (isMark: boolean) => {
-    if (isMark) marking = true;
-    else earsing = true;
-  }
-
   useEffect(() => {
     if (tile) setMarked(false);
   }, [tile]);
@@ -223,9 +218,10 @@ function Tile({tile}: {tile: MazeTile}) {
     ].join(' ')}
     id={`maze-${x}-${y}`}
     ref={ref}
-    onMouseDown={wall ? void 0 : (e) => markingStart(e.button === 0)}
-    onMouseUp={wall ? void 0 : () => {marking = false; earsing = false}}
-    onMouseOver={wall ? void 0 : () => marking ? setMarked(true) : earsing ? setMarked(false) : null}
+    onMouseOver={wall ? void 0 : (e) => {
+      if (e.buttons === 1) setMarked(true);
+      else if (e.buttons === 2) setMarked(false);
+    }}
     onClick={wall ? void 0 : (e) => {e.preventDefault(); setMarked(true)}}
     onContextMenu={wall ? void 0 : (e) => {e.preventDefault(); setMarked(false)}}
     draggable={false}
