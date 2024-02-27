@@ -37,19 +37,32 @@ class Maze {
         node1: MazeTile,
         node2: MazeTile,
         isWall = true,
-        fill = true
       ) => {
         const {x: x1, y: y1} = node1;
         const {x: x2, y: y2} = node2;
-        if (fill) {
-          node1.isWall = isWall;
-          node2.isWall = isWall;
-        }
+        node1.isWall = isWall;
+        node2.isWall = isWall;
         if (x1 === x2) map[x1][(y1 + y2) / 2].isWall = isWall;
         if (y1 === y2) map[(x1 + x2) / 2][y1].isWall = isWall;
       }
 
-      // Generating the main structure
+      const groupMazeTile = (
+        tile: MazeTile,
+        group = new MazeTileGroup()
+      ) => {
+        group.add(tile);
+        const neighbour: MazeTile[] = [];
+        const { x, y, isWall } = tile;
+        if (x - 1 >= 0) neighbour.push(map[x - 1][y]);
+        if (y - 1 >= 0) neighbour.push(map[x][y - 1]);
+        if (x + 1 < size) neighbour.push(map[x + 1][y]);
+        if (y + 1 < size) neighbour.push(map[x][y + 1]);
+        neighbour.filter(t => t.isWall === isWall && !group.has(t))
+          .forEach(t => groupMazeTile(t, group));
+        return group;
+      }
+
+      // Generate the main structure
       while (true) {
         const emptyWallNodes = wallNodes.filter(c => !c.isWall);
         if (emptyWallNodes.length === 0) break;
@@ -142,7 +155,7 @@ class MazeTile {
   readonly maze: Maze;
   readonly x: number;
   readonly y: number;
-  ref: RefObject<HTMLDivElement>;
+  readonly ref: RefObject<HTMLDivElement>;
 
   isWall = false;
 
@@ -182,23 +195,6 @@ class MazeTile {
       ? this.siblingNodes
       : [];
   }
-}
-
-const groupMazeTile = (tile: MazeTile) => {
-  const group = new MazeTileGroup();
-  const findGroupMember = (tile: MazeTile) => {
-    group.add(tile);
-    const neighbour: MazeTile[] = [];
-    const { x, y, maze: {map, size}, isWall } = tile;
-    if (x - 1 >= 0) neighbour.push(map[x - 1][y]);
-    if (y - 1 >= 0) neighbour.push(map[x][y - 1]);
-    if (x + 1 < size) neighbour.push(map[x + 1][y]);
-    if (y + 1 < size) neighbour.push(map[x][y + 1]);
-    neighbour.filter(t => t.isWall === isWall && !group.has(t))
-      .forEach(n => findGroupMember(n));
-  }
-  findGroupMember(tile);
-  return group;
 }
 
 export default function MazeLab() {
