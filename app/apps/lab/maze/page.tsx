@@ -341,7 +341,7 @@ function Tile({tile, showMark, status, clearMarkSymbol}: {tile: MazeTile, showMa
 
   return <div
     className={[
-      "maze-tile",
+      "relative maze-tile",
       isWall ? "wall" : "path cursor-pointer",
     ].join(' ').replace(/\s+/g, ' ')}
     onMouseOver={isWall ? void 0 : (e) => {
@@ -352,17 +352,17 @@ function Tile({tile, showMark, status, clearMarkSymbol}: {tile: MazeTile, showMa
     onContextMenu={isWall ? void 0 : (e) => {e.preventDefault(); setMarked(false)}}
     draggable={false}
   >
-    {!(marked && showMark) ? null :
-      <div className="relative w-full h-full bg-primary-600 pointer-events-none" />}
     {status === undefined ? null :
       <div
         className={[
-          "relative w-full h-full pointer-events-none",
+          "absolute w-full h-full top-0 pointer-events-none",
           status === -1 ? "bg-danger-100" : status === 2 ? "bg-success-600" : "bg-warning-600",
           `stat-${status}`,
         ].join(' ')}
         style={{opacity: Math.max(0.5, status)}}
       />}
+    {!(marked && showMark) ? null :
+      <div className="absolute w-full h-full top-0 bg-secondary-600 pointer-events-none opacity-50" />}
   </div>
 }
 
