@@ -170,7 +170,7 @@ export default function Harimau() {
             <Button variant="light" isIconOnly onClick={() => selectBook()}>
               <IoCloseOutline className="text-2xl text-default-300" />
             </Button>
-          ) : (auth < 1 ? null :
+          ) : (
             <Button variant="light" isIconOnly as={Link} href="/apps/ncu">
               <IoMenuOutline className="text-2xl text-default-300" />
             </Button>
