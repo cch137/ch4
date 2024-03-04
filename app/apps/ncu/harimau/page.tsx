@@ -15,6 +15,7 @@ import useUserInfo from "@/hooks/useUserInfo";
 import { MdInsertLink, MdInsertPhoto, MdUnfoldLess, MdUnfoldMore } from "react-icons/md";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import useInit from "@/hooks/useInit";
+import { packDataWithHash } from "@cch137/utils/shuttle";
 
 interface Book {
   name: string
@@ -317,27 +318,27 @@ export default function Harimau() {
                       >
                         <div className="flex flex-wrap gap-2 pb-8">
                           {questions.filter(q => q.chapter === chap)
-                            .map(q => {
-                              const url = `/view/harimau/${btoa(q.link).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')}`;
+                            .map(({problem, link}) => {
+                              const url = `/view/harimau/${packDataWithHash(link.split('/').at(-1), 'MD5', 112).toBase64().replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')}`;
                               return preview ? (
                                 <Link 
                                   className="relative select-none"
                                   href={url}
                                   target="_blank"
                                   key={url}
-                                  onClick={(e) => {if (openAsExternalLink) return; e.preventDefault(); setDisplayUrl(q.link)}}
+                                  onClick={(e) => {if (openAsExternalLink) return; e.preventDefault(); setDisplayUrl(link)}}
                                 >
                                   <Image
                                     width={160}
-                                    alt={q.problem}
-                                    src={q.link}
+                                    alt={problem}
+                                    src={link}
                                     style={{height: 120, objectPosition: 'top', objectFit: 'cover'}}
                                     className="pointer-events-none select-none"
                                     onContextMenu={preventDefault}
                                     draggable="false"
                                   />
                                   <div className="absolute bottom-0 left-0 py-1 z-10 w-full text-sm flex-center text-secondary-600 bg-opacity-75 bg-black">
-                                    <span>{q.problem}</span>
+                                    <span>{problem}</span>
                                   </div>
                                 </Link>
                               ) : (
@@ -350,9 +351,9 @@ export default function Harimau() {
                                   draggable={true}
                                   isExternal
                                   style={({outline: 'none'})}
-                                  onClick={(e) => {if (openAsExternalLink || e.ctrlKey) return; e.preventDefault(); setDisplayUrl(q.link)}}
+                                  onClick={(e) => {if (openAsExternalLink || e.ctrlKey) return; e.preventDefault(); setDisplayUrl(link)}}
                                 >
-                                  {q.problem}
+                                  {problem}
                                 </UiLink>
                               );
                           })}
