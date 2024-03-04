@@ -1,17 +1,9 @@
-const API_ORIGIN = 'https://api.cch137.link'
+const API_ORIGIN = "https://api.cch137.link";
 
-const BOOKLIST_URL = `${API_ORIGIN}/ls/list`;
-const BOOKBASE_URL = `${API_ORIGIN}/ls/`;
-const QUESTIONBASE_URL = `${API_ORIGIN}/ls/i/`;
-const QUERY_URL_PARAM = 'q';
-const CHAPTERS_URL_PARAM = 'c';
-const LOCK_URL_PARAM = 'l';
-
-export {
-  BOOKBASE_URL,
-  BOOKLIST_URL,
-  QUESTIONBASE_URL,
-  QUERY_URL_PARAM,
-  CHAPTERS_URL_PARAM,
-  LOCK_URL_PARAM,
-}
+export const BOOKLIST_URL = `${API_ORIGIN}/ls/list`;
+export const BOOKBASE_URL = `${API_ORIGIN}/ls/`;
+export const QUESTIONBASE_URL = `${API_ORIGIN}/ls/i/`;
+export const QUERY_URL_PARAM = "q";
+export const CHAPTERS_URL_PARAM = "c";
+export const LOCK_URL_PARAM = "l";
+export const PREVIEW_URL_PARAM = "p";
