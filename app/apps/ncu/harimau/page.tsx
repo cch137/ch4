@@ -1,6 +1,6 @@
 "use client"
 
-import { BOOKBASE_URL, BOOKLIST_URL, QUESTIONBASE_URL, QUERY_URL_PARAM, CHAPTERS_URL_PARAM, LOCK_URL_PARAM, PREVIEW_URL_PARAM } from "@/constants/apps/ncu";
+import { BOOKBASE_URL, BOOKLIST_URL, QUESTIONBASE_URL, QUERY_URL_PARAM, CHAPTERS_URL_PARAM, LOCK_URL_PARAM, PREVIEW_URL_PARAM, OPEN_AS_EXTERNAL_URL_PARAM } from "@/constants/apps/ncu";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Accordion, AccordionItem } from "@nextui-org/accordion";
 import { Button } from "@nextui-org/button";
@@ -12,7 +12,7 @@ import { Spinner } from "@nextui-org/spinner";
 import { Image } from "@nextui-org/image";
 import toolUrlParams from "@/app/tools/toolUrlParams";
 import useUserInfo from "@/hooks/useUserInfo";
-import { MdUnfoldLess, MdUnfoldMore } from "react-icons/md";
+import { MdInsertLink, MdInsertPhoto, MdUnfoldLess, MdUnfoldMore } from "react-icons/md";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import useInit from "@/hooks/useInit";
 
@@ -45,6 +45,8 @@ export default function Harimau() {
   const [selectedChapters, _setSelectedChapters] = useState<string[]>([]);
   const [lock, setLock] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [openAsExternalLink, setOpenAsExternalLink] = useState(false);
+  const [displayUrl, setDisplayUrl] = useState('');
 
   const getSelectedBook = useCallback(() => booklist.find((book) => selectedBooknames[0] === book.name) || null, [booklist, selectedBooknames]);
 
@@ -93,6 +95,7 @@ export default function Harimau() {
       const autoloadChapters = urlParams.get(CHAPTERS_URL_PARAM);
       setLock(urlParams.has(LOCK_URL_PARAM));
       setPreview(urlParams.has(PREVIEW_URL_PARAM));
+      setOpenAsExternalLink(urlParams.has(OPEN_AS_EXTERNAL_URL_PARAM));
       if (autoloadQuery === null) return;
       const autoloadBookname = books.find(book => book.filename.includes(autoloadQuery))?.name;
       if (autoloadBookname === undefined) return;
@@ -100,6 +103,17 @@ export default function Harimau() {
       if (autoloadChapters) autoSelectedChapters.current = autoloadChapters.split(',').map(c => c.trim());
     })();
   }, []);
+
+  useEffect(() => {
+    const exitOptimazedImage = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setDisplayUrl('');
+      e.preventDefault();
+    }
+    document.addEventListener('keyup', exitOptimazedImage);
+    return () => {
+      document.removeEventListener('keyup', exitOptimazedImage);
+    }
+  }, [displayUrl, setDisplayUrl]);
 
   const selectBook = useCallback((bookname?: string) => {
     if (inited.current && bookname === '') return;
@@ -109,6 +123,7 @@ export default function Harimau() {
       urlParams.delete(CHAPTERS_URL_PARAM);
       urlParams.delete(LOCK_URL_PARAM);
       urlParams.delete(PREVIEW_URL_PARAM);
+      urlParams.delete(OPEN_AS_EXTERNAL_URL_PARAM);
       urlParams.replace();
       setLock(false);
       setSelectedBooknames([]);
@@ -168,11 +183,34 @@ export default function Harimau() {
     else urlParams.delete(LOCK_URL_PARAM);
     if (preview) urlParams.set(PREVIEW_URL_PARAM, '1');
     else urlParams.delete(PREVIEW_URL_PARAM);
+    if (openAsExternalLink) urlParams.set(OPEN_AS_EXTERNAL_URL_PARAM, '1');
+    else urlParams.delete(OPEN_AS_EXTERNAL_URL_PARAM);
     urlParams.replace();
-  }, [inited, lock, preview, hasBookSelected]);
+  }, [inited, lock, preview, openAsExternalLink, hasBookSelected]);
+
+  const preventDefault = (e: any) => e.preventDefault();
 
   return <>
     {errorMessageBox}
+    {displayUrl ? <div style={{height: '100dvh', width: '100dvw'}} className="fixed flex-center top-0 left-0 bg-black bg-opacity-75 backdrop-blur-sm z-50">
+      <div className="relative z-50 h-full">
+        <Button isIconOnly className="absolute top-4 left-4 text-2xl rounded-full" variant="flat" onClick={() => setDisplayUrl('')}>
+          <IoCloseOutline />
+        </Button>
+      </div>
+      <div className="flex-1 h-full" onClick={() => setDisplayUrl('')} onContextMenu={preventDefault} />
+      <div className="max-w-screen-md overflow-y-scroll" style={{maxHeight: '100%'}} onClick={preventDefault} onContextMenu={(preventDefault)}>
+        <Image
+          alt={displayUrl}
+          src={displayUrl}
+          classNames={{wrapper: 'rounded-none'}}
+          className="rounded-none select-none pointer-events-none"
+          draggable="false"
+          onClick={preventDefault}
+        />
+      </div>
+      <div className="flex-1 h-full" onClick={() => setDisplayUrl('')} onContextMenu={preventDefault} />
+    </div> : null}
     <div className="flex-center flex-col w-full">
       <div className={`${preview ? '' : 'max-w-2xl'} w-full py-8 px-4`}>
         <div className="flex-center w-full">
@@ -224,6 +262,7 @@ export default function Harimau() {
                   <Button onClick={() => setSelectedChapters([])} color={color} variant="light" isDisabled={selectedChapters.length === 0 || lock} isIconOnly className="text-2xl"><MdUnfoldLess /></Button>
                   <Button onClick={() => setLock(!lock)} color={color} variant={lock ? 'flat' : 'light'} isIconOnly className="text-lg">{lock ? <IoLockClosed /> : <IoLockOpen />}</Button>
                   <Button onClick={() => setPreview(!preview)} color={color} variant="light" isIconOnly className="text-lg">{preview ? <IoEye /> : <IoEyeOff />}</Button>
+                  <Button onClick={() => setOpenAsExternalLink(!openAsExternalLink)} color={color} variant="light" isIconOnly className="text-2xl">{openAsExternalLink ? <MdInsertLink /> : <MdInsertPhoto />}</Button>
                 </div> : null}
                 <div>
                   <Accordion
@@ -278,35 +317,45 @@ export default function Harimau() {
                       >
                         <div className="flex flex-wrap gap-2 pb-8">
                           {questions.filter(q => q.chapter === chap)
-                            .map(q => preview ? (
-                              <Link className="relative select-none" href={`/apps/ncu/harimau/${btoa(q.link).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')}`} key={q.link}>
-                                <Image
-                                  width={160}
-                                  alt={q.problem}
-                                  src={q.link}
-                                  style={{height: 120, objectPosition: 'top', objectFit: 'cover'}}
-                                  className="pointer-events-none select-none"
-                                  onContextMenu={(e) => e.preventDefault()}
-                                  draggable="false"
-                                />
-                                <div className="absolute bottom-0 left-0 py-1 z-10 w-full text-sm flex-center text-secondary-600 bg-opacity-75 bg-black">
-                                  <span>{q.problem}</span>
-                                </div>
-                              </Link>
-                            ) : (
-                              <UiLink
-                                href={q.link}
-                                underline="hover"
-                                color={color}
-                                size="md"
-                                key={q.link}
-                                draggable={true}
-                                isExternal
-                                style={({outline: 'none'})}
-                              >
-                                {q.problem}
-                              </UiLink>
-                            ))}
+                            .map(q => {
+                              const url = `/view/harimau/${btoa(q.link).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')}`;
+                              return preview ? (
+                                <Link 
+                                  className="relative select-none"
+                                  href={url}
+                                  target="_blank"
+                                  key={url}
+                                  onClick={(e) => {if (openAsExternalLink) return; e.preventDefault(); setDisplayUrl(q.link)}}
+                                >
+                                  <Image
+                                    width={160}
+                                    alt={q.problem}
+                                    src={q.link}
+                                    style={{height: 120, objectPosition: 'top', objectFit: 'cover'}}
+                                    className="pointer-events-none select-none"
+                                    onContextMenu={preventDefault}
+                                    draggable="false"
+                                  />
+                                  <div className="absolute bottom-0 left-0 py-1 z-10 w-full text-sm flex-center text-secondary-600 bg-opacity-75 bg-black">
+                                    <span>{q.problem}</span>
+                                  </div>
+                                </Link>
+                              ) : (
+                                <UiLink
+                                  href={url}
+                                  underline="hover"
+                                  color={color}
+                                  size="md"
+                                  key={url}
+                                  draggable={true}
+                                  isExternal
+                                  style={({outline: 'none'})}
+                                  onClick={(e) => {if (openAsExternalLink || e.ctrlKey) return; e.preventDefault(); setDisplayUrl(q.link)}}
+                                >
+                                  {q.problem}
+                                </UiLink>
+                              );
+                          })}
                         </div>
                       </AccordionItem>
                     ))}
