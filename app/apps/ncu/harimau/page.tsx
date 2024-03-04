@@ -174,7 +174,7 @@ export default function Harimau() {
     if (selectedChapters.length === 0) urlParams.delete(CHAPTERS_URL_PARAM);
     else urlParams.set(CHAPTERS_URL_PARAM, selectedChapters.sort().join(','));
     urlParams.replace();
-  }, [selectedChapters, hasBookSelected]);
+  }, [inited, selectedChapters, hasBookSelected]);
 
   useEffect(() => {
     if (!inited.current || !hasBookSelected) return;
