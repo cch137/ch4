@@ -405,7 +405,7 @@ export default function MazeLab() {
         reject(e);
       }
     });
-  }, [seed, size, _isLoading, _maze]);
+  }, [seed, size, _isLoading, _maze, createMazeWalker]);
 
   const walkerGoForward = useCallback(() => {
     if (mazeWalker) {
@@ -431,13 +431,13 @@ export default function MazeLab() {
     _seed(seed);
     if (generate) generateMaze(seed, size);
     return seed;
-  }, [_seed, generateMaze]);
+  }, [_seed, generateMaze, size]);
 
   const setSize = useCallback((size: number = 63, generate = true) => {
     _size(size = Math.max(5, size));
     if (generate) generateMaze(seed, size);
     return size;
-  }, [_size, generateMaze]);
+  }, [_size, generateMaze, seed]);
 
   const inited = useInit(() => {
     const params = new URLSearchParams(location.href.split('?').at(-1)).entries();
