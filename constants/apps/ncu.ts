@@ -7,4 +7,4 @@ export const QUERY_URL_PARAM = "q";
 export const CHAPTERS_URL_PARAM = "c";
 export const LOCK_URL_PARAM = "l";
 export const PREVIEW_URL_PARAM = "p";
-export const OPEN_AS_EXTERNAL_URL_PARAM = "n";
+export const OPEN_AS_INTERNAL_URL_PARAM = "n";

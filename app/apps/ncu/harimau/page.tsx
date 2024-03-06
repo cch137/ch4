@@ -1,6 +1,6 @@
 "use client"
 
-import { BOOKBASE_URL, BOOKLIST_URL, QUESTIONBASE_URL, QUERY_URL_PARAM, CHAPTERS_URL_PARAM, LOCK_URL_PARAM, PREVIEW_URL_PARAM, OPEN_AS_EXTERNAL_URL_PARAM } from "@/constants/apps/ncu";
+import { BOOKBASE_URL, BOOKLIST_URL, QUESTIONBASE_URL, QUERY_URL_PARAM, CHAPTERS_URL_PARAM, LOCK_URL_PARAM, PREVIEW_URL_PARAM, OPEN_AS_INTERNAL_URL_PARAM } from "@/constants/apps/ncu";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Accordion, AccordionItem } from "@nextui-org/accordion";
 import { Button } from "@nextui-org/button";
@@ -48,7 +48,7 @@ export default function Harimau() {
   const [selectedChapters, _setSelectedChapters] = useState<string[]>([]);
   const [lock, setLock] = useState(false);
   const [preview, setPreview] = useState(false);
-  const [openAsExternalLink, setOpenAsExternalLink] = useState(false);
+  const [openAsInternalLink, setOpenAsInternalLink] = useState(false);
   const [displayUrl, setDisplayUrl] = useState('');
 
   const getSelectedBook = useCallback(() => booklist.find((book) => selectedBooknames[0] === book.name) || null, [booklist, selectedBooknames]);
@@ -98,7 +98,7 @@ export default function Harimau() {
       const autoloadChapters = urlParams.get(CHAPTERS_URL_PARAM);
       setLock(urlParams.has(LOCK_URL_PARAM));
       setPreview(urlParams.has(PREVIEW_URL_PARAM));
-      setOpenAsExternalLink(urlParams.has(OPEN_AS_EXTERNAL_URL_PARAM));
+      setOpenAsInternalLink(urlParams.has(OPEN_AS_INTERNAL_URL_PARAM));
       if (autoloadQuery === null) return;
       const autoloadBookname = books.find(book => book.filename.includes(autoloadQuery))?.name;
       if (autoloadBookname === undefined) return;
@@ -126,7 +126,7 @@ export default function Harimau() {
       urlParams.delete(CHAPTERS_URL_PARAM);
       urlParams.delete(LOCK_URL_PARAM);
       urlParams.delete(PREVIEW_URL_PARAM);
-      urlParams.delete(OPEN_AS_EXTERNAL_URL_PARAM);
+      urlParams.delete(OPEN_AS_INTERNAL_URL_PARAM);
       urlParams.replace();
       setLock(false);
       setSelectedBooknames([]);
@@ -188,10 +188,10 @@ export default function Harimau() {
     else urlParams.delete(LOCK_URL_PARAM);
     if (preview) urlParams.set(PREVIEW_URL_PARAM, '1');
     else urlParams.delete(PREVIEW_URL_PARAM);
-    if (openAsExternalLink) urlParams.set(OPEN_AS_EXTERNAL_URL_PARAM, '1');
-    else urlParams.delete(OPEN_AS_EXTERNAL_URL_PARAM);
+    if (openAsInternalLink) urlParams.set(OPEN_AS_INTERNAL_URL_PARAM, '1');
+    else urlParams.delete(OPEN_AS_INTERNAL_URL_PARAM);
     urlParams.replace();
-  }, [inited, lock, preview, openAsExternalLink, hasBookSelected]);
+  }, [inited, lock, preview, openAsInternalLink, hasBookSelected]);
 
   const preventDefault = (e: any) => e.preventDefault();
 
@@ -267,7 +267,7 @@ export default function Harimau() {
                   <Button onClick={() => setSelectedChapters([])} color={color} variant="light" isDisabled={selectedChapters.length === 0 || lock} isIconOnly className="text-2xl"><MdUnfoldLess /></Button>
                   <Button onClick={() => setLock(!lock)} color={color} variant={lock ? 'flat' : 'light'} isIconOnly className="text-lg">{lock ? <IoLockClosed /> : <IoLockOpen />}</Button>
                   <Button onClick={() => (selectedChapters.length > 3 && auth < 3) ? setPreview(false) : setPreview(!preview)} color={color} variant="light" isIconOnly className="text-lg">{preview ? <IoEye /> : <IoEyeOff />}</Button>
-                  <Button onClick={() => setOpenAsExternalLink(!openAsExternalLink)} color={color} variant="light" isIconOnly className="text-2xl">{openAsExternalLink ? <MdInsertLink /> : <MdInsertPhoto />}</Button>
+                  <Button onClick={() => setOpenAsInternalLink(!openAsInternalLink)} color={color} variant="light" isIconOnly className="text-2xl">{openAsInternalLink ? <MdInsertPhoto /> : <MdInsertLink />}</Button>
                 </div> : null}
                 <div>
                   <Accordion
@@ -329,7 +329,7 @@ export default function Harimau() {
                                   href={internalLink}
                                   target="_blank"
                                   key={internalLink}
-                                  onClick={(e) => {if (openAsExternalLink) return; e.preventDefault(); setDisplayUrl(externalLink)}}
+                                  onClick={(e) => {if (!openAsInternalLink) return; e.preventDefault(); setDisplayUrl(externalLink)}}
                                 >
                                   <Image
                                     width={160}
@@ -354,7 +354,7 @@ export default function Harimau() {
                                   draggable={true}
                                   isExternal
                                   style={({outline: 'none'})}
-                                  onClick={(e) => {if (openAsExternalLink || e.ctrlKey) return; e.preventDefault(); setDisplayUrl(externalLink)}}
+                                  onClick={(e) => {if (!openAsInternalLink || e.ctrlKey) return; e.preventDefault(); setDisplayUrl(externalLink)}}
                                 >
                                   {problem}
                                 </UiLink>
