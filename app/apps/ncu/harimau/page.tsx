@@ -34,6 +34,8 @@ interface Question extends RawQuestion {
   chapter: string
   problem: string
   ydiskId: string
+  internalLink: string
+  externalLink: string
 }
 
 export default function Harimau() {
@@ -157,7 +159,9 @@ export default function Harimau() {
         const ydiskId = link.split('/').at(-1) || '';
         const [isbn, chapter, problem] = q.isbn_c_p.split('_');
         if (!chapters.includes(chapter)) chapters.push(chapter);
-        return { isbn, chapter, problem, isbn_c_p, ydiskId, link: `${QUESTIONBASE_URL}${chapter}_${problem}?id=${ydiskId}&b=${isbn}` };
+        const externalLink = `${QUESTIONBASE_URL}${chapter}_${problem}?id=${ydiskId}&b=${isbn}`;
+        const internalLink = `/view/harimau/${packDataWithHash(externalLink.split('/').at(-1), 'MD5', 112).toBase64().replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')}`;
+        return { isbn, chapter, problem, isbn_c_p, ydiskId, link, internalLink, externalLink };
       }));
       setSelectedChapters([]);
       setChapters(chapters);
@@ -318,20 +322,19 @@ export default function Harimau() {
                       >
                         <div className="flex flex-wrap gap-2 pb-8">
                           {questions.filter(q => q.chapter === chap)
-                            .map(({problem, link}) => {
-                              const url = `/view/harimau/${packDataWithHash(link.split('/').at(-1), 'MD5', 112).toBase64().replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')}`;
+                            .map(({problem, internalLink, externalLink}) => {
                               return preview ? (
                                 <Link 
                                   className="relative select-none"
-                                  href={url}
+                                  href={internalLink}
                                   target="_blank"
-                                  key={url}
-                                  onClick={(e) => {if (openAsExternalLink) return; e.preventDefault(); setDisplayUrl(link)}}
+                                  key={internalLink}
+                                  onClick={(e) => {if (openAsExternalLink) return; e.preventDefault(); setDisplayUrl(externalLink)}}
                                 >
                                   <Image
                                     width={160}
                                     alt={problem}
-                                    src={link}
+                                    src={externalLink}
                                     style={{height: 120, objectPosition: 'top', objectFit: 'cover'}}
                                     className="pointer-events-none select-none"
                                     onContextMenu={preventDefault}
@@ -343,15 +346,15 @@ export default function Harimau() {
                                 </Link>
                               ) : (
                                 <UiLink
-                                  href={url}
+                                  href={internalLink}
                                   underline="hover"
                                   color={color}
                                   size="md"
-                                  key={url}
+                                  key={internalLink}
                                   draggable={true}
                                   isExternal
                                   style={({outline: 'none'})}
-                                  onClick={(e) => {if (openAsExternalLink || e.ctrlKey) return; e.preventDefault(); setDisplayUrl(link)}}
+                                  onClick={(e) => {if (openAsExternalLink || e.ctrlKey) return; e.preventDefault(); setDisplayUrl(externalLink)}}
                                 >
                                   {problem}
                                 </UiLink>
