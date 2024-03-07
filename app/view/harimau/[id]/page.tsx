@@ -28,6 +28,7 @@ export default function HarimauView() {
         src={url}
         className="rounded-none w-full select-none pointer-events-none"
         draggable="false"
+        style={{width: 870}}
       />
     </div>
   </div>)
