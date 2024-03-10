@@ -20,7 +20,7 @@ export default function HarimauView() {
   const title = link.split('?')[0];
   const url = `https://api.cch137.link/ls/i/${link}`;
 
-  return (<div className="w-full flex-center" onContextMenu={(e) => e.preventDefault()}>
+  return (<div className="w-full flex-center" onContextMenu={(e) => e.preventDefault()} onDoubleClick={(e) => e.preventDefault()}>
     <title>{appTitle(title)}</title>
     <div className="max-w-full pointer-events-none">
       <Image
