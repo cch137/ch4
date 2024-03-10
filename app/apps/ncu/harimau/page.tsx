@@ -197,7 +197,7 @@ export default function Harimau() {
         </Button>
       </div>
       <div className="flex-1 h-full" onClick={() => setDisplayUrl('')} onContextMenu={preventDefault} />
-      <div className="max-w-screen-md overflow-y-scroll" style={{maxHeight: '100%'}} onClick={preventDefault} onContextMenu={(preventDefault)}>
+      <div className="max-w-full overflow-y-scroll" style={{maxHeight: '100%'}} onClick={preventDefault} onContextMenu={(preventDefault)}>
         <Image
           alt={displayUrl}
           src={displayUrl}
@@ -205,6 +205,7 @@ export default function Harimau() {
           className="rounded-none select-none pointer-events-none"
           draggable="false"
           onClick={preventDefault}
+          width={870}
         />
       </div>
       <div className="flex-1 h-full" onClick={() => setDisplayUrl('')} onContextMenu={preventDefault} />
