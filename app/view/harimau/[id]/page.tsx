@@ -17,11 +17,11 @@ const parseLink = (id: string) => {
 export default function HarimauView() {
   const params = useParams();
   const link = parseLink(Array.isArray(params.id) ? params.id[0] : params.id);
+  const { auth } = useUserInfo();
+  const isMember = auth > 3;
   if (typeof link !== 'string') return <></>;
   const title = link.split('?')[0];
   const url = `https://api.cch137.link/ls/i/${link}`;
-  const { auth } = useUserInfo();
-  const isMember = auth > 3;
 
   return (
     <div
