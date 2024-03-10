@@ -11,7 +11,6 @@ import { Link as UiLink } from "@nextui-org/link";
 import { Spinner } from "@nextui-org/spinner";
 import { Image } from "@nextui-org/image";
 import toolUrlParams from "@/app/tools/toolUrlParams";
-import useUserInfo from "@/hooks/useUserInfo";
 import { MdInsertLink, MdInsertPhoto, MdUnfoldLess, MdUnfoldMore } from "react-icons/md";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import useInit from "@/hooks/useInit";
@@ -58,15 +57,9 @@ export default function Harimau() {
     errorMessageBox,
   } = useErrorMessage();
 
-  const { auth, $inited } = useUserInfo();
-
   const lastSelectedChapters = useRef([...selectedChapters]);
   const setSelectedChapters = useCallback((keys: string[]) => {
-    if (!$inited) {
-      setTimeout(() => setSelectedChapters(keys), 0);
-      return;
-    }
-    if (keys.length > 3 && auth < 3 && preview) {
+    if (keys.length > 3 && preview) {
       openErrorMessageBox(
         lastSelectedChapters.current.length === 0
           ? 'Please disable preview mode to load more sections.'
@@ -78,7 +71,7 @@ export default function Harimau() {
       lastSelectedChapters.current = keys;
       _setSelectedChapters(keys);
     }
-  }, [_setSelectedChapters, preview, lastSelectedChapters, auth, $inited, openErrorMessageBox]);
+  }, [_setSelectedChapters, preview, lastSelectedChapters, openErrorMessageBox]);
 
   const autoSelectedChapters = useRef<string[]>([]);
   const hasBookSelected = selectedBooknames.length !== 0;
@@ -266,7 +259,7 @@ export default function Harimau() {
                   <Button onClick={() => setSelectedChapters([...chapters])} color={color} variant="light" isDisabled={chapters.length === selectedChapters.length || lock} isIconOnly className="text-2xl"><MdUnfoldMore /></Button>
                   <Button onClick={() => setSelectedChapters([])} color={color} variant="light" isDisabled={selectedChapters.length === 0 || lock} isIconOnly className="text-2xl"><MdUnfoldLess /></Button>
                   <Button onClick={() => setLock(!lock)} color={color} variant={lock ? 'flat' : 'light'} isIconOnly className="text-lg">{lock ? <IoLockClosed /> : <IoLockOpen />}</Button>
-                  <Button onClick={() => (selectedChapters.length > 3 && auth < 3) ? setPreview(false) : setPreview(!preview)} color={color} variant="light" isIconOnly className="text-lg">{preview ? <IoEye /> : <IoEyeOff />}</Button>
+                  <Button onClick={() => (selectedChapters.length > 3) ? setPreview(false) : setPreview(!preview)} color={color} variant="light" isIconOnly className="text-lg">{preview ? <IoEye /> : <IoEyeOff />}</Button>
                   <Button onClick={() => setOpenAsInternalLink(!openAsInternalLink)} color={color} variant="light" isIconOnly className="text-2xl">{openAsInternalLink ? <MdInsertPhoto /> : <MdInsertLink />}</Button>
                 </div> : null}
                 <div>
