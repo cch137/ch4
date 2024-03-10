@@ -15,6 +15,7 @@ import { MdInsertLink, MdInsertPhoto, MdUnfoldLess, MdUnfoldMore } from "react-i
 import useErrorMessage from "@/hooks/useErrorMessage";
 import useInit from "@/hooks/useInit";
 import { packDataWithHash } from "@cch137/utils/shuttle";
+import useUserInfo from "@/hooks/useUserInfo";
 
 interface Book {
   name: string
@@ -186,6 +187,8 @@ export default function Harimau() {
     urlParams.replace();
   }, [inited, lock, preview, openAsInternalLink, hasBookSelected]);
 
+  const { auth } = useUserInfo();
+  const isMember = auth > 3;
   const preventDefault = (e: any) => e.preventDefault();
 
   return <>
@@ -197,14 +200,18 @@ export default function Harimau() {
         </Button>
       </div>
       <div className="flex-1 h-full" onClick={() => setDisplayUrl('')} onContextMenu={preventDefault} />
-      <div className="max-w-full overflow-y-scroll" style={{maxHeight: '100%'}} onClick={preventDefault} onContextMenu={(preventDefault)}>
+      <div
+        className="max-w-full overflow-y-scroll"
+        style={{maxHeight: '100%'}}
+        onClick={preventDefault}
+        onContextMenu={isMember ? void 0 : preventDefault}
+      >
         <Image
           alt={displayUrl}
           src={displayUrl}
           classNames={{wrapper: 'rounded-none'}}
-          className="rounded-none select-none pointer-events-none"
+          className={`rounded-none select-none ${isMember ? '' : 'pointer-events-none'}`}
           draggable="false"
-          onClick={preventDefault}
           width={870}
         />
       </div>
