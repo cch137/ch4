@@ -23,7 +23,7 @@ function SidebarFooter() {
         </Link>
       </div>
       <div>
-        <Link showAnchorIcon color="secondary" size="sm" target="_blank" href="https://chat.mikumikumi.tk/">
+        <Link showAnchorIcon color="secondary" size="sm" target="_blank" href="https://api.mikugpt.top/">
           Sponsored by MikuAPI
         </Link>
       </div>
