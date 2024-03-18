@@ -104,7 +104,7 @@ export default function Oracle() {
       </Button>
     </div>
     <div className="flex flex-col gap-4 py-4">
-      {chars.reverse().map((char, i) => <CharRow char={char} removeChar={() => setChars(_ => _.filter(v => v !== char))} key={i} />)}
+      {chars.map((char, i) => <CharRow char={char} removeChar={() => setChars(_ => _.filter(v => v !== char))} key={i} />)}
     </div>
   </div>
 }
