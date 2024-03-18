@@ -27,6 +27,7 @@ function CharRow({char, removeChar}: {char: string, removeChar: () => void}) {
     (async () => {
       setIsLoading(true);
       try {
+        setSources([]);
         const res: ImageSource[] = cache.get(char) || await (await fetch(`${apiOrigin}/ccamc-images`, {
           method: 'POST',
           body: `q=${char}`
