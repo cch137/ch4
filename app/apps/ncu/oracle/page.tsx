@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@nextui-org/button"
-import { Image } from "@nextui-org/image"
+import Image from "next/image"
 import { Spacer } from "@nextui-org/spacer"
 import { Spinner } from "@nextui-org/spinner"
 import Link from "next/link"
@@ -53,7 +53,8 @@ function CharRow({char, removeChar}: {char: string, removeChar: () => void}) {
           key={i}
           height={48}
           width={48}
-          style={{filter: 'invert(1) brightness(100)'}}
+          style={{filter: 'invert(1)'}}
+          draggable={false}
         />
       </>)}
     </div>}
