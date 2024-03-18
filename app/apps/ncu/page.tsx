@@ -21,9 +21,9 @@ export default function NCU() {
       color="secondary"
       variant="ghost"
       className="w-full"
-      href="/apps/ncu/harimau"
+      href="/apps/ncu/text-ans"
     >
-      Harimau
+      TextAns
     </Button>
     <Button
       as={Link}

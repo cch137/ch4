@@ -13,7 +13,7 @@ export default function App() {
 
   switch (userId.toLowerCase() + '/' + repoId.toLocaleLowerCase()) {
     case 'tools/ls': // old stuff redirect
-      return <FullpageSpinner redirectTo={'/apps/ncu/harimau'} />
+      return <FullpageSpinner redirectTo={'/apps/ncu/text-ans'} />
   }
 
   return <NotFound />

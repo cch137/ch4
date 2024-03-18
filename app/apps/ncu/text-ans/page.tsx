@@ -5,7 +5,7 @@ import { Select, SelectItem } from "@nextui-org/select";
 import { Accordion, AccordionItem } from "@nextui-org/accordion";
 import { Button } from "@nextui-org/button";
 import { ChangeEvent, useCallback, useEffect, useRef, useState } from "react";
-import { IoCloseOutline, IoEye, IoEyeOff, IoLockClosed, IoLockOpen, IoMenuOutline } from "react-icons/io5";
+import { IoChevronBackOutline, IoCloseOutline, IoEye, IoEyeOff, IoLockClosed, IoLockOpen } from "react-icons/io5";
 import Link from "next/link";
 import { Link as UiLink } from "@nextui-org/link";
 import { Spinner } from "@nextui-org/spinner";
@@ -34,11 +34,12 @@ interface Question extends RawQuestion {
   chapter: string
   problem: string
   ydiskId: string
-  internalLink: string
-  externalLink: string
+  sourceLink: string
+  viewLink: string
+  apiTraceLink: string
 }
 
-export default function Harimau() {
+export default function TextAns() {
   const color = 'secondary';
   const [questionsIsLoading, setQuestionsIsLoading] = useState(false);
   const [selectedBooknames, setSelectedBooknames] = useState<string[]>([]);
@@ -48,7 +49,7 @@ export default function Harimau() {
   const [selectedChapters, _setSelectedChapters] = useState<string[]>([]);
   const [lock, setLock] = useState(false);
   const [preview, setPreview] = useState(false);
-  const [openAsInternalLink, setOpenAsInternalLink] = useState(false);
+  const [openAsViewLink, setOpenAsViewLink] = useState(false);
   const [displayUrl, setDisplayUrl] = useState('');
 
   const getSelectedBook = useCallback(() => booklist.find((book) => selectedBooknames[0] === book.name) || null, [booklist, selectedBooknames]);
@@ -92,7 +93,7 @@ export default function Harimau() {
       const autoloadChapters = urlParams.get(CHAPTERS_URL_PARAM);
       setLock(urlParams.has(LOCK_URL_PARAM));
       setPreview(urlParams.has(PREVIEW_URL_PARAM));
-      setOpenAsInternalLink(urlParams.has(OPEN_AS_INTERNAL_URL_PARAM));
+      setOpenAsViewLink(urlParams.has(OPEN_AS_INTERNAL_URL_PARAM));
       if (autoloadQuery === null) return;
       const autoloadBookname = books.find(book => book.filename.includes(autoloadQuery))?.name;
       if (autoloadBookname === undefined) return;
@@ -153,9 +154,10 @@ export default function Harimau() {
         const ydiskId = link.split('/').at(-1) || '';
         const [isbn, chapter, problem] = q.isbn_c_p.split('_');
         if (!chapters.includes(chapter)) chapters.push(chapter);
-        const externalLink = `${QUESTIONBASE_URL}${chapter}_${problem}?id=${ydiskId}&b=${isbn}`;
-        const internalLink = `/view/harimau/${packDataWithHash(externalLink.split('/').at(-1), 'MD5', 112).toBase64().replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')}`;
-        return { isbn, chapter, problem, isbn_c_p, ydiskId, link, internalLink, externalLink };
+        const sourceLink = `https://raw.githubusercontent.com/cch137/ggehc/main/${isbn}/${isbn}_${chapter}_${problem}.png`;
+        const apiTraceLink = `${QUESTIONBASE_URL}${chapter}_${problem}?id=${ydiskId}&b=${isbn}`;
+        const viewLink = `/view/text-ans/${packDataWithHash(apiTraceLink.split('/').at(-1), 'MD5', 112).toBase64().replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')}`;
+        return { isbn, chapter, problem, isbn_c_p, ydiskId, link, sourceLink, viewLink, apiTraceLink };
       }));
       setSelectedChapters([]);
       setChapters(chapters);
@@ -182,10 +184,10 @@ export default function Harimau() {
     else urlParams.delete(LOCK_URL_PARAM);
     if (preview) urlParams.set(PREVIEW_URL_PARAM, '1');
     else urlParams.delete(PREVIEW_URL_PARAM);
-    if (openAsInternalLink) urlParams.set(OPEN_AS_INTERNAL_URL_PARAM, '1');
+    if (openAsViewLink) urlParams.set(OPEN_AS_INTERNAL_URL_PARAM, '1');
     else urlParams.delete(OPEN_AS_INTERNAL_URL_PARAM);
     urlParams.replace();
-  }, [inited, lock, preview, openAsInternalLink, hasBookSelected]);
+  }, [inited, lock, preview, openAsViewLink, hasBookSelected]);
 
   const { auth } = useUserInfo();
   const isMember = auth > 3;
@@ -219,6 +221,18 @@ export default function Harimau() {
     </div> : null}
     <div className="flex-center flex-col w-full">
       <div className={`${preview ? '' : 'max-w-2xl'} w-full py-8 px-4`}>
+        <div className="mb-2">
+          <Button
+            as={Link}
+            href="/apps/ncu"
+            variant="light"
+            size="sm"
+            className="text-sm text-default-300"
+            isIconOnly
+          >
+            <IoChevronBackOutline className="text-lg" />
+          </Button>
+        </div>
         <div className="flex-center w-full">
           <div className="flex-1 h-16">
             <div className="relative">
@@ -246,15 +260,10 @@ export default function Harimau() {
             </div>
           </div>
           <div className="flex-center">
-            {lock ? null : hasBookSelected ? (
+            {(lock || !hasBookSelected) ? null :
               <Button variant="light" isIconOnly onClick={() => selectBook()}>
                 <IoCloseOutline className="text-2xl text-default-300" />
-              </Button>
-            ) : (
-              <Button variant="light" isIconOnly as={Link} href="/apps/ncu">
-                <IoMenuOutline className="text-2xl text-default-300" />
-              </Button>
-            )}
+              </Button>}
           </div>
         </div>
         <div className="flex flex-col gap-8 py-8 pb-16">
@@ -268,7 +277,7 @@ export default function Harimau() {
                   <Button onClick={() => setSelectedChapters([])} color={color} variant="light" isDisabled={selectedChapters.length === 0 || lock} isIconOnly className="text-2xl"><MdUnfoldLess /></Button>
                   <Button onClick={() => setLock(!lock)} color={color} variant={lock ? 'flat' : 'light'} isIconOnly className="text-lg">{lock ? <IoLockClosed /> : <IoLockOpen />}</Button>
                   <Button onClick={() => (selectedChapters.length > 3) ? setPreview(false) : setPreview(!preview)} color={color} variant="light" isIconOnly className="text-lg">{preview ? <IoEye /> : <IoEyeOff />}</Button>
-                  <Button onClick={() => setOpenAsInternalLink(!openAsInternalLink)} color={color} variant="light" isIconOnly className="text-2xl">{openAsInternalLink ? <MdInsertPhoto /> : <MdInsertLink />}</Button>
+                  <Button onClick={() => setOpenAsViewLink(!openAsViewLink)} color={color} variant="light" isIconOnly className="text-2xl">{openAsViewLink ? <MdInsertPhoto /> : <MdInsertLink />}</Button>
                 </div> : null}
                 <div>
                   <Accordion
@@ -323,19 +332,19 @@ export default function Harimau() {
                       >
                         <div className="flex flex-wrap gap-2 pb-8">
                           {questions.filter(q => q.chapter === chap)
-                            .map(({problem, internalLink, externalLink}) => {
+                            .map(({problem, sourceLink, viewLink, apiTraceLink}) => {
                               return preview ? (
                                 <Link 
                                   className="relative select-none"
-                                  href={internalLink}
+                                  href={viewLink}
                                   target="_blank"
-                                  key={internalLink}
-                                  onClick={(e) => {if (!openAsInternalLink) return; e.preventDefault(); setDisplayUrl(externalLink)}}
+                                  key={viewLink}
+                                  onClick={(e) => {if (!openAsViewLink) return; e.preventDefault(); setDisplayUrl(apiTraceLink)}}
                                 >
                                   <Image
                                     width={160}
                                     alt={problem}
-                                    src={externalLink}
+                                    src={sourceLink}
                                     style={{height: 120, objectPosition: 'top', objectFit: 'cover'}}
                                     className="pointer-events-none select-none"
                                     onContextMenu={preventDefault}
@@ -347,15 +356,15 @@ export default function Harimau() {
                                 </Link>
                               ) : (
                                 <UiLink
-                                  href={internalLink}
+                                  href={viewLink}
                                   underline="hover"
                                   color={color}
                                   size="md"
-                                  key={internalLink}
+                                  key={viewLink}
                                   draggable={true}
                                   isExternal
                                   style={({outline: 'none'})}
-                                  onClick={(e) => {if (!openAsInternalLink || e.ctrlKey) return; e.preventDefault(); setDisplayUrl(externalLink)}}
+                                  onClick={(e) => {if (!openAsViewLink || e.ctrlKey) return; e.preventDefault(); setDisplayUrl(apiTraceLink)}}
                                 >
                                   {problem}
                                 </UiLink>
