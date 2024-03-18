@@ -1,7 +1,8 @@
 "use client"
 
+import './oracle.css'
+
 import { Button } from "@nextui-org/button"
-import Image from "next/image"
 import { Spacer } from "@nextui-org/spacer"
 import { Spinner } from "@nextui-org/spinner"
 import Link from "next/link"
@@ -9,7 +10,7 @@ import { useCallback, useEffect, useState } from "react"
 import { IoChevronBackOutline, IoCloseOutline } from "react-icons/io5"
 
 type ImageSource = {
-  src: string
+  svg: string
   name: string
 }
 
@@ -45,18 +46,12 @@ function CharRow({char, removeChar}: {char: string, removeChar: () => void}) {
     </div>
     <Spacer y={4} />
     {isLoading ? <Spinner /> : <div className="flex flex-wrap">
-      {sources.map(({src, name}, i) => <>
-        <Image
-          src={src}
-          alt={name}
-          title={name}
-          key={i}
-          height={48}
-          width={48}
-          style={{filter: 'invert(1)'}}
-          draggable={false}
-        />
-      </>)}
+      {sources.map(({svg, name}, i) => <div
+        key={i}
+        className="oracle-svg-wrapper"
+        title={name}
+        dangerouslySetInnerHTML={{ __html: svg }}
+      />)}
     </div>}
   </div>
 }

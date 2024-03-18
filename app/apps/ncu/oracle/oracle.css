@@ -1,0 +1,5 @@
+.oracle-svg-wrapper svg {
+  width: 48px;
+  height: 48px;
+  filter: invert(1);
+}
