@@ -15,8 +15,8 @@ type ImageSource = {
 
 type InferSource  = string[]
 
-// const apiOrigin = 'https://api.cch137.link';
-const apiOrigin = 'http://localhost:5000';
+const apiOrigin = 'https://api.cch137.link';
+// const apiOrigin = 'http://localhost:5000';
 const cache = new Map<string, ImageSource[]>();
 
 function CharRow({char, removeChar}: {char: string, removeChar: () => void}) {
