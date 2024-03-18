@@ -15,7 +15,8 @@ type ImageSource = {
 
 type InferSource  = string[]
 
-const apiOrigin = 'https://api.cch137.link';
+// const apiOrigin = 'https://api.cch137.link';
+const apiOrigin = 'http://localhost:5000';
 const cache = new Map<string, ImageSource[]>();
 
 function CharRow({char, removeChar}: {char: string, removeChar: () => void}) {
@@ -25,7 +26,7 @@ function CharRow({char, removeChar}: {char: string, removeChar: () => void}) {
     (async () => {
       setIsLoading(true);
       try {
-        const res: ImageSource[] = cache.get(char) || await (await fetch(`${apiOrigin}/ccmac-images`, {
+        const res: ImageSource[] = cache.get(char) || await (await fetch(`${apiOrigin}/ccamc-images`, {
           method: 'POST',
           body: `q=${char}`
         })).json();
@@ -75,7 +76,7 @@ export default function Oracle() {
     if (!q) return [];
     setIsAddingInfer(true);
     try {
-      const infer: InferSource = await (await fetch(`${apiOrigin}/ccmac-infer`, {
+      const infer: InferSource = await (await fetch(`${apiOrigin}/ccamc-infer`, {
         method: 'POST',
         body: `q=${q}`
       })).json();
