@@ -15,16 +15,26 @@ export default function NCU() {
     >
       Weather
     </Button>
-      <Button
-        as={Link}
-        size="lg"
-        color="secondary"
-        variant="ghost"
-        className="w-full"
-        href="/apps/ncu/harimau"
-      >
-        Harimau
-      </Button>
+    <Button
+      as={Link}
+      size="lg"
+      color="secondary"
+      variant="ghost"
+      className="w-full"
+      href="/apps/ncu/harimau"
+    >
+      Harimau
+    </Button>
+    <Button
+      as={Link}
+      size="lg"
+      color="secondary"
+      variant="ghost"
+      className="w-full"
+      href="/apps/ncu/oracle"
+    >
+      甲骨文
+    </Button>
     <Button
       as={Link}
       size="lg"
