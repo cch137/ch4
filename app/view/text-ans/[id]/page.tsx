@@ -37,7 +37,7 @@ export default function TextAnsView() {
           className={`rounded-none w-full select-none ${isMember ? '' : 'pointer-events-none'}`}
           classNames={{wrapper: isMember ? '' : 'pointer-events-none'}}
           draggable="false"
-          style={{width: 870}}
+          style={{width: 1024}}
         />
       </div>
     </div>
