@@ -6,6 +6,7 @@ import { Button } from "@nextui-org/button"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import FullpageSpinner from "./components/fullpage-spiner"
+import { Suspense } from "react"
 
 const description = 'This page could not be found.'
 
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
   description,
 }
 
-export default function NotFound() {
+function _NotFound() {
   const pathname = usePathname();
   const params = useSearchParams();
   switch (pathname) {
@@ -38,4 +39,10 @@ export default function NotFound() {
       </div>
     </div>
   </>)
+}
+
+export default function NotFound() {
+  return (<Suspense>
+    <_NotFound />
+  </Suspense>)
 }
