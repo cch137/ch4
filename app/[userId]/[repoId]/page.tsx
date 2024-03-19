@@ -3,18 +3,12 @@
 import { Button } from "@nextui-org/button";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import FullpageSpinner from "@/app/components/fullpage-spiner";
 import NotFound from "@/app/not-found";
 
 export default function App() {
   const params = useParams();
   const userId: string = Array.isArray(params.userId) ? params.userId[0] : params.userId;
   const repoId: string = Array.isArray(params.repoId) ? params.repoId[0] : params.repoId;
-
-  switch (userId.toLowerCase() + '/' + repoId.toLocaleLowerCase()) {
-    case 'tools/ls': // old stuff redirect
-      return <FullpageSpinner redirectTo={'/apps/ncu/text-ans'} />
-  }
 
   return <NotFound />
 

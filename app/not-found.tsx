@@ -1,8 +1,11 @@
+'use client'
+
 import type { Metadata } from "next"
 import { appTitle } from "@/constants/app"
 import { Button } from "@nextui-org/button"
 import Link from "next/link"
-import AppNavbar from "./components/app-navbar"
+import { usePathname, useSearchParams } from "next/navigation"
+import FullpageSpinner from "./components/fullpage-spiner"
 
 const description = 'This page could not be found.'
 
@@ -12,6 +15,15 @@ export const metadata: Metadata = {
 }
 
 export default function NotFound() {
+  const pathname = usePathname();
+  const params = useSearchParams();
+  switch (pathname) {
+    // old stuff redirect
+    case '/apps/ncu/harimau':
+    case '/tools/ls':
+      return <FullpageSpinner redirectTo={`/apps/ncu/text-ans?${params.toString()}`} />
+  }
+
   return (<>
     <div className="fixed z-50" style={{top: '50%', left: '50%', transform: 'translate(-50%,-50%)'}}>
       <div className="flex-center flex-col gap-12">
