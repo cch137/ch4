@@ -35,9 +35,9 @@ export default function TextAnsView() {
           alt={url}
           src={url}
           className={`rounded-none w-full select-none ${isMember ? '' : 'pointer-events-none'}`}
-          classNames={{wrapper: isMember ? '' : 'pointer-events-none'}}
+          classNames={{ wrapper: isMember ? '' : 'pointer-events-none' }}
           draggable="false"
-          style={{width: 1024}}
+          style={{ width: 960 }}
         />
       </div>
     </div>
