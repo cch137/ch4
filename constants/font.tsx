@@ -18,7 +18,7 @@ export const notoSans = Noto_Sans({subsets: ['latin'], weight: '400'});
 
 export const notoSerifTC = Noto_Serif_TC({subsets: ['latin'], weight: '300'});
 
-export const fonts = [
+const fonts = [
   notoSans,
   notoSansTC,
   notoSansSC,
@@ -27,20 +27,28 @@ export const fonts = [
   notoSansKR,
 ];
 
-const styles = fonts.reduce(({fontFamilies}, {style: {fontFamily}}, i, a) => {
-  fontFamilies.add(fontFamily);
-  return {fontFamilies};
-}, {
-  fontFamilies: new Set<string>(),
-});
+const silenceFonts = [
+  notoSans,
+  notoSerifTC,
+];
 
-export const font: NextFont = {
-  className: 'default-font',
-  style: {
-    fontFamily: [...styles.fontFamilies].join(',').replace(/,[\s]+/g, ','),
+const mergeFonts = (className: string, fonts: NextFont[]): NextFont => {
+  const style = fonts.reduce(({fontFamilies}, {style: {fontFamily}}, i, a) => {
+    fontFamilies.add(fontFamily);
+    return {fontFamilies};
+  }, {
+    fontFamilies: new Set<string>(),
+  });
+  return {
+    className,
+    style: {
+      fontFamily: [...style.fontFamilies].join(',').replace(/,[\s]+/g, ','),
+    }
   }
 }
 
-export const fontClassName = font.className;
+export const silenceFont = mergeFonts('default-font', fonts);
+export const font = mergeFonts('silence-font', silenceFonts);
 
-export default fonts;
+export const fontClassName = font.className;
+export const silenceFontClassName = silenceFont.className;
