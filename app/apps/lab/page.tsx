@@ -21,6 +21,16 @@ export default function Lab() {
       color="secondary"
       variant="ghost"
       className="w-full"
+      href="/view/silence"
+    >
+      Silence
+    </Button>
+    <Button
+      as={Link}
+      size="lg"
+      color="secondary"
+      variant="ghost"
+      className="w-full"
       href="/apps/ncu"
     >
       NCU
