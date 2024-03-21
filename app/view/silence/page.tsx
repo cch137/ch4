@@ -90,12 +90,15 @@ const catrgorizedSources = (() => {
   return categorized;
 })();
 
+const isAlmostEnd = ({duration, currentTime}: HTMLAudioElement) => duration - currentTime <= 5;
+
 function AudioController({audio, globalVolume = 1}: { audio: AudioSource, globalVolume?: number}) {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isPlayed, setIsPlayed] = useState(false);
   const [isPlayingMain, setIsPlayingMain] = useState(false);
   const [isPlayingGlue, setIsPlayingGlue] = useState(false);
   const [volume, setVolume] = useState(0);
-  const [computedVolume, setComputedVolume] = useState(1);
+  const [computedVolume, setComputedVolume] = useState(0);
   const mainRef = createRef<HTMLAudioElement>();
   const glueRef = createRef<HTMLAudioElement>();
 
@@ -119,24 +122,25 @@ function AudioController({audio, globalVolume = 1}: { audio: AudioSource, global
     setComputedVolume(computedVolume);
     const mainEl = mainRef.current;
     const glueEl = glueRef.current;
-    if (mainEl) mainEl.volume = computedVolume;
+    if (mainEl) {
+      mainEl.volume = computedVolume;
+      if (isAlmostEnd(mainEl)) mainEl.currentTime = 0;
+    }
     if (glueEl) glueEl.volume = computedVolume;
     if (computedVolume === 0) {
-      if (isPlayingMain) {
-        setIsPlayingMain(false);
-        setIsLoaded(false);
-      }
+      if (isPlayingMain) setIsPlayingMain(false);
     } else {
+      if (!isPlayed) setIsPlayed(true);
       if (!isPlayingMain) setIsPlayingMain(true);
     }
-  }, [volume, isPlayingMain, mainRef, glueRef, setComputedVolume]);
+  }, [volume, isPlayed, isPlayingMain, mainRef, glueRef, setComputedVolume, setIsPlayingMain]);
 
   useInit(() => {
     setVolume(volume);
   });
 
   return (
-    <div className="w-40 text-default-500" style={{opacity: 0.5 + volume / 2}}>
+    <div className="w-40 text-default-500" style={{opacity: 0.75 + volume * 0.25}}>
       <div className="flex-center text-lg font-medium gap-2" style={{filter: `brightness(${0.75 + volume / 2})`}}>
         <div className="flex-1">{audio.name}</div>
         {(isPlayingMain && !isLoaded) ? <Spinner size="sm" color="white" /> : null}
@@ -153,7 +157,7 @@ function AudioController({audio, globalVolume = 1}: { audio: AudioSource, global
       />
       <link rel="preload" href={audio.mainUrl} as="audio" />
       <link rel="preload" href={audio.glueUrl} as="audio" />
-      {isPlayingMain ? <>
+      {isPlayed ? <>
         <audio
           src={audio.mainUrl}
           ref={mainRef}
@@ -167,10 +171,7 @@ function AudioController({audio, globalVolume = 1}: { audio: AudioSource, global
             const mainEl = mainRef.current;
             const glueEl = mainRef.current;
             if (!mainEl || !glueEl || isPlayingGlue) return;
-            const { currentTime, duration } = mainEl;
-            if (duration - currentTime <= 5) {
-              setIsPlayingGlue(true);
-            }
+            if (isAlmostEnd(mainEl)) setIsPlayingGlue(true);
           }}
           aria-label={`${audio.id}-main-audio`}
         />
