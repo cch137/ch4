@@ -322,7 +322,7 @@ export default function Silence() {
             volume: 1,
             speed: 1,
             sources: [
-              { id: "fire", volume: 0.84 },
+              { id: "fire", volume: 0.96 },
               { id: "whitenoise", volume: 0.02 },
               { id: "cicadas", volume: 0.04 },
               { id: "crickets", volume: 0.08 },
