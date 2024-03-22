@@ -74,7 +74,7 @@ const sources = [
   { name: '林間雨', id: 'raintrees', cat: '自然' },
   { name: '錫板雨', id: 'raintinroof', cat: '自然' },
   { name: '木屋雨', id: 'raincabin', cat: '自然' },
-  { name: '餐館', id: 'people', cat: '雜訊' },
+  { name: '餐廳', id: 'people', cat: '雜訊' },
   { name: '唱片機', id: 'vinyl', cat: '雜訊' },
   { name: '白噪音', id: 'whitenoise', cat: '雜訊' },
   { name: '布朗噪聲', id: 'brownnoise', cat: '雜訊' },
@@ -197,8 +197,8 @@ function AudioController({audio, currentMix, globalVolume = 1, speed = 1}: { aud
   }, [audio, setVolume, play, pause]);
 
   return (
-    <div className="w-40 text-default-500 transition" style={{opacity: 0.75 + volume * 0.25}}>
-      <div className="flex-center text-lg font-medium gap-2 transition" style={{filter: `brightness(${0.75 + volume / 2})`}}>
+    <div className="w-40 text-default-500 transition" style={{ filter: `brightness(${0.75 + volume *0.5})` }}>
+      <div className="flex-center text-lg font-medium gap-2 transition">
         <div className="flex-1">{audio.name}</div>
         {(isPlaying && !isLoaded) ? <Spinner size="sm" color="white" /> : null}
         <div className="text-xs opacity-75">{Math.round(volume * 100)}</div>
@@ -221,7 +221,7 @@ function AudioController({audio, currentMix, globalVolume = 1, speed = 1}: { aud
           } else sources.push({id: audio.id, volume: v});
           save();
         }}
-        classNames={{track: "cursor-pointer"}}
+        classNames={{base: "opacity-75", track: "cursor-pointer"}}
       />
       {isPlayed ? <>
         <audio
@@ -426,19 +426,19 @@ export default function Silence() {
       <div className={`${silenceFontClassName} flex flex-col gap-4`}>
         <div className="flex flex-wrap gap-6 text-default-500">
           <div className="flex flex-col gap-3">
-            <div className="flex justify-start items-center gap-4">
-              <div className="text-4xl cursor-pointer" onClick={() => {
-                if (isPlaying) {
-                  et.dispatchEvent(new Event(PAUSE_EVENT));
-                  setIsPlaying(false);
-                } else {
-                  et.dispatchEvent(new Event(PLAY_EVENT));
-                  setIsPlaying(true);
-                }
-              }}>
+            <div className="flex justify-start items-center gap-4 cursor-pointer" onClick={() => {
+              if (isPlaying) {
+                et.dispatchEvent(new Event(PAUSE_EVENT));
+                setIsPlaying(false);
+              } else {
+                et.dispatchEvent(new Event(PLAY_EVENT));
+                setIsPlaying(true);
+              }
+            }}>
+              <div className="text-4xl">
                 {isPlaying ? <MdPause /> : <MdPlayArrow />}
               </div>
-              <div className="text-sm text-default-400">{isPlaying ? '播放中' : '已暫停'}：{mixConfigList.find(m => m.isPlaying)?.name || '-'}</div>
+              <div className="text-sm">{isPlaying ? '播放中' : '已暫停'}：{mixConfigList.find(m => m.isPlaying)?.name || '-'}</div>
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-3">
               <div className="w-64">
@@ -541,7 +541,7 @@ export default function Silence() {
         <Spacer />
         <Divider />
         {catrgorizedSources.map((cate, i) => (<div key={i}>
-          <div className="text-2xl text-default-500 font-semibold opacity-50">{cate.name}</div>
+          <div className="text-2xl text-default-500 font-semibold">{cate.name}</div>
           <div className="flex flex-wrap gap-x-4 gap-y-2 p-1">
             {cate.sources.map((s, i) => <AudioController audio={s} currentMix={mixConfigList.find(m => m.isPlaying)!} globalVolume={globalVolume} speed={isPlaying ? globalSpeed : 0} key={i} />)}
           </div>
