@@ -264,6 +264,7 @@ export default function Silence() {
   const [globalSpeed, setGlobalSpeed] = useState(1);
   const [mixConfigList, setMixConfigList] = useState<MixConfig[]>([]);
   const [showRelaxingMusic, setShowRelaxingMusic] = useState(false);
+  const [isHoverVolume, setIsHoverVolume] = useState(false);
 
   const needLoad = useRef(false);
   const loaded = useRef(false);
@@ -379,15 +380,23 @@ export default function Silence() {
     const playAndPauseByKeyboard = (e: KeyboardEvent) => {
       if (e.key === ' ') setIsPlaying(v => !v);
     }
+    const controlVolumeByWheel = (e: WheelEvent) => {
+      if (!isHoverVolume) return;
+      if (e.deltaY < 0) setGlobalVolume(v => Math.min(1, v + 0.01));
+      if (e.deltaY > 0) setGlobalVolume(v => Math.max(0, v - 0.01));
+      e.preventDefault();
+    }
     document.addEventListener('keydown', preventSpacebarScorll);
     document.addEventListener('keyup', playAndPauseByKeyboard);
+    document.addEventListener('wheel', controlVolumeByWheel, {passive: false});
     et.addEventListener(SAVE_EVENT, _save);
     return () => {
       document.removeEventListener('keydown', preventSpacebarScorll);
       document.removeEventListener('keyup', playAndPauseByKeyboard);
+      document.removeEventListener('wheel', controlVolumeByWheel);
       et.removeEventListener(SAVE_EVENT, _save);
     }
-  }, [mixConfigList, setIsPlaying]);
+  }, [mixConfigList, isHoverVolume, setIsPlaying, setGlobalVolume]);
 
   useEffect(() => {
     if (!needLoad.current && mixConfigList.length) {
@@ -460,6 +469,8 @@ export default function Silence() {
                   color="foreground"
                   className="opacity-75"
                   onChange={(v) => setGlobalVolume(Number(v))}
+                  onMouseEnter={() => setIsHoverVolume(true)}
+                  onMouseLeave={() => setIsHoverVolume(false)}
                   classNames={{track: "cursor-pointer"}}
                 />
               </div>
