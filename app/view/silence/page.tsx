@@ -5,6 +5,7 @@ import './silence.css'
 
 import { Slider } from '@nextui-org/slider'
 import { Spacer } from "@nextui-org/spacer"
+import { Select } from "@nextui-org/select"
 import { Divider as _Divider } from '@nextui-org/divider'
 import { Spinner } from '@nextui-org/spinner'
 import { Accordion, AccordionItem } from '@nextui-org/accordion'
@@ -34,8 +35,8 @@ const save = (() => {
 
 class AudioSource {
   static getUrl = (type: string, id: string) =>
-  // `https://raw.githubusercontent.com/cch137/silence/main/${type}-${id}.mp4`;
-  `/assets/silence/${type}-${id}.mp4`;
+  `https://raw.githubusercontent.com/cch137/silence/main/${type}-${id}.mp4`;
+  // `/assets/silence/${type}-${id}.mp4`;
 
   readonly id: string;
   readonly name: string;
@@ -508,9 +509,8 @@ export default function Silence() {
                     </div>
                     <div className="flex-center w-7 overflow-hidden opacity-75">
                       <Button
-                        className="rounded-none text-danger-600 h-7"
+                        className="rounded-none text-default-500 h-7"
                         variant="light"
-                        color="danger"
                         isIconOnly
                         onClick={() => {if (mixConfigList.length > 1 && confirm(`是否刪除混錄：${mix.name}`)) setMixConfigList(mixConfigList.filter(m => m !== mix))}}
                       >
@@ -550,9 +550,10 @@ export default function Silence() {
         </div>))}
       </div>
     </div>
-    <div className="flex-center text-sm text-default-500 py-8">
+    <div className="flex-center text-sm text-default-500 gap-8 py-8">
       <Button className="opacity-50 h-7" variant="bordered" onClick={() => {
         if (confirm('是否重置全部？')) {
+          window.scrollTo({ top: 0 });
           localStorage.setItem(LOCALSTORAGE_KEY, '');
           location.reload();
         }
