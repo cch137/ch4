@@ -185,7 +185,11 @@ function AudioController({audio, currentMix, globalVolume = 1, speed = 1}: { aud
   }, [computedVolume, speed, setup, play, pause]);
 
   useEffect(() => {
-    const load = () => setVolume(audio.volume);
+    const load = () => {
+      setVolume(audio.volume);
+      mainRef.current!.currentTime = 0;
+      glueRef.current!.currentTime = 0;
+    }
     et.addEventListener(LOAD_EVENT, load);
     et.addEventListener(PLAY_EVENT, play);
     et.addEventListener(PAUSE_EVENT, pause);
