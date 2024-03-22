@@ -198,7 +198,7 @@ function AudioController({audio, currentMix, globalVolume = 1, speed = 1}: { aud
       et.removeEventListener(PLAY_EVENT, play);
       et.removeEventListener(PAUSE_EVENT, pause);
     }
-  }, [audio, setVolume, play, pause]);
+  }, [audio, setVolume, play, pause, mainRef, glueRef]);
 
   return (
     <div className="w-40 text-default-500 transition" style={{ filter: `brightness(${0.75 + volume *0.5})` }}>
