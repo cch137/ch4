@@ -263,6 +263,7 @@ export default function Silence() {
   const [globalVolume, setGlobalVolume] = useState(1);
   const [globalSpeed, setGlobalSpeed] = useState(1);
   const [mixConfigList, setMixConfigList] = useState<MixConfig[]>([]);
+  const [showRelaxingMusic, setShowRelaxingMusic] = useState(false);
 
   const needLoad = useRef(false);
   const loaded = useRef(false);
@@ -548,18 +549,33 @@ export default function Silence() {
           <Spacer y={4} />
           <Divider />
         </div>))}
+        <div className="flex-center flex-col gap-4 py-16">
+          <Button className="opacity-50 h-7" variant="bordered" onClick={() => setShowRelaxingMusic((v) => !v)}>
+            {showRelaxingMusic ? "隱藏" : "播放"} YouTube 放鬆音樂
+          </Button>
+          {showRelaxingMusic ? <div className="w-full">
+            <iframe
+              className="w-full h-40"
+              src="//www.youtube.com/embed/hlWiI4xVXKY?t=0&playlist=hlWiI4xVXKY&loop=1"
+              title="Sunny Mornings: Beautiful Relaxing Music • Peaceful Piano Music &amp; Guitar Music by Peder B. Helland"
+              // frameborder="0"
+              allow="accelerometer; autoplay; playlist=hlWiI4xVXKY; loop; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              // allowfullscreen
+            />
+          </div> : null}
+        </div>
+        <div className="flex-center text-sm text-default-500 gap-8 py-4">
+          <Button className="opacity-50 h-7" variant="bordered" onClick={() => {
+            if (confirm('是否重置全部？')) {
+              window.scrollTo({ top: 0 });
+              localStorage.setItem(LOCALSTORAGE_KEY, '');
+              location.reload();
+            }
+          }}>
+            重置全部
+          </Button>
+        </div>
       </div>
-    </div>
-    <div className="flex-center text-sm text-default-500 gap-8 py-8">
-      <Button className="opacity-50 h-7" variant="bordered" onClick={() => {
-        if (confirm('是否重置全部？')) {
-          window.scrollTo({ top: 0 });
-          localStorage.setItem(LOCALSTORAGE_KEY, '');
-          location.reload();
-        }
-      }}>
-        重置全部
-      </Button>
     </div>
   </>)
 }
