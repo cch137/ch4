@@ -397,11 +397,11 @@ export default function Silence() {
         loaded.current = true;
         setIsLoading(false);
       }, 1000);
+      return;
     }
     const isPlayingCount = mixConfigList.filter(m => m.isPlaying).length;
     if (isPlayingCount === 0 && mixConfigList.length) {
-      mixConfigList.forEach((m, i) => m.isPlaying = i === 0);
-      setMixConfigList([...mixConfigList]);
+      loadConfig(mixConfigList[0])
       return;
     }
     if (isPlayingCount > 1) {
