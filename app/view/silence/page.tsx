@@ -35,8 +35,8 @@ const save = (() => {
 
 class AudioSource {
   static getUrl = (type: string, id: string) =>
-  `https://raw.githubusercontent.com/cch137/silence/main/${type}-${id}.mp4`;
-  // `/assets/silence/${type}-${id}.mp4`;
+  // `https://raw.githubusercontent.com/cch137/silence/main/${type}-${id}.mp4`;
+  `/assets/silence/${type}-${id}.mp4`;
 
   readonly id: string;
   readonly name: string;
