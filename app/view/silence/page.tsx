@@ -373,11 +373,21 @@ export default function Silence() {
       const toSave = [...mixConfigList];
       localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify(toSave));
     }
+    const preventSpacebarScorll = (e: KeyboardEvent) => {
+      if (e.key === ' ') e.preventDefault();
+    }
+    const playAndPauseByKeyboard = (e: KeyboardEvent) => {
+      if (e.key === ' ') setIsPlaying(v => !v);
+    }
+    document.addEventListener('keydown', preventSpacebarScorll);
+    document.addEventListener('keyup', playAndPauseByKeyboard);
     et.addEventListener(SAVE_EVENT, _save);
     return () => {
+      document.removeEventListener('keydown', preventSpacebarScorll);
+      document.removeEventListener('keyup', playAndPauseByKeyboard);
       et.removeEventListener(SAVE_EVENT, _save);
     }
-  });
+  }, [mixConfigList, setIsPlaying]);
 
   useEffect(() => {
     if (!needLoad.current && mixConfigList.length) {
