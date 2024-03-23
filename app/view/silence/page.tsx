@@ -328,7 +328,6 @@ export default function Silence() {
             speed: 1,
             sources: [
               { id: "fire", volume: 0.84 },
-              { id: "whitenoise", volume: 0.02 },
               { id: "cicadas", volume: 0.04 },
               { id: "crickets", volume: 0.08 },
               { id: "frogs", volume: 0.04 },
