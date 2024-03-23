@@ -15,6 +15,7 @@ import { MdChevronLeft, MdPlayArrow, MdEdit, MdDeleteForever, MdAdd, MdPause } f
 import useInit from '@/hooks/useInit'
 import FullpageSpinner from '@/app/components/fullpage-spiner'
 
+const SMOOTH_RATE = 30;
 const LOCALSTORAGE_KEY = 'silence';
 const DEFAULT_VOLUME = 0;
 const SAVE_EVENT = 'save';
@@ -224,7 +225,7 @@ function AudioController({audio, currentMix, globalVolume = 1, speed = 1}: { aud
     const step = deltaVolume > 0 ? 1 : -1;
     setTimeout(() => {
       setComputedVolume(Math.max(0, Math.min(1, (Math.round(computedVolume * 100) + step) / 100)));
-    }, 10);
+    }, SMOOTH_RATE);
   }, [globalVolume, audio, volume, computedVolume, setComputedVolume]);
 
   useEffect(() => {
@@ -345,7 +346,7 @@ export default function Silence() {
     const step = deltaVolume > 0 ? 1 : -1;
     setTimeout(() => {
       setComputedGlobalVolume(Math.max(0, Math.min(1, (Math.round(computedGlobalVolume * 100) + step) / 100)));
-    }, 10);
+    }, SMOOTH_RATE);
   }, [globalVolume, computedGlobalVolume, setComputedGlobalVolume]);
 
   useEffect(() => {
