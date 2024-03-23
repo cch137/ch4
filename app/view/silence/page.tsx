@@ -114,7 +114,7 @@ const sources = [
   { name: '溪流', id: 'stream', cat: '自然' },
   { name: '瀑布', id: 'waterfall', cat: '自然' },
   { name: '林間雨', id: 'raintrees', cat: '自然' },
-  { name: '錫板雨', id: 'raintinroof', cat: '自然' },
+  { name: '鐵皮屋雨', id: 'raintinroof', cat: '自然' },
   { name: '木屋雨', id: 'raincabin', cat: '自然' },
   { name: '餐廳', id: 'people', cat: '雜訊' },
   { name: '唱片機', id: 'vinyl', cat: '雜訊' },
