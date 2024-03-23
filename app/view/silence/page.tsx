@@ -217,9 +217,10 @@ function AudioController({audio, currentMix, globalVolume = 1, speed = 1}: { aud
   }, [mainRef, glueRef, setIsPlaying, isPlayed]);
 
   useEffect(() => {
-    if (audio.volume !== volume) audio.volume = volume;
-    setComputedVolume(volume * globalVolume);
-  }, [audio, volume, globalVolume, setComputedVolume]);
+    audio.volume = volume;
+    const computedVolume = volume * globalVolume;
+    setComputedVolume(computedVolume);
+  }, [globalVolume, audio, volume, setComputedVolume]);
 
   useEffect(() => {
     setup();
@@ -557,7 +558,7 @@ export default function Silence() {
         {catrgorizedSources.map((cate, i) => (<div key={i}>
           <div className="text-2xl text-default-500 font-semibold">{cate.name}</div>
           <div className="flex flex-wrap gap-x-4 gap-y-2 p-1">
-            {cate.sources.map((s, i) => <AudioController audio={s} currentMix={mixConfigList.find(m => m.isPlaying)!} globalVolume={globalVolume} speed={globalSpeed} key={i} />)}
+            {cate.sources.map((s, i) => <AudioController audio={s} currentMix={mixConfigList.find(m => m.isPlaying)!} globalVolume={globalVolume} speed={isPlaying ? globalSpeed : 0} key={i} />)}
           </div>
           <Spacer y={4} />
           <Divider />
