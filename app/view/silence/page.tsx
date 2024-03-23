@@ -12,7 +12,6 @@ import { Button } from '@nextui-org/button'
 import Link from "next/link"
 import { createRef, useCallback, useEffect, useRef, useState } from "react"
 import { MdChevronLeft, MdPlayArrow, MdEdit, MdDeleteForever, MdAdd, MdPause } from "react-icons/md"
-import useUserInfo from '@/hooks/useUserInfo'
 import useInit from '@/hooks/useInit'
 import FullpageSpinner from '@/app/components/fullpage-spiner'
 
@@ -423,9 +422,6 @@ export default function Silence() {
     }
   }, [mixConfigList, setMixConfigList, loadConfig, needLoad]);
 
-  const { auth, name: username } = useUserInfo();
-  const isLoggedIn = auth > 1;
-
   return (<>
     <FullpageSpinner color="white" show={isLoading} />
     <div className="px-4 py-8 m-auto select-none" style={{maxWidth: 960}}>
@@ -435,9 +431,6 @@ export default function Silence() {
           <span>返回</span>
         </Link>
         <div className="flex-1" />
-        {isLoggedIn
-          ? <div>{username}</div>
-          : <Button className="opacity-50 h-7" as={Link} variant="bordered" href="/auth/signin?next=/view/silence">Sign in</Button>}
       </div>
       <div className={`${serifClassName} flex flex-col gap-4`}>
         <div className="flex flex-wrap gap-6 text-default-500">
