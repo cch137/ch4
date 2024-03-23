@@ -11,6 +11,16 @@ export default function NCU() {
       color="secondary"
       variant="ghost"
       className="w-full"
+      href="/apps/lab"
+    >
+      Lab
+    </Button>
+    <Button
+      as={Link}
+      size="lg"
+      color="secondary"
+      variant="ghost"
+      className="w-full"
       href="/apps/ncu/weather"
     >
       Weather
