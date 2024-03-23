@@ -3,7 +3,7 @@ import './globals.css'
 
 import type { Metadata } from 'next';
 import { appTitle } from '@/constants/app';
-import { sansFont } from '@/constants/font';
+import { sansFont, serifFont } from '@/constants/font';
 
 export const metadata: Metadata = {
   title: appTitle(),
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={sansFont.className} suppressHydrationWarning>
-        <style suppressHydrationWarning dangerouslySetInnerHTML={{__html: `.${sansFont.className}{font-family:${sansFont.style.fontFamily}}`}} />
+        <style suppressHydrationWarning dangerouslySetInnerHTML={{__html: `.${sansFont.className}{font-family:${sansFont.style.fontFamily}}.${serifFont.className}{font-family:${serifFont.style.fontFamily}}`}} />
         {children}
       </body>
     </html>
