@@ -15,7 +15,6 @@ import { MdChevronLeft, MdPlayArrow, MdEdit, MdDeleteForever, MdAdd, MdPause } f
 import useInit from '@/hooks/useInit'
 import FullpageSpinner from '@/app/components/fullpage-spiner'
 
-const SMOOTH_RATE = 30;
 const LOCALSTORAGE_KEY = 'silence';
 const DEFAULT_VOLUME = 0;
 const SAVE_EVENT = 'save';
@@ -225,7 +224,7 @@ function AudioController({audio, currentMix, globalVolume = 1, speed = 1}: { aud
     const step = deltaVolume > 0 ? 1 : -1;
     setTimeout(() => {
       setComputedVolume(Math.max(0, Math.min(1, (Math.round(computedVolume * 100) + step) / 100)));
-    }, SMOOTH_RATE);
+    }, 10);
   }, [globalVolume, audio, volume, computedVolume, setComputedVolume]);
 
   useEffect(() => {
@@ -341,12 +340,12 @@ export default function Silence() {
   }, [mixConfigList, globalVolume, loaded]);
 
   useEffect(() => {
-    const deltaVolume = globalVolume - computedGlobalVolume;
+    const deltaVolume = (isPlaying ? globalVolume : 0) - computedGlobalVolume;
     if (Math.round(deltaVolume * 100) === 0) return;
     const step = deltaVolume > 0 ? 1 : -1;
     setTimeout(() => {
       setComputedGlobalVolume(Math.max(0, Math.min(1, (Math.round(computedGlobalVolume * 100) + step) / 100)));
-    }, SMOOTH_RATE);
+    }, 30);
   }, [globalVolume, computedGlobalVolume, setComputedGlobalVolume]);
 
   useEffect(() => {
@@ -570,7 +569,7 @@ export default function Silence() {
         {catrgorizedSources.map((cate, i) => (<div key={i}>
           <div className="text-2xl text-default-500 font-semibold">{cate.name}</div>
           <div className="flex flex-wrap gap-x-4 gap-y-2 p-1">
-            {cate.sources.map((s, i) => <AudioController audio={s} currentMix={mixConfigList.find(m => m.isPlaying)!} globalVolume={isPlaying ? computedGlobalVolume : 0} speed={globalSpeed} key={i} />)}
+            {cate.sources.map((s, i) => <AudioController audio={s} currentMix={mixConfigList.find(m => m.isPlaying)!} globalVolume={computedGlobalVolume} speed={globalSpeed} key={i} />)}
           </div>
           <Spacer y={4} />
           <Divider />
