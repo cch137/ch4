@@ -508,7 +508,7 @@ export default function Silence() {
                       style={{opacity: isPlaying ? 1 : 0.75}}
                       variant="light"
                       startContent={isPlaying ? <MdPlayArrow /> : null}
-                      onClick={() => loadConfig(mix)}
+                      onClick={() => isPlaying || loadConfig(mix)}
                     >
                       {name}
                     </Button>
