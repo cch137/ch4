@@ -61,8 +61,8 @@ const mergeFonts = (className: string, fonts: NextFont[]): NextFont => {
   }
 }
 
-export const sansFont = mergeFonts('silence-font', sansFonts);
-export const serifFont = mergeFonts('default-font', serifFonts);
+export const sansFont = mergeFonts('sans-font', sansFonts);
+export const serifFont = mergeFonts('serif-font', serifFonts);
 
 export const sansClassName = sansFont.className;
 export const serifClassName = serifFont.className;
