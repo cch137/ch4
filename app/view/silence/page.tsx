@@ -1,11 +1,10 @@
 "use client"
 
-import { silenceFontClassName } from '@/constants/font'
+import { serifClassName } from '@/constants/font'
 import './silence.css'
 
 import { Slider } from '@nextui-org/slider'
 import { Spacer } from "@nextui-org/spacer"
-import { Select } from "@nextui-org/select"
 import { Divider as _Divider } from '@nextui-org/divider'
 import { Spinner } from '@nextui-org/spinner'
 import { Accordion, AccordionItem } from '@nextui-org/accordion'
@@ -440,7 +439,7 @@ export default function Silence() {
           ? <div>{username}</div>
           : <Button className="opacity-50 h-7" as={Link} variant="bordered" href="/auth/signin?next=/view/silence">Sign in</Button>}
       </div>
-      <div className={`${silenceFontClassName} flex flex-col gap-4`}>
+      <div className={`${serifClassName} flex flex-col gap-4`}>
         <div className="flex flex-wrap gap-6 text-default-500">
           <div className="flex flex-col gap-3">
             <div className="flex justify-start items-center gap-4 cursor-pointer" onClick={() => {

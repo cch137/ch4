@@ -8,7 +8,7 @@ import Prism from 'react-syntax-highlighter/dist/esm/prism';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 import useCopyText from "@/hooks/useCopyText";
-import { fontClassName } from '@/constants/font';
+import { sansClassName } from '@/constants/font';
 
 export default function MessageCodeBlock({
   node,
@@ -22,7 +22,7 @@ export default function MessageCodeBlock({
     <div className="my-2 rounded-lg overflow-hidden">
       <div className="relative w-full text-xs">
         <div
-          className={`absolute flex items-center w-full py-0.5 px-4 ${fontClassName}`}
+          className={`absolute flex items-center w-full py-0.5 px-4 ${sansClassName}`}
           style={{borderRadius: '.5rem .5rem 0 0', background: '#202020'}}
         >
           <div className="flex-1 text-default-600 pointer-events-none select-none">
