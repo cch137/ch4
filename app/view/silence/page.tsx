@@ -61,6 +61,52 @@ type MixConfig = {
   sources: {id: string, volume: number}[];
 }
 
+const DEFAULT_CONFIGS: MixConfig[] = [
+  {
+    name: "阿爾卑斯營地",
+    volume: 1,
+    speed: 1,
+    sources: [
+      { id: "fire", volume: 0.84 },
+      { id: "cicadas", volume: 0.04 },
+      { id: "crickets", volume: 0.08 },
+      { id: "frogs", volume: 0.04 },
+      { id: "wind", volume: 0.12 },
+      { id: "stream", volume: 0.18 },
+    ],
+    isPlaying: true,
+  },
+  {
+    name: "聽海禪寺",
+    volume: 1,
+    speed: 1,
+    sources: [
+      { id: "waves", volume: 0.88 },
+      { id: "rain", volume: 0.13 },
+      { id: "thunder", volume: 0.18 },
+      { id: "wind", volume: 0.26 },
+      { id: "brownnoise", volume: 0.09 },
+      { id: "sbowl", volume: 0.2 },
+      { id: "chimesmetal", volume: 0.08 },
+    ],
+    isPlaying: false,
+  },
+  {
+    name: "溪邊的餐廳",
+    volume: 1,
+    speed: 1,
+    sources: [
+      { id: "people", volume: 1 },
+      { id: "stream", volume: 0.48 },
+      { id: "waterfall", volume: 0.32 },
+      { id: "birds", volume: 0.12 },
+      { id: "aircon", volume: 0.02 },
+      { id: "frogs", volume: 0.06 },
+    ],
+    isPlaying: false,
+  },
+];
+
 const sources = [
   { name: '雨', id: 'rain', cat: '自然' },
   { name: '雷', id: 'thunder', cat: '自然' },
@@ -185,8 +231,10 @@ function AudioController({audio, currentMix, globalVolume = 1, speed = 1}: { aud
   useEffect(() => {
     const load = () => {
       setVolume(audio.volume);
-      mainRef.current!.currentTime = 0;
-      glueRef.current!.currentTime = 0;
+      try {
+        mainRef.current!.currentTime = 0;
+        glueRef.current!.currentTime = 0;
+      } catch {}
     }
     et.addEventListener(LOAD_EVENT, load);
     et.addEventListener(PLAY_EVENT, play);
@@ -319,51 +367,7 @@ export default function Silence() {
         if (!Array.isArray(mixes) || mixes.length < 1) throw new Error('No Saved Mixes');
         return mixes;
       } catch {
-        return [
-          {
-            name: "阿爾卑斯營地",
-            volume: 1,
-            speed: 1,
-            sources: [
-              { id: "fire", volume: 0.84 },
-              { id: "cicadas", volume: 0.04 },
-              { id: "crickets", volume: 0.08 },
-              { id: "frogs", volume: 0.04 },
-              { id: "wind", volume: 0.12 },
-              { id: "stream", volume: 0.18 },
-            ],
-            isPlaying: true,
-          },
-          {
-            name: "聽海禪寺",
-            volume: 1,
-            speed: 1,
-            sources: [
-              { id: "waves", volume: 0.88 },
-              { id: "rain", volume: 0.13 },
-              { id: "thunder", volume: 0.18 },
-              { id: "wind", volume: 0.26 },
-              { id: "brownnoise", volume: 0.09 },
-              { id: "sbowl", volume: 0.2 },
-              { id: "chimesmetal", volume: 0.08 },
-            ],
-            isPlaying: false,
-          },
-          {
-            name: "溪邊的餐廳",
-            volume: 1,
-            speed: 1,
-            sources: [
-              { id: "people", volume: 1 },
-              { id: "stream", volume: 0.48 },
-              { id: "waterfall", volume: 0.32 },
-              { id: "birds", volume: 0.12 },
-              { id: "aircon", volume: 0.02 },
-              { id: "frogs", volume: 0.06 },
-            ],
-            isPlaying: false,
-          },
-        ];
+        return DEFAULT_CONFIGS;
       }
     })();
     setMixConfigList(loadedMixes);
