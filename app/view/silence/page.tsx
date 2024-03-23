@@ -33,8 +33,8 @@ const save = (() => {
 
 class AudioSource {
   static getUrl = (type: string, id: string) =>
-  // `https://raw.githubusercontent.com/cch137/silence/main/${type}-${id}.mp3`;
-  `/assets/silence/${type}-${id}.mp3`;
+  `https://raw.githubusercontent.com/cch137/silence/main/${type}-${id}.mp3`;
+  // `/assets/silence/${type}-${id}.mp3`;
 
   readonly id: string;
   readonly name: string;
@@ -114,8 +114,8 @@ const sources = [
   { name: '溪流', id: 'stream', cat: '自然' },
   { name: '瀑布', id: 'waterfall', cat: '自然' },
   { name: '林間雨', id: 'raintrees', cat: '自然' },
-  { name: '鐵皮屋雨', id: 'raintinroof', cat: '自然' },
-  { name: '木屋雨', id: 'raincabin', cat: '自然' },
+  { name: '雨中木屋', id: 'raincabin', cat: '自然' },
+  { name: '雨中鐵皮', id: 'raintinroof', cat: '自然' },
   { name: '餐廳', id: 'people', cat: '雜訊' },
   { name: '唱片機', id: 'vinyl', cat: '雜訊' },
   { name: '白噪音', id: 'whitenoise', cat: '雜訊' },
@@ -271,7 +271,7 @@ function AudioController({audio, currentMix, globalVolume = 1, speed = 1}: { aud
         }}
         classNames={{base: "opacity-75", track: "cursor-pointer"}}
       />
-      {isPlayed ? <>
+      {(isPlayed || volume > 0) ? <>
         <audio
           src={audio.mainUrl}
           ref={mainRef}
