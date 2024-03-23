@@ -346,7 +346,7 @@ export default function Silence() {
     setTimeout(() => {
       setComputedGlobalVolume(Math.max(0, Math.min(1, (Math.round(computedGlobalVolume * 100) + step) / 100)));
     }, 30);
-  }, [globalVolume, computedGlobalVolume, setComputedGlobalVolume]);
+  }, [isPlaying, globalVolume, computedGlobalVolume, setComputedGlobalVolume]);
 
   useEffect(() => {
     const mix = mixConfigList.find(m => m.isPlaying);
