@@ -312,6 +312,7 @@ export default function Silence() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [globalVolume, setGlobalVolume] = useState(1);
+  const [computedGlobalVolume, setComputedGlobalVolume] = useState(1);
   const [globalSpeed, setGlobalSpeed] = useState(1);
   const [mixConfigList, setMixConfigList] = useState<MixConfig[]>([]);
   const [showRelaxingMusic, setShowRelaxingMusic] = useState(false);
@@ -337,6 +338,15 @@ export default function Silence() {
       save();
     }
   }, [mixConfigList, globalVolume, loaded]);
+
+  useEffect(() => {
+    const deltaVolume = globalVolume - computedGlobalVolume;
+    if (Math.round(deltaVolume * 100) === 0) return;
+    const step = deltaVolume > 0 ? 1 : -1;
+    setTimeout(() => {
+      setComputedGlobalVolume(Math.max(0, Math.min(1, (Math.round(computedGlobalVolume * 100) + step) / 100)));
+    }, 10);
+  }, [globalVolume, computedGlobalVolume, setComputedGlobalVolume]);
 
   useEffect(() => {
     const mix = mixConfigList.find(m => m.isPlaying);
@@ -559,7 +569,7 @@ export default function Silence() {
         {catrgorizedSources.map((cate, i) => (<div key={i}>
           <div className="text-2xl text-default-500 font-semibold">{cate.name}</div>
           <div className="flex flex-wrap gap-x-4 gap-y-2 p-1">
-            {cate.sources.map((s, i) => <AudioController audio={s} currentMix={mixConfigList.find(m => m.isPlaying)!} globalVolume={isPlaying ? globalVolume : 0} speed={globalSpeed} key={i} />)}
+            {cate.sources.map((s, i) => <AudioController audio={s} currentMix={mixConfigList.find(m => m.isPlaying)!} globalVolume={isPlaying ? computedGlobalVolume : 0} speed={globalSpeed} key={i} />)}
           </div>
           <Spacer y={4} />
           <Divider />
