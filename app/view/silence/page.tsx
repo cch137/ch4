@@ -1,6 +1,6 @@
 "use client"
 
-import { serifClassName } from '@/constants/font'
+import { serifFont } from '@/constants/font'
 import './silence.css'
 
 import { Slider } from '@nextui-org/slider'
@@ -434,7 +434,7 @@ export default function Silence() {
         </Link>
         <div className="flex-1" />
       </div>
-      <div className={`${serifClassName} flex flex-col gap-4`}>
+      <div className={`${serifFont.className} flex flex-col gap-4`}>
         <div className="flex flex-wrap gap-6 text-default-500">
           <div className="flex flex-col gap-3">
             <div className="flex justify-start items-center gap-4 cursor-pointer" onClick={() => {

@@ -28,24 +28,6 @@ export const notoSerifJP = Noto_Serif_JP({subsets: ['latin'], weight: '300'});
 export const notoSerifKR = Noto_Serif_KR({subsets: ['latin'], weight: '300'});
 export const notoSerif = Noto_Serif({subsets: ['latin'], weight: '400'});
 
-const sansFonts = [
-  notoSans,
-  notoSansTC,
-  notoSansSC,
-  notoSansHK,
-  notoSansJP,
-  notoSansKR,
-];
-
-const serifFonts = [
-  notoSerif,
-  notoSerifTC,
-  notoSerifSC,
-  notoSerifHK,
-  notoSerifJP,
-  notoSerifKR,
-];
-
 const mergeFonts = (className: string, fonts: NextFont[]): NextFont => {
   const style = fonts.reduce(({fontFamilies}, {style: {fontFamily}}, i, a) => {
     fontFamilies.add(fontFamily);
@@ -54,15 +36,30 @@ const mergeFonts = (className: string, fonts: NextFont[]): NextFont => {
     fontFamilies: new Set<string>(),
   });
   return {
-    className,
+    className: className,
     style: {
       fontFamily: [...style.fontFamilies].join(',').replace(/,[\s]+/g, ','),
     }
   }
 }
 
-export const sansFont = mergeFonts('sans-font', sansFonts);
-export const serifFont = mergeFonts('serif-font', serifFonts);
+export const sansFont = mergeFonts('sans-font', [
+  notoSans,
+  notoSansTC,
+  notoSansSC,
+  notoSansHK,
+  notoSansJP,
+  notoSansKR,
+]);
 
-export const sansClassName = sansFont.className;
-export const serifClassName = serifFont.className;
+export const serifFont = mergeFonts('serif-font', [
+  notoSerif,
+  notoSerifTC,
+  notoSerifSC,
+  notoSerifHK,
+  notoSerifJP,
+  notoSerifKR,
+]);
+
+export const css = [sansFont, serifFont]
+  .map(f => `.${f.className}{font-family:${f.style.fontFamily}}`).join('');
