@@ -333,7 +333,7 @@ export default function TextAns() {
                         <div className="flex flex-wrap gap-2 pb-8">
                           {questions.filter(q => q.chapter === chap)
                             .map(({problem, sourceLink, viewLink, apiTraceLink}) => {
-                              return preview ? (
+                              return (isMember && preview) ? (
                                 <Link 
                                   className="relative select-none"
                                   href={viewLink}
