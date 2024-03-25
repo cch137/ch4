@@ -191,6 +191,7 @@ export default function TextAns() {
 
   const { auth } = useUserInfo();
   const isMember = auth > 3;
+  const computedPreview = !isMember && preview;
   const preventDefault = (e: any) => e.preventDefault();
 
   return <>
@@ -220,7 +221,7 @@ export default function TextAns() {
       <div className="flex-1 h-full" onClick={() => setDisplayUrl('')} onContextMenu={preventDefault} />
     </div> : null}
     <div className="flex-center flex-col w-full">
-      <div className={`${preview ? '' : 'max-w-2xl'} w-full py-8 px-4`}>
+      <div className={`${computedPreview ? '' : 'max-w-2xl'} w-full py-8 px-4`}>
         <div className="mb-2">
           <Button
             as={Link}
@@ -276,7 +277,7 @@ export default function TextAns() {
                   <Button onClick={() => setSelectedChapters([...chapters])} color={color} variant="light" isDisabled={chapters.length === selectedChapters.length || lock} isIconOnly className="text-2xl"><MdUnfoldMore /></Button>
                   <Button onClick={() => setSelectedChapters([])} color={color} variant="light" isDisabled={selectedChapters.length === 0 || lock} isIconOnly className="text-2xl"><MdUnfoldLess /></Button>
                   <Button onClick={() => setLock(!lock)} color={color} variant={lock ? 'flat' : 'light'} isIconOnly className="text-lg">{lock ? <IoLockClosed /> : <IoLockOpen />}</Button>
-                  <Button onClick={() => (selectedChapters.length > 3) ? setPreview(false) : setPreview(!preview)} color={color} variant="light" isIconOnly className="text-lg">{preview ? <IoEye /> : <IoEyeOff />}</Button>
+                  <Button onClick={() => selectedChapters.length > 3 ? setPreview(false) : setPreview(!preview)} color={color} variant="light" isIconOnly className="text-lg">{preview ? <IoEye /> : <IoEyeOff />}</Button>
                   <Button onClick={() => setOpenAsViewLink(!openAsViewLink)} color={color} variant="light" isIconOnly className="text-2xl">{openAsViewLink ? <MdInsertPhoto /> : <MdInsertLink />}</Button>
                 </div> : null}
                 <div>
@@ -333,7 +334,7 @@ export default function TextAns() {
                         <div className="flex flex-wrap gap-2 pb-8">
                           {questions.filter(q => q.chapter === chap)
                             .map(({problem, sourceLink, viewLink, apiTraceLink}) => {
-                              return (isMember && preview) ? (
+                              return computedPreview ? (
                                 <Link 
                                   className="relative select-none"
                                   href={viewLink}
