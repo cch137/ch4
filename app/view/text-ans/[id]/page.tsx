@@ -38,6 +38,7 @@ export default function TextAnsView() {
           classNames={{ wrapper: isMember ? '' : 'pointer-events-none' }}
           draggable="false"
           style={{ width: 960 }}
+          onError={() => location.href = url}
         />
       </div>
     </div>
