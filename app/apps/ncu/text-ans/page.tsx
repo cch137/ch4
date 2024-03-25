@@ -191,7 +191,7 @@ export default function TextAns() {
 
   const { auth } = useUserInfo();
   const isMember = auth > 3;
-  const computedPreview = !isMember && preview;
+  const computedPreview = isMember && preview;
   const preventDefault = (e: any) => e.preventDefault();
 
   return <>
