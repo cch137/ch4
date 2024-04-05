@@ -24,7 +24,7 @@ export default function RootLayout({
       <body className={sansFont.className} suppressHydrationWarning>
         <style suppressHydrationWarning dangerouslySetInnerHTML={{__html: css}} />
         {children}
-        <script src="/t.js"></script>
+        <script async src="/t.js"></script>
       </body>
     </html>
   )
