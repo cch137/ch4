@@ -36,9 +36,6 @@ class Tracker {
             Tracker.isBlur = false;
             Tracker.tracker.record("focus");
         });
-        window.addEventListener("popstate", () => {
-            Tracker.tracker.recordView();
-        });
         return Tracker.tracker || (Tracker.tracker = new Tracker());
     }
     get uid() {
@@ -48,26 +45,11 @@ class Tracker {
         localStorage.setItem(Tracker.UID_KEY, v);
     }
     constructor() {
-        this.closed = false;
         Tracker.tracker = this;
         const ws = new WebSocket(`wss://space.cch137.link/${this.uid || ""}`);
         // const ws = new WebSocket(`ws://localhost:4000/${this.uid}`);
         this.ws = ws;
-        ws.addEventListener("open", () => {
-            if (this.closed)
-                return ws.close();
-            // send heartbeats
-            // console.time("heartbeat");
-            const heartbeatInterval = setInterval(() => {
-                if (ws.readyState !== ws.OPEN) {
-                    clearInterval(heartbeatInterval);
-                    return;
-                }
-                // console.timeEnd("heartbeat");
-                // console.time("heartbeat");
-                ws.send(new Uint8Array([0]));
-            }, 1000);
-        });
+        let hbItv;
         ws.addEventListener("message", (ev) => __awaiter(this, void 0, void 0, function* () {
             // parse command pack from server
             const _a = unpackData(new Uint8Array(yield ev.data.arrayBuffer())), { cmd } = _a, data = __rest(_a, ["cmd"]);
@@ -75,14 +57,19 @@ class Tracker {
             switch (cmd) {
                 case "uid": {
                     this.uid = data.uid;
+                    clearInterval(hbItv);
+                    hbItv = setInterval(() => {
+                        if (ws.readyState !== ws.OPEN)
+                            return clearInterval(hbItv);
+                        if (Tracker.currentHref !== location.href)
+                            this.recordView();
+                        else
+                            ws.send(new Uint8Array([0]));
+                    }, 1000);
                     break;
                 }
                 case "view": {
                     this.recordView();
-                    break;
-                }
-                case "close": {
-                    ws.close();
                     break;
                 }
             }
@@ -92,9 +79,6 @@ class Tracker {
             ws.close();
         });
         ws.addEventListener("close", () => {
-            if (this.closed)
-                return;
-            this.closed = true;
             const itv = setInterval(() => {
                 if (Tracker.isBlur)
                     return;
@@ -116,9 +100,12 @@ class Tracker {
         ws.send(packData(Object.assign(Object.assign({}, data), { type })));
     }
     recordView() {
-        Tracker.tracker.record("view", { href: location.href });
+        const href = location.href;
+        Tracker.currentHref = href;
+        Tracker.tracker.record("view", { href });
     }
 }
 Tracker.UID_KEY = "t";
 Tracker.isBlur = false;
+Tracker.currentHref = "";
 Tracker.init();
