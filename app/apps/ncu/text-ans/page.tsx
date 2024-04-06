@@ -16,6 +16,8 @@ import useErrorMessage from "@/hooks/useErrorMessage";
 import useInit from "@/hooks/useInit";
 import { packDataWithHash } from "@cch137/utils/shuttle";
 import useUserInfo from "@/hooks/useUserInfo";
+import useTTX from "@/hooks/useTTX";
+import NotFound from "@/app/not-found";
 
 interface Book {
   name: string
@@ -51,6 +53,7 @@ export default function TextAns() {
   const [preview, setPreview] = useState(false);
   const [openAsViewLink, setOpenAsViewLink] = useState(false);
   const [displayUrl, setDisplayUrl] = useState('');
+  const { ttxBlock, ttxShow } = useTTX();
 
   const getSelectedBook = useCallback(() => booklist.find((book) => selectedBooknames[0] === book.name) || null, [booklist, selectedBooknames]);
 
@@ -194,7 +197,7 @@ export default function TextAns() {
   const computedPreview = (1 || isMember) && preview;
   const preventDefault = (e: any) => e.preventDefault();
 
-  return <>
+  return !ttxShow ? <>{ttxBlock ? <NotFound /> : null}</> : <>
     {errorMessageBox}
     {displayUrl ? <div style={{height: '100dvh', width: '100dvw'}} className="fixed flex-center top-0 left-0 bg-black bg-opacity-75 backdrop-blur-sm z-50">
       <div className="relative z-50 h-full">

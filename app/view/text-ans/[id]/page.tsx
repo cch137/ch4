@@ -1,10 +1,13 @@
 "use client"
 
+import NotFound from "@/app/not-found";
 import { appTitle } from "@/constants/app";
+import useTTX from "@/hooks/useTTX";
 import useUserInfo from "@/hooks/useUserInfo";
 import { unpackDataWithHash } from "@cch137/utils/shuttle";
 import { Image } from "@nextui-org/image";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 
 const parseLink = (id: string) => {
   try {
@@ -17,11 +20,20 @@ const parseLink = (id: string) => {
 export default function TextAnsView() {
   const params = useParams();
   const link = parseLink(Array.isArray(params.id) ? params.id[0] : params.id);
+  const isLink = typeof link === 'string'
   const { auth } = useUserInfo();
+  const { ttxBlock, ttxShow, ttxRecord } = useTTX();
   const isMember = auth > 3;
-  if (typeof link !== 'string') return <></>;
-  const title = link.split('?')[0];
+  const title = isLink ? link.split('?')[0] : 'Unknown';
   const url = `https://api.cch137.link/ls/i/${link}`;
+
+  useEffect(() => {
+    const recordLink = () => isLink ? ttxRecord('text-ans-view', { link }) : null;
+    window.addEventListener('TTX-view', recordLink);
+    return () => window.removeEventListener('TTX-view', recordLink);
+  }, [link, isLink]);
+
+  if (ttxBlock || !isLink) return <NotFound />;
 
   return (
     <div
@@ -31,15 +43,14 @@ export default function TextAnsView() {
     >
       <title>{appTitle(title)}</title>
       <div className={`max-w-full ${isMember ? '' : 'pointer-events-none'}`}>
-        <Image
+        {ttxShow ? <Image
           alt={url}
           src={url}
           className={`rounded-none w-full select-none ${isMember ? '' : 'pointer-events-none'}`}
           classNames={{ wrapper: isMember ? '' : 'pointer-events-none' }}
           draggable="false"
           style={{ width: 960 }}
-          onError={() => location.href = url}
-        />
+        /> : null}
       </div>
     </div>
   )
