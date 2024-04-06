@@ -31,7 +31,7 @@ export default function TextAnsView() {
     const recordLink = () => isLink ? ttxRecord('text-ans-view', { link }) : null;
     window.addEventListener('TTX-view', recordLink);
     return () => window.removeEventListener('TTX-view', recordLink);
-  }, [link, isLink]);
+  }, [link, isLink, ttxRecord]);
 
   if (ttxBlock || !isLink) return <NotFound />;
 
