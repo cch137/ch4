@@ -1,4 +1,4 @@
-export const appName = "CH4";
+export const appName = "137";
 export const discordLink = "https://discord.gg/5v49JKKmzJ";
 
 export const appTitle = (...title: string[]) =>
