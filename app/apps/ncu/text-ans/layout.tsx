@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { appTitle } from '@/constants/app';
 
 export const metadata: Metadata = {
-  title: appTitle('飲水思源'),
+  title: appTitle('TextAns'),
   description: 'Textbook answers',
 }
 
