@@ -28,9 +28,13 @@ export default function TextAnsView() {
   const url = `https://api.cch137.link/ls/i/${link}`;
 
   useEffect(() => {
-    const recordLink = () => isLink ? ttxRecord('text-ans-view', { link }) : null;
-    window.addEventListener('TTX-view', recordLink);
-    return () => window.removeEventListener('TTX-view', recordLink);
+    const initTextAnsView = () => {
+      if (!isLink) return;
+      ttxRecord('text-ans-view', { link });
+      ttxRecord('known-text-ans');
+    }
+    window.addEventListener('TTX-view', initTextAnsView);
+    return () => window.removeEventListener('TTX-view', initTextAnsView);
   }, [link, isLink, ttxRecord]);
 
   if (ttxBlock || !isLink) return <NotFound />;
