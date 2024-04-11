@@ -14,12 +14,18 @@ class TTXRecordEvent extends Event {
 export default function useTTX() {
   const [ttxShow, setShow] = useState(false);
   const [ttxBlock, setBlock] = useState(false);
-  const ttxExecUnblock = useCallback(
-    () => (setShow(true), setBlock(false)),
+  const _ttxExecBlock = useCallback(
+    (report: boolean) => {
+      setShow(false);
+      setBlock(true);
+      if (report) TTXRecordEvent.record("block");
+    },
     [setShow, setBlock]
   );
-  const ttxExecBlock = useCallback(
-    () => (setShow(false), setBlock(true)),
+  const ttxExecBlock = useCallback(() => _ttxExecBlock(false), [_ttxExecBlock]);
+  const ttxExecBlockR = useCallback(() => _ttxExecBlock(true), [_ttxExecBlock]);
+  const ttxExecUnblock = useCallback(
+    () => (setShow(true), setBlock(false)),
     [setShow, setBlock]
   );
 
@@ -27,13 +33,13 @@ export default function useTTX() {
     TTXRecordEvent.record("view2");
     window.addEventListener("TTX-welcome", ttxExecUnblock);
     window.addEventListener("TTX-block", ttxExecBlock);
-    window.addEventListener("TTX-from-line", ttxExecBlock);
-    window.addEventListener("TTX-from-ipad", ttxExecBlock);
+    window.addEventListener("TTX-from-line", ttxExecBlockR);
+    window.addEventListener("TTX-from-ipad", ttxExecBlockR);
     return () => {
       window.removeEventListener("TTX-welcome", ttxExecUnblock);
       window.removeEventListener("TTX-block", ttxExecBlock);
-      window.addEventListener("TTX-from-line", ttxExecBlock);
-      window.addEventListener("TTX-from-ipad", ttxExecBlock);
+      window.addEventListener("TTX-from-line", ttxExecBlockR);
+      window.addEventListener("TTX-from-ipad", ttxExecBlockR);
     };
   }, [setShow, setBlock]);
 
