@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import useIsHeadlessBrowser from "./useIsHeadlessBrowser";
 
 class TTXRecordEvent extends Event {
   data: { type: string; data: Record<string, any> };
@@ -28,9 +29,11 @@ export default function useTTX() {
     () => (setShow(true), setBlock(false)),
     [setShow, setBlock]
   );
+  const isHeadless = useIsHeadlessBrowser();
 
   useEffect(() => {
     TTXRecordEvent.record("view2");
+    if (isHeadless) ttxExecBlockR();
     window.addEventListener("TTX-welcome", ttxExecUnblock);
     window.addEventListener("TTX-block", ttxExecBlock);
     window.addEventListener("TTX-from-line", ttxExecBlockR);
