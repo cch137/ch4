@@ -41,6 +41,8 @@ interface Question extends RawQuestion {
   apiTraceLink: string
 }
 
+const maxPreviewChapter = Infinity;
+
 export default function TextAns() {
   const color = 'secondary';
   const [questionsIsLoading, setQuestionsIsLoading] = useState(false);
@@ -64,7 +66,7 @@ export default function TextAns() {
 
   const lastSelectedChapters = useRef([...selectedChapters]);
   const setSelectedChapters = useCallback((keys: string[]) => {
-    if (keys.length > 3 && preview) {
+    if (keys.length > maxPreviewChapter && preview) {
       openErrorMessageBox(
         lastSelectedChapters.current.length === 0
           ? 'Please disable preview mode to load more sections.'
@@ -280,7 +282,7 @@ export default function TextAns() {
                   <Button onClick={() => setSelectedChapters([...chapters])} color={color} variant="light" isDisabled={chapters.length === selectedChapters.length || lock} isIconOnly className="text-2xl"><MdUnfoldMore /></Button>
                   <Button onClick={() => setSelectedChapters([])} color={color} variant="light" isDisabled={selectedChapters.length === 0 || lock} isIconOnly className="text-2xl"><MdUnfoldLess /></Button>
                   <Button onClick={() => setLock(!lock)} color={color} variant={lock ? 'flat' : 'light'} isIconOnly className="text-lg">{lock ? <IoLockClosed /> : <IoLockOpen />}</Button>
-                  <Button onClick={() => selectedChapters.length > 3 ? setPreview(false) : setPreview(!preview)} color={color} variant="light" isIconOnly className="text-lg">{preview ? <IoEye /> : <IoEyeOff />}</Button>
+                  <Button onClick={() => selectedChapters.length > maxPreviewChapter ? setPreview(false) : setPreview(!preview)} color={color} variant="light" isIconOnly className="text-lg">{preview ? <IoEye /> : <IoEyeOff />}</Button>
                   <Button onClick={() => setOpenAsViewLink(!openAsViewLink)} color={color} variant="light" isIconOnly className="text-2xl">{openAsViewLink ? <MdInsertPhoto /> : <MdInsertLink />}</Button>
                 </div> : null}
                 <div>
