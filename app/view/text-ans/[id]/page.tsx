@@ -26,7 +26,7 @@ export default function TextAnsView() {
   const isMember = auth > 3;
   const title = isLink ? link.split('?')[0] : 'Unknown';
   const url = `https://api.cch137.link/ls/i/${link}`;
-  const [isFocus, setIsFocus] = useState(false);
+  const [isFocus, setIsFocus] = useState(true);
   const [isPressing, setIsPressing] = useState(false);
   const [_isPressing, _setIsPressing] = useState(false);
   const blur = (!isFocus || isPressing) && !isMember;
