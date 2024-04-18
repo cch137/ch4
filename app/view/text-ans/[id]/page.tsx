@@ -26,36 +26,41 @@ export default function TextAnsView() {
   const isMember = auth > 3;
   const title = isLink ? link.split('?')[0] : 'Unknown';
   const url = `https://api.cch137.link/ls/i/${link}`;
-  const [isFocus, setIsFocus] = useState(true);
+  const [isFocus, setIsFocus] = useState<boolean>();
   const [isPressing, setIsPressing] = useState(false);
   const [_isPressing, _setIsPressing] = useState(false);
   const blur = (!isFocus || isPressing) && !isMember;
   const notPressingTimeout = useRef<NodeJS.Timeout>()
 
-  useEffect(() => {
-    const initTextAnsView = () => {
-      if (!isLink) return;
-      ttxRecord('text-ans-view', { link });
-      ttxRecord('known-text-ans');
-    }
-    const detectIsFocus = () => {
-      const isFocus = document.hasFocus();
-      setIsFocus(isFocus);
-      if (isPressing) setIsPressingF();
-    }
-    const setIsPressingT = () => {
-      clearTimeout(notPressingTimeout.current);
-      _setIsPressing(true);
-      setIsPressing(true);
-    }
-    const setIsPressingF = () => {
+  const initTextAnsView = () => {
+    if (!isLink) return;
+    ttxRecord('text-ans-view', { link });
+    ttxRecord('known-text-ans');
+  }
+  const detectIsFocus = () => {
+    if (!isFocus) {
+      setIsPressing(false);
       _setIsPressing(false);
-      setIsPressing(true);
-      notPressingTimeout.current = setTimeout(() => {
-        setIsPressing(false);
-      }, 1000);
     }
-    detectIsFocus();
+    const _isFocus = document.hasFocus();
+    setIsFocus(_isFocus);
+  }
+  const setIsPressingT = () => {
+    clearTimeout(notPressingTimeout.current);
+    _setIsPressing(true);
+    setIsPressing(true);
+  }
+  const setIsPressingF = () => {
+    _setIsPressing(false);
+    setIsPressing(true);
+    clearTimeout(notPressingTimeout.current);
+    notPressingTimeout.current = setTimeout(() => {
+      setIsPressing(false);
+    }, 1000);
+  }
+
+  useEffect(() => {
+    if (typeof isFocus === 'undefined') detectIsFocus();
     window.addEventListener('TTX-view', initTextAnsView);
     window.addEventListener('focus', detectIsFocus);
     window.addEventListener('blur', detectIsFocus);
@@ -68,7 +73,7 @@ export default function TextAnsView() {
       window.removeEventListener('keydown', setIsPressingT);
       window.removeEventListener('keyup', setIsPressingF);
     }
-  }, [link, isLink, ttxRecord, setIsFocus, setIsPressing, _setIsPressing, notPressingTimeout, isPressing]);
+  }, [isFocus, initTextAnsView, detectIsFocus, setIsPressingT, setIsPressingF]);
 
   if (ttxBlock || !isLink) return <NotFound />;
 
@@ -89,9 +94,9 @@ export default function TextAnsView() {
           style={{ width: 960 }}
         /> : null}
       </div>
-      {blur ? <div className="fixed top-0 m-auto h-screen z-50 flex-center select-none">
+      {(typeof isFocus !== 'undefined' && blur) ? <div className="fixed top-0 m-auto h-screen z-50 flex-center select-none">
         <div className="text-default-300 text-2xl font-bold flex-center">
-          {(isPressing && !_isPressing) ? 'please wait' : isPressing ? 'keyup to focus' : 'click to focus'}
+          {_isPressing ? 'keyup to focus' : isPressing ? 'please wait' : 'click to focus'}
         </div>
       </div> : null}
     </div>
