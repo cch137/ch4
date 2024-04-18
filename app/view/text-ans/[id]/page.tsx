@@ -50,6 +50,7 @@ export default function TextAnsView() {
     }
     const setIsPressingF = () => {
       _setIsPressing(false);
+      setIsPressing(true);
       notPressingTimeout.current = setTimeout(() => {
         setIsPressing(false);
       }, 1000);
