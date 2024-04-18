@@ -41,7 +41,7 @@ export default function TextAnsView() {
     const detectIsFocus = () => {
       const isFocus = document.hasFocus();
       setIsFocus(isFocus);
-      if (isFocus) setIsPressingF();
+      if (isPressing) setIsPressingF();
     }
     const setIsPressingT = () => {
       clearTimeout(notPressingTimeout.current);
@@ -68,7 +68,7 @@ export default function TextAnsView() {
       window.removeEventListener('keydown', setIsPressingT);
       window.removeEventListener('keyup', setIsPressingF);
     }
-  }, [link, isLink, ttxRecord, setIsFocus, setIsPressing, _setIsPressing, notPressingTimeout]);
+  }, [link, isLink, ttxRecord, setIsFocus, setIsPressing, _setIsPressing, notPressingTimeout, isPressing]);
 
   if (ttxBlock || !isLink) return <NotFound />;
 
