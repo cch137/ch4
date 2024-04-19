@@ -12,7 +12,7 @@ import { StatusResponse } from "@/constants/types";
 import { useRouter } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import { userInfoStore } from "@/hooks/useUserInfo";
-import { SIGNIN_PATHNAME } from "@/constants/app";
+import { PROFILE_PATHNAME, SIGNIN_PATHNAME } from "@/constants/app";
 
 export default function ResetPassword() {
   const variant = "underlined";
@@ -165,7 +165,7 @@ export default function ResetPassword() {
               <span>Back to </span>
               {isSignedIn ? (
                 <UiLink
-                  href="/profile"
+                  href={PROFILE_PATHNAME}
                   color={color}
                   className="hover:underline"
                   as={Link}

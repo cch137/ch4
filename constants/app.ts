@@ -6,3 +6,4 @@ export const appTitle = (...title: string[]) =>
 
 export const CONTENT_MAX_W = 765;
 export const SIGNIN_PATHNAME = "/auth/signin";
+export const PROFILE_PATHNAME = "/profile";

@@ -3,7 +3,11 @@
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { Avatar, AvatarIcon } from "@nextui-org/avatar";
 import { Button } from "@nextui-org/button";
-import { discordLink, SIGNIN_PATHNAME } from "@/constants/app";
+import {
+  discordLink,
+  PROFILE_PATHNAME,
+  SIGNIN_PATHNAME,
+} from "@/constants/app";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import useUserInfo from "@/hooks/useUserInfo";
@@ -109,7 +113,7 @@ export default function AppNavbarMenu() {
           className="w-full p-2 rounded-md mb-2"
           onClick={closeMenu}
           as={Link}
-          href="/profile"
+          href={PROFILE_PATHNAME}
         >
           <div className="w-full flex items-center gap-1.5">
             <Avatar

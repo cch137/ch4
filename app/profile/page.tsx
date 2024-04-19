@@ -29,7 +29,7 @@ import useErrorMessage from "@/hooks/useErrorMessage";
 import useCopyText from "@/hooks/useCopyText";
 import { useUserProfile } from "@/hooks/useUserInfo";
 import { packData } from "@cch137/utils/shuttle";
-import { SIGNIN_PATHNAME } from "@/constants/app";
+import { PROFILE_PATHNAME, SIGNIN_PATHNAME } from "@/constants/app";
 
 function RenderTableRow([key, value, editable, copiable, edit]: [
   string,
@@ -91,7 +91,7 @@ export default function Profile() {
 
   const router = useRouter();
   const redirectToSignIn = () =>
-    router.replace(`${SIGNIN_PATHNAME}?next=/profile`);
+    router.replace(`${SIGNIN_PATHNAME}?next=${PROFILE_PATHNAME}`);
   const goToResetPassword = () => router.push("/auth/reset-password");
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
