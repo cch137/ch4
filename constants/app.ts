@@ -5,3 +5,4 @@ export const appTitle = (...title: string[]) =>
   title.length ? `${title.join(" ")} | ${appName}` : appName;
 
 export const CONTENT_MAX_W = 765;
+export const SIGNIN_PATHNAME = "/auth/signin";
