@@ -27,7 +27,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: css }}
         />
         {children}
-        {/* <script async src="/t3.js"></script> */}
+        <script async src="/t3.js"></script>
       </body>
     </html>
   );
