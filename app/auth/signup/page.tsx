@@ -79,7 +79,7 @@ export default function SignUp() {
       <div
         className="w-full flex-center pb-16 absolute left-0 top-14"
         style={{
-          height: "calc(100dvh - 3.5rem)",
+          height: "calc(100dvh - 3rem)",
           visibility: isPosting === undefined ? "hidden" : "visible",
         }}
       >

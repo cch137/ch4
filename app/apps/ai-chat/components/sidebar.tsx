@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
 
-import { Button } from '@nextui-org/button';
+import { Button } from "@nextui-org/button";
 import { Link } from "@nextui-org/link";
-import { Tooltip } from '@nextui-org/tooltip';
+import { Tooltip } from "@nextui-org/tooltip";
 
 import { IoEllipsisVertical } from "react-icons/io5";
 
-import { SIDEBAR_WIDTH, models as _models } from '@/constants/chat';
+import { SIDEBAR_WIDTH, models as _models } from "@/constants/chat";
 
 import ConversationList from "./conv-list";
 import ConversationConfig from "./conv-config";
@@ -18,17 +18,29 @@ function SidebarFooter() {
   return (
     <div className="flex flex-col text-default-400 select-none -mb-1">
       <div>
-        <Link showAnchorIcon color="secondary" size="sm" target="_blank" href="https://www.buymeacoffee.com/cch137">
+        <Link
+          showAnchorIcon
+          color="secondary"
+          size="sm"
+          target="_blank"
+          href="https://www.buymeacoffee.com/cch137"
+        >
           Buy me a coffee
         </Link>
       </div>
       <div>
-        <Link showAnchorIcon color="secondary" size="sm" target="_blank" href="https://api.mikugpt.top/">
+        <Link
+          showAnchorIcon
+          color="secondary"
+          size="sm"
+          target="_blank"
+          href="https://api.mikugpt.top/"
+        >
           Sponsored by MikuAPI
         </Link>
       </div>
     </div>
-  )
+  );
 }
 
 export default function Sidebar({
@@ -39,12 +51,12 @@ export default function Sidebar({
   toggleSidebarOpen,
   closeSidebar,
 }: {
-  appPath: string,
-  initConvId?: string,
-  isSidebarOpen: boolean,
-  sidebarWidth: number,
-  toggleSidebarOpen: () => void,
-  closeSidebar: () => void,
+  appPath: string;
+  initConvId?: string;
+  isSidebarOpen: boolean;
+  sidebarWidth: number;
+  toggleSidebarOpen: () => void;
+  closeSidebar: () => void;
 }) {
   const isSmallScreen = useIsSmallScreen();
   const [modelSettingOpened, setModelSettingOpened] = useState(false);
@@ -52,10 +64,12 @@ export default function Sidebar({
     <div
       className="chat-sidebar"
       style={{
-        width: isSmallScreen ? '100dvw' : `${SIDEBAR_WIDTH}px`,
-        height: 'calc(100dvh - 3.5rem)',
-        top: '3.5rem',
-        left: isSmallScreen ? `${isSidebarOpen ? 0 : -100}dvw` : `${sidebarWidth-SIDEBAR_WIDTH}px`,
+        width: isSmallScreen ? "100dvw" : `${SIDEBAR_WIDTH}px`,
+        height: "calc(100dvh - 3rem)",
+        top: "3rem",
+        left: isSmallScreen
+          ? `${isSidebarOpen ? 0 : -100}dvw`
+          : `${sidebarWidth - SIDEBAR_WIDTH}px`,
         zIndex: 20,
       }}
     >
@@ -79,19 +93,28 @@ export default function Sidebar({
       </div>
       <div
         className="chat-sidebar-button-ctn flex-center h-0 right-0 absolute"
-        style={{width: isSmallScreen ? isSidebarOpen ? 0 : '2.8rem' : '1.8rem'}}
+        style={{
+          width: isSmallScreen ? (isSidebarOpen ? 0 : "2.8rem") : "1.8rem",
+        }}
       >
-        {isSmallScreen
-          ? <div className="bg-inherit mb-8 rounded-full overflow-hidden">
+        {isSmallScreen ? (
+          <div className="bg-inherit mb-8 rounded-full overflow-hidden">
             <Tooltip content="Menu" placement="right">
               <Button isIconOnly variant="light" size="sm">
-                <IoEllipsisVertical className="text-default-500 text-xl" onClick={toggleSidebarOpen} />
+                <IoEllipsisVertical
+                  className="text-default-500 text-xl"
+                  onClick={toggleSidebarOpen}
+                />
               </Button>
             </Tooltip>
           </div>
-          : <div className={(isSidebarOpen ? 'opened ' : '') + "chat-sidebar-button"} onClick={toggleSidebarOpen}></div>
-        }
+        ) : (
+          <div
+            className={(isSidebarOpen ? "opened " : "") + "chat-sidebar-button"}
+            onClick={toggleSidebarOpen}
+          ></div>
+        )}
       </div>
     </div>
-  )
+  );
 }

@@ -148,18 +148,6 @@ export default function AppNavbarMenu() {
         >
           <div className="w-full">AI Trigger</div>
         </Button>
-        {isLvl2 ? (
-          <Button
-            variant="light"
-            className="w-full pl-3 text-start h-8 rounded-md"
-            onClick={closeMenu}
-            as={Link}
-            href="/apps/ncu"
-            startContent={<IoGlassesOutline className="text-2xl" />}
-          >
-            <div className="w-full">NCU</div>
-          </Button>
-        ) : null}
         {isAdmin ? (
           <Button
             variant="light"

@@ -1,0 +1,33 @@
+#cyberpunk {
+  width: 100%;
+  height: 100%;
+}
+
+.cyberpunk-background {
+  --grid-pattern-bg-color: rgba(159, 219, 252, .125);
+  --grid-pattern-bg-color: rgba(200, 235, 255, .1);
+  background-image:
+    linear-gradient(90deg, var(--grid-pattern-bg-color) 4%, transparent 0),
+    linear-gradient(180deg, var(--grid-pattern-bg-color) 4%, transparent 0);
+  background-position: 50%;
+  background-size: 18px 18px;
+}
+
+.cp-glow-text {
+  --cp-glow-unit: 0.75rem;
+  --color1: rgba(255, 255, 255, .75);
+  --color2: rgba(255, 0, 255, .75);
+  --color3: rgba(255, 255, 255, .75);
+  --color4: rgba(255, 255, 255, .75);
+  --color5: rgba(255, 0, 255, .75);
+  text-shadow:
+    0 0 calc(1 * var(--cp-glow-unit)) var(--color1),
+    0 0 calc(2 * var(--cp-glow-unit)) var(--color2),
+    0 0 calc(3 * var(--cp-glow-unit)) var(--color3),
+    0 0 calc(4 * var(--cp-glow-unit)) var(--color4),
+    0 0 calc(5 * var(--cp-glow-unit)) var(--color5);
+}
+
+.cp-glow-lg { --cp-glow-unit: 1.125rem !important; }
+.cp-glow-xl { --cp-glow-unit: 1.25rem !important; }
+.cp-glow-2xl { --cp-glow-unit: 1.5rem !important; }
