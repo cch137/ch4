@@ -7,12 +7,18 @@ import { Input } from "@nextui-org/input";
 import Link from "next/link";
 import { IoChevronBack } from "react-icons/io5";
 import { Spacer } from "@nextui-org/spacer";
+import useUserInfo from "@/hooks/useUserInfo";
 
 export default function Laundry() {
-  const [city, setCity] = useState("中壢");
+  const { auth } = useUserInfo();
+  const [city, setCity] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [content, setContent] = useState("");
   const inited = useRef(false);
+
+  useEffect(() => {
+    if (auth > 3 && !city) setCity("中壢");
+  }, [auth, city, setCity]);
 
   const update = useCallback(
     async (useLoading = true) => {
