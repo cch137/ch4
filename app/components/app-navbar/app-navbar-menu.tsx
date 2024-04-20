@@ -7,6 +7,7 @@ import {
   discordLink,
   PROFILE_PATHNAME,
   SIGNIN_PATHNAME,
+  SIGNOUT_PATHNAME,
 } from "@/constants/app";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -165,7 +166,7 @@ export default function AppNavbarMenu() {
           className="w-full pl-3 text-start h-8 rounded-md"
           onClick={closeMenu}
           as={Link}
-          href="/auth/signout"
+          href={SIGNOUT_PATHNAME}
           color="danger"
           startContent={<IoLogOutOutline className="text-2xl" />}
         >

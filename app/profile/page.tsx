@@ -29,7 +29,11 @@ import useErrorMessage from "@/hooks/useErrorMessage";
 import useCopyText from "@/hooks/useCopyText";
 import { useUserProfile } from "@/hooks/useUserInfo";
 import { packData } from "@cch137/utils/shuttle";
-import { PROFILE_PATHNAME, SIGNIN_PATHNAME } from "@/constants/app";
+import {
+  PROFILE_PATHNAME,
+  SIGNIN_PATHNAME,
+  SIGNOUT_PATHNAME,
+} from "@/constants/app";
 
 function RenderTableRow([key, value, editable, copiable, edit]: [
   string,
@@ -349,7 +353,7 @@ export default function Profile() {
               className="min-w-unit-24"
               color="danger"
               as={Link}
-              href="/auth/signout"
+              href={SIGNOUT_PATHNAME}
             >
               Sign out
             </Button>

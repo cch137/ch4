@@ -4,7 +4,11 @@ import { Button } from "@nextui-org/button";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
-import { discordLink, SIGNIN_PATHNAME } from "@/constants/app";
+import {
+  discordLink,
+  SIGNIN_PATHNAME,
+  SIGNOUT_PATHNAME,
+} from "@/constants/app";
 import NotFound from "@/app/not-found";
 
 export default function UserProfile() {
@@ -17,7 +21,7 @@ export default function UserProfile() {
     case "login":
       return <FullpageSpinner redirectTo={SIGNIN_PATHNAME} />;
     case "logout":
-      return <FullpageSpinner redirectTo={`/auth/signout`} />;
+      return <FullpageSpinner redirectTo={SIGNOUT_PATHNAME} />;
     case "signin":
     case "signout":
     case "reset-password":
