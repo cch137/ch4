@@ -22,7 +22,7 @@ import {
   SIGNIN_PATHNAME,
 } from "@/constants/app";
 import useIsHover from "@/hooks/useIsHover";
-import useUserInfo, { useIsLoggedIn } from "@/hooks/useUserInfo";
+import useUserInfo from "@/hooks/useUserInfo";
 
 const sidebarWidth = (isOpen: boolean) => (isOpen ? 256 : 48);
 
@@ -46,8 +46,7 @@ function LayoutNavbar({
   showHomeLink?: boolean;
   headerHeight?: number;
 }) {
-  const isLoggedIn = useIsLoggedIn();
-  const { name: username } = useUserInfo();
+  const { isPending, isLoggedIn, name: username } = useUserInfo();
   return (
     <div
       className="sticky z-50 top-0 w-full bg-neutral-900 bg-opacity-50 backdrop-blur-sm border-y-1 border-solid border-neutral-900"
@@ -57,7 +56,11 @@ function LayoutNavbar({
         <div className="flex-1 text-default-600">
           {showHomeLink ? <HomeLink /> : null}
         </div>
-        <div className="flex-center gap-2">
+        <div
+          className={`flex-center gap-2 ${
+            isPending ? "opacity-0 select-none" : ""
+          }`}
+        >
           <Button
             as={Link}
             href={discordLink}
@@ -75,11 +78,13 @@ function LayoutNavbar({
             variant="flat"
             className="h-8 rounded-lg text-default-600 font-bold"
             startContent={
-              isLoggedIn ? (
-                <MdAccountCircle className="text-xl" />
-              ) : (
-                <MdLogin className="text-xl" />
-              )
+              <span>
+                {isLoggedIn ? (
+                  <MdAccountCircle className="text-xl" />
+                ) : (
+                  <MdLogin className="text-xl" />
+                )}
+              </span>
             }
           >
             {isLoggedIn ? username : "Sign in"}
@@ -160,10 +165,12 @@ function LayoutSidebar({
 export default function MainLayout({
   headerHeight = 48,
   sidebar,
+  overflowYHidden = false,
   children,
 }: {
   headerHeight?: number;
   sidebar?: JSX.Element;
+  overflowYHidden?: boolean;
   children: ReactNode;
 }) {
   const [_sidebarOpen, setSidebarOpen] = useState(true);
@@ -182,7 +189,9 @@ export default function MainLayout({
           </LayoutSidebar>
         ) : null}
         <div
-          className="h-dvh flex-1 overflow-y-scroll text-default-500 transition-all ease-out duration-500"
+          className={`h-dvh flex-1 ${
+            overflowYHidden ? "overflow-y-hidden" : "overflow-y-scroll"
+          } text-default-500 transition-all ease-out duration-500`}
           style={{
             width: `calc(100vw - ${sidebarWidth(sidebarOpen)}px)`,
           }}

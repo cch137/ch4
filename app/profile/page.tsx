@@ -20,7 +20,7 @@ import {
   useDisclosure,
 } from "@nextui-org/modal";
 import Link from "next/link";
-import { createRef, useState } from "react";
+import { createRef, useEffect, useRef, useState } from "react";
 import { IoCopyOutline, IoCreateOutline } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import type { StatusResponse } from "@/constants/types";
@@ -35,23 +35,31 @@ import {
   SIGNOUT_PATHNAME,
 } from "@/constants/app";
 
-function RenderTableRow([key, value, editable, copiable, edit]: [
-  string,
-  string | undefined,
-  boolean,
-  boolean,
-  () => void | undefined
-]) {
+function ProfileTableRow({
+  name,
+  value,
+  editable,
+  copiable,
+  edit,
+}: {
+  name: string;
+  value: string | undefined;
+  editable: boolean;
+  copiable: boolean;
+  edit: () => void | undefined;
+}) {
   const [copied, copyText] = useCopyText(value || "");
   return (
-    <TableRow key={key}>
-      <TableCell className="font-bold text-default-500">{key}</TableCell>
-      <TableCell
-        className={!value || !copiable ? "text-default-300 select-none" : ""}
-      >
-        {value ? value : "Unknown"}
-      </TableCell>
-      <TableCell>
+    <tr>
+      <td className="p-1">
+        <span className="font-bold text-default-500">{name}</span>
+      </td>
+      <td className="p-1 pl-4 pr-8">
+        <span className="text-default-600 select-none truncate">
+          {value ? value : "Unknown"}
+        </span>
+      </td>
+      <td className="p-1">
         <div className="flex h-8 gap-1 -mr-4">
           <Button
             variant="light"
@@ -64,7 +72,7 @@ function RenderTableRow([key, value, editable, copiable, edit]: [
             isIconOnly
             onClick={edit}
           >
-            <IoCreateOutline style={{ scale: 1.5 }} />
+            <IoCreateOutline className="text-xl" />
           </Button>
           <Button
             color={copied ? "success" : "default"}
@@ -78,18 +86,26 @@ function RenderTableRow([key, value, editable, copiable, edit]: [
             isIconOnly
             onClick={copyText}
           >
-            <IoCopyOutline style={{ scale: 1.5 }} />
+            <IoCopyOutline className="text-xl" />
           </Button>
         </div>
-      </TableCell>
-    </TableRow>
+      </td>
+    </tr>
   );
 }
 
 export default function Profile() {
   const user = useUserProfile();
 
-  const { name = "", eadd = "", ctms, mtms, atms } = user || {};
+  const {
+    name = "",
+    eadd = "",
+    ctms,
+    mtms,
+    atms,
+    isPending,
+    isLoggedIn,
+  } = user || {};
 
   const color = "secondary";
 
@@ -122,15 +138,24 @@ export default function Profile() {
     false
   );
 
-  return (
+  const redirected = useRef(false);
+  useEffect(() => {
+    if (redirected.current) return;
+    if (!isPending && !isLoggedIn) {
+      redirected.current = true;
+      redirectToSignIn();
+      setIsPostingUsername(undefined);
+    }
+  }, [isPending, isLoggedIn, redirectToSignIn, setIsPostingUsername]);
+
+  return isPending || !isLoggedIn ? (
     <>
       {errorMessageBox}
-      <FullpageSpinner
-        callback={async () => {
-          if ((await user.$init()).auth <= 0)
-            return redirectToSignIn(), setIsPostingUsername(undefined);
-        }}
-      />
+      <FullpageSpinner />
+    </>
+  ) : (
+    <>
+      {errorMessageBox}
       <Modal
         size="sm"
         isOpen={editUsernameIsOpen}
@@ -182,7 +207,7 @@ export default function Profile() {
                       if (success) onClose();
                       else openErrorMessageBox(message);
                     } finally {
-                      await user.$update();
+                      await user.update();
                       setIsPostingUsername(false);
                     }
                   }}
@@ -260,7 +285,7 @@ export default function Profile() {
                         if (success) onClose();
                         else openErrorMessageBox(message);
                       } finally {
-                        await user.$update();
+                        await user.update();
                         setIsPostingEmail(false);
                       }
                     } else {
@@ -289,28 +314,15 @@ export default function Profile() {
         </ModalContent>
       </Modal>
       <div
-        className="w-full flex-center py-8 absolute left-0 top-14"
-        style={{
-          visibility: isPostingUsername === undefined ? "hidden" : "visible",
-        }}
+        className="max-w-full flex flex-col px-2 m-auto"
+        style={{ width: 540, userSelect: isPostingUsername ? "none" : "auto" }}
       >
-        <div className="max-w-full flex flex-col" style={{ width: 540 }}>
-          <h1 className="text-4xl pt-8 pb-4 pl-7 font-bold text-default-600">
-            Profile
-          </h1>
-          <Table
-            hideHeader
-            classNames={{
-              wrapper: "bg-transparent text-default-600",
-              td: "text-base",
-            }}
-          >
-            <TableHeader>
-              <TableColumn>key</TableColumn>
-              <TableColumn>value</TableColumn>
-              <TableColumn>action</TableColumn>
-            </TableHeader>
-            <TableBody>
+        <h1 className="text-3xl pt-8 pb-4 px-1 font-bold text-default-600">
+          Profile
+        </h1>
+        <div className="w-full pb-4 overflow-x-auto">
+          <table>
+            <tbody>
               {(
                 [
                   ["Username", name, true, true, editUsernameOnOpen],
@@ -344,20 +356,29 @@ export default function Profile() {
                   boolean,
                   () => void | undefined
                 ][]
-              ).map(RenderTableRow)}
-            </TableBody>
-          </Table>
-          <div className="flex-center mt-16">
-            <Button
-              variant="ghost"
-              className="min-w-unit-24"
-              color="danger"
-              as={Link}
-              href={SIGNOUT_PATHNAME}
-            >
-              Sign out
-            </Button>
-          </div>
+              ).map(([name, value, editable, copiable, edit], i) => (
+                <ProfileTableRow
+                  key={i}
+                  name={name}
+                  value={value}
+                  editable={editable}
+                  copiable={copiable}
+                  edit={edit}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex mt-8">
+          <Button
+            variant="ghost"
+            className="min-w-unit-24"
+            color="danger"
+            as={Link}
+            href={SIGNOUT_PATHNAME}
+          >
+            Sign out
+          </Button>
         </div>
       </div>
     </>

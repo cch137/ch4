@@ -20,8 +20,8 @@ export default function SigninToContinue({
   return (
     <>
       <div
-        className="flex-center px-8"
-        style={{ height: "calc(100dvh - 4rem)" }}
+        className="flex-center px-8 h-full"
+        style={{ height: "calc(80dvh)" }}
       >
         <div className="flex flex-col gap-8 w-full max-w-4xl">
           <h1 className="text-6xl font-bold">{title}</h1>

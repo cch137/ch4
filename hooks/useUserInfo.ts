@@ -1,89 +1,93 @@
 "use client";
 
 import { UserInfo, UserDetails, StatusResponse } from "@/constants/types";
+import { useRef, useState } from "react";
+import useInit from "./useInit";
 import store from "@cch137/utils/dev/store";
-import { useEffect, useState } from "react";
 
-export const userInfoStore = store(
-  {
-    id: "",
-    name: "",
-    auth: 0,
-  } as UserInfo,
-  async () => {
-    try {
-      const res = await fetch("/api/auth/user", { method: "POST" });
-      return ((await res.json()) as StatusResponse<UserInfo>)?.value || {};
-    } catch {}
-  },
-  {
-    autoInit: false,
-    initAfterOn: true,
-    updateInterval: 60 * 1000,
-  }
-);
+export const userInfoCache = store<UserInfo>({ id: "", name: "", auth: 0 });
 
-export const userDetailsStore = store(
-  {} as UserDetails,
-  async () => {
-    try {
-      const res = await fetch("/api/auth/user/details", { method: "POST" });
-      return ((await res.json()) as StatusResponse<UserDetails>)?.value || {};
-    } catch {}
-  },
-  {
-    autoInit: false,
-    initAfterOn: true,
-  }
-);
-
-export const useUserInfo = () => {
-  const [userInfo, setUserInfo] = useState(userInfoStore.$object);
-  useEffect(() => userInfoStore.$on(setUserInfo), []);
-  return userInfo;
+let fetchingUserInfo: Promise<any> | null = null;
+const fetchUserInfo = async () => {
+  const res =
+    fetchingUserInfo ||
+    (await fetch("/api/auth/user", { method: "POST" })).json();
+  if (fetchingUserInfo !== res) fetchingUserInfo = res;
+  const { value: user } = (await res) as StatusResponse<UserInfo>;
+  fetchingUserInfo = null;
+  if (!user) throw new Error("Failed to fetch user info");
+  return user;
 };
+
+let fetchingUserDetails: Promise<any> | null = null;
+const fetchUserDetails = async () => {
+  const res =
+    fetchingUserDetails ||
+    (await fetch("/api/auth/user/details", { method: "POST" })).json();
+  if (fetchingUserDetails !== res) fetchingUserDetails = res;
+  const { value: user } = (await res) as StatusResponse<UserDetails>;
+  fetchingUserDetails = null;
+  if (!user) throw new Error("Failed to fetch user details");
+  return user;
+};
+
+export function useUserInfo() {
+  const lastFetched = useRef(0);
+  const [user, setUser] = useState<UserInfo | undefined>(
+    userInfoCache.auth ? userInfoCache : void 0
+  );
+  const auth = user?.auth || 0;
+  const isLoggedIn = auth > 0;
+  const update = async () => {
+    lastFetched.current = Date.now();
+    const user = await fetchUserInfo();
+    setUser(user);
+    if (user) userInfoCache.$assign(user);
+  };
+  useInit(() => {
+    update();
+  }, [setUser, lastFetched]);
+  return {
+    ...user,
+    auth,
+    isLoggedIn,
+    update,
+    isPending: user === undefined,
+  };
+}
 
 export default useUserInfo;
 
-export const useIsLoggedIn = () => {
-  const userInfo = useUserInfo();
-  return userInfo.auth > 0;
-};
-
-export const useUserDetails = () => {
-  const [userDetails, setUserDetails] = useState(userDetailsStore.$object);
-  useEffect(() => userDetailsStore.$on(setUserDetails), []);
-  return userDetails;
-};
-
-export const useUserProfile = () => {
-  const { id, name, auth } = useUserInfo();
-  const { eadd, ctms, mtms, atms } = useUserDetails();
-
-  return {
-    id,
-    name,
-    auth,
-    eadd,
-    ctms,
-    mtms,
-    atms,
-    $init: async () => {
-      const [a, b] = await Promise.all([
-        userInfoStore.$init(),
-        userDetailsStore.$init(),
-      ]);
-      return { ...b, ...a };
-    },
-    $update: async () => {
-      const [a, b] = await Promise.all([
-        userInfoStore.$update(),
-        userDetailsStore.$update(),
-      ]);
-      return { ...b, ...a };
-    },
-    $inited: userInfoStore.$inited || userDetailsStore.$inited,
-    $updating: userInfoStore.$updating || userDetailsStore.$updating,
-    $initing: userInfoStore.$initing || userDetailsStore.$initing,
+export function useUserDetails() {
+  const lastFetched = useRef(0);
+  const [user, setUser] = useState<UserDetails>();
+  const update = async () => {
+    lastFetched.current = Date.now();
+    setUser((await fetchUserDetails()) || {});
   };
-};
+  useInit(() => {
+    update();
+  }, [setUser, lastFetched]);
+  return { ...user, update, isPending: user === undefined };
+}
+
+export function useUserProfile() {
+  const {
+    update: update1,
+    isPending: pending1,
+    ...user1
+  } = useUserInfo() || {};
+  const {
+    update: update2,
+    isPending: pending2,
+    ...user2
+  } = useUserDetails() || {};
+  return {
+    ...user1,
+    ...user2,
+    update() {
+      return Promise.all([update1(), update2()]);
+    },
+    isPending: pending1 || pending2,
+  };
+}

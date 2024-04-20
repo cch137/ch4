@@ -24,7 +24,7 @@ import {
 
 import { vers, versionStore } from "./useVersion";
 import random from "@cch137/utils/random";
-import { userInfoStore } from "./useUserInfo";
+import { userInfoCache } from "./useUserInfo";
 
 type action = "send" | "stream";
 export const answerBroadcaster = new Broadcaster<action>("ai-chat-answer");
@@ -49,6 +49,7 @@ const handleError = (e?: any) => {
 
 export const aiChatHandleError = handleError;
 
+const lastUser = store({ value: userInfoCache.id });
 const chat = store(
   {
     convTail: null as string | null,
@@ -67,10 +68,8 @@ const chat = store(
   },
   async () => {
     versionStore.$init();
-    if ((await userInfoStore.$init()).auth <= 0) {
-      skippedInit = true;
-      return;
-    }
+    if (skippedInit || !userInfoCache.id) return;
+    skippedInit = true;
     return {
       conversations: await fetchConvList(!getChatIsInited()),
     };
@@ -85,11 +84,16 @@ const chat = store(
 const getChatIsInited = (): boolean => chat.$inited;
 
 let skippedInit = false;
-userInfoStore.$on((o) => {
-  if (!skippedInit) return;
-  skippedInit = false;
-  chat.$assign({ $inited: false });
-  chat.$update();
+userInfoCache.$on((o) => {
+  if (userInfoCache.id !== lastUser.value) {
+    skippedInit = false;
+    chat.$assign({ $inited: false });
+    chat.$update();
+  }
+  if (userInfoCache.id) {
+    lastUser.value = userInfoCache.id;
+  }
+  return;
 });
 
 export { chat as aiChatStore };

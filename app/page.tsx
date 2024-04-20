@@ -1,83 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import {} from "react";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { Image } from "@nextui-org/image";
-import { Tooltip } from "@nextui-org/react";
+import { Spacer } from "@nextui-org/spacer";
+import { Tooltip } from "@nextui-org/tooltip";
 
 import MainLayout from "@/app/components/MainLayout";
 
-function LoremIpsum() {
-  return (
-    <>
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce posuere
-        diam scelerisque, scelerisque est ut, euismod nulla. Mauris rhoncus ex
-        eu tellus rhoncus lobortis. Nullam in blandit nulla. Morbi et mauris
-        ornare eros gravida tristique. Class aptent taciti sociosqu ad litora
-        torquent per conubia nostra, per inceptos himenaeos. Curabitur
-        sollicitudin felis nec leo accumsan, eget accumsan nisl maximus. Aenean
-        facilisis orci vitae purus bibendum auctor. Etiam consequat velit nibh,
-        et pretium mauris volutpat eget.
-      </p>
-      <p>
-        Vivamus pharetra venenatis augue ornare dignissim. Aliquam in sapien
-        lorem. Cras id ultrices lorem. Pellentesque habitant morbi tristique
-        senectus et netus et malesuada fames ac turpis egestas. Aenean sit amet
-        felis lacus. Praesent mollis ipsum purus, in fringilla augue sodales ut.
-        In posuere rhoncus viverra. Ut porta arcu semper placerat rhoncus.
-        Vivamus et lorem nulla. Nulla convallis metus nulla, gravida vulputate
-        elit consectetur at.
-      </p>
-      <p>
-        Sed ante sapien, rhoncus sit amet nisl quis, placerat tincidunt arcu. Ut
-        efficitur, tellus ac mollis ullamcorper, turpis augue vehicula purus, et
-        semper nisi ante vitae risus. Cras quis nunc quis nunc varius vehicula.
-        In id turpis nec ante scelerisque maximus sed at enim. Morbi ut leo eu
-        mi consequat laoreet sit amet ac sapien. Sed sagittis feugiat arcu
-        iaculis congue. Morbi efficitur laoreet ultricies. Curabitur interdum
-        urna id orci pharetra convallis. Donec vel elit ac eros porttitor
-        tempus. Nullam ut leo porttitor, accumsan arcu vitae, pharetra justo.
-        Integer scelerisque, est a tincidunt feugiat, ipsum neque hendrerit
-        arcu, in rutrum mauris sem ut purus. Fusce pretium varius placerat.
-        Interdum et malesuada fames ac ante ipsum primis in faucibus. Nullam at
-        hendrerit ante, in euismod ante.
-      </p>
-      <p>
-        Duis quis felis placerat, mollis turpis at, varius dui. Aenean vehicula
-        eros eu quam pulvinar vestibulum. Morbi in purus blandit, commodo neque
-        vel, tristique ante. Quisque sagittis urna porta porta scelerisque. Cras
-        bibendum lorem in purus pharetra, et interdum libero tempus. Integer
-        blandit libero nunc, at elementum turpis euismod in. In porta varius
-        ante. Fusce egestas felis nulla, pulvinar sodales nisi sollicitudin ut.
-      </p>
-      <p>
-        Vestibulum mattis sem nunc, et facilisis ipsum bibendum sed. Curabitur
-        diam magna, porttitor blandit imperdiet quis, scelerisque non neque.
-        Vestibulum varius vitae mauris pulvinar congue. Suspendisse potenti. Sed
-        vitae fermentum risus. Vivamus vel pretium purus. Nunc commodo, ipsum
-        luctus venenatis tempus, nisl nisl tincidunt magna, ut lobortis arcu leo
-        in metus. Aliquam posuere imperdiet purus, sit amet ullamcorper tortor
-        mollis id. Aliquam commodo consectetur tempus. Curabitur consequat nisi
-        id tellus pharetra, non vestibulum diam accumsan. Nunc sed ex vitae arcu
-        lobortis fermentum.
-      </p>
-    </>
-  );
-}
-
-function LinkCard({
-  title,
-  description,
-  link,
-  icon = "/favicon.ico",
-}: {
+type LinkItem = {
   title: string;
   description?: string;
   link: string;
   icon?: string;
-}) {
+  roundIcon?: boolean;
+  whiteBg?: boolean;
+};
+
+function LinkCard(item: LinkItem | { item: LinkItem }) {
+  const {
+    title,
+    description,
+    link,
+    icon = "/favicon.ico",
+    roundIcon = false,
+    whiteBg = false,
+  } = "item" in item ? item.item : item;
+  const isExternal = /^(\/\/|http:\/\/|https:\/\/|file:\/\/)/.test(link);
   return (
     <div
       className="flex justify-start items-start
@@ -96,11 +45,19 @@ function LinkCard({
       >
         <Link
           href={link}
+          target={isExternal ? "_blank" : void 0}
           className="block group w-full h-[72px] py-4 px-3 rounded-md flex-auto bg-neutral-900 text-default-500 hover:text-default-600 transition ease-in-out hover:-translate-y-1"
         >
           <div className="flex-center gap-2 flex-1">
             <div className="flex-center w-10 h-10">
-              <Image src={icon} height={40} width={40} />
+              <Image
+                src={icon}
+                height={40}
+                width={40}
+                className={`${roundIcon ? "rounded-full" : ""} ${
+                  whiteBg ? "bg-white" : ""
+                }`}
+              />
             </div>
             <div className="flex-1 overflow-hidden flex flex-col">
               <div className="text-md font-bold truncate">{title}</div>
@@ -118,7 +75,7 @@ function LinkCard({
   );
 }
 
-const data = [
+const apps: LinkItem[] = [
   {
     title: "AI Chat",
     description: "A simple AI chat app",
@@ -133,33 +90,118 @@ const data = [
     title: "Silence",
     description: "白噪音生成器",
     link: "/view/silence",
+    icon: "/assets/icons/whitenoise.jpg",
   },
   {
     title: "IMG to PDF",
     link: "/apps/ncu/images-to-pdf",
+    icon: "/assets/icons/img-to-pdf.jpg",
   },
   {
     title: "Text Unlock",
     description: "數本舊教科書的答案",
     link: "/apps/text-unlock",
+    icon: "/assets/icons/text-unlock.jpg",
   },
   {
     title: "天氣 API",
     link: "/apps/ncu/weather",
+    icon: "/assets/icons/weather.jpg",
   },
   {
     title: "甲骨文速查",
     link: "/apps/ncu/oracle",
+    icon: "/assets/icons/oracle-bone.jpg",
   },
   {
     title: "Maze",
     description: "迷宮生成器與路徑搜尋",
     link: "/apps/lab/maze",
+    icon: "/assets/icons/maze.jpg",
   },
   {
     title: "洗衣房",
     link: "/apps/ncu/laundry",
+    icon: "/assets/icons/laundry.jpg",
   },
+];
+
+const aiApps: LinkItem[] = [
+  {
+    title: "ChatGPT",
+    description: "By OpenAI",
+    link: "//chat.openai.com",
+    icon: "//chat.openai.com/favicon.ico",
+  },
+  {
+    title: "Gemini",
+    description: "By Google",
+    link: "//gemini.google.com",
+    icon: "//www.gstatic.com/lamda/images/gemini_favicon_f069958c85030456e93de685481c559f160ea06b.png",
+  },
+  {
+    title: "Claude",
+    description: "By Anthropic",
+    link: "//claude.ai",
+    icon: "//claude.ai/favicon.ico",
+  },
+  {
+    title: "Perplexity",
+    description: "AI 搜索引擎",
+    link: "//www.perplexity.ai/",
+    icon: "//nav.afmobi.com/wp-content/uploads/2024/02/eb7d4-www.perplexity.ai.png",
+  },
+  {
+    title: "WolframAlpha",
+    link: "//www.wolframalpha.com/",
+    icon: "//www.wolframalpha.com/favicon.ico",
+  },
+  {
+    title: "AIVA",
+    description: "AI 音樂創作工具",
+    link: "//www.aiva.ai//",
+    icon: "//www.aiva.ai/assets/img/favicon.ico",
+  },
+  {
+    title: "YOU",
+    description: "AI 搜索引擎",
+    link: "//you.com/",
+    icon: "//you.com/favicon/apple-touch-icon-57x57.png",
+  },
+  {
+    title: "DALL·E",
+    description: "By OpenAI",
+    link: "//labs.openai.com/",
+    icon: "//labs.openai.com/favicon.ico",
+  },
+  {
+    title: "GateKeep",
+    description: "數理教學影片生成",
+    link: "//app.gatekeep.ai/",
+    icon: "//app.gatekeep.ai/favicon.ico",
+  },
+];
+
+const otherTools: LinkItem[] = [
+  {
+    title: "Google 翻譯",
+    link: "//translate.google.com",
+    icon: "//translate.google.com/favicon.ico",
+  },
+  {
+    title: "GitHub",
+    description: "GitHub",
+    link: "//github.com",
+    icon: "//github.com/favicon.ico",
+    roundIcon: true,
+    whiteBg: true,
+  },
+  // {
+  //   title: "LibGen",
+  //   description: "Library Genesis",
+  //   link: "//libgen.is",
+  //   icon: "//libgen.is/favicon.ico",
+  // },
 ];
 
 export default function Cyberpunk() {
@@ -167,18 +209,26 @@ export default function Cyberpunk() {
     <MainLayout>
       <h1 className="font-bold text-xl pl-2">本站應用</h1>
       <div className="flex flex-wrap py-3 gap-4">
-        {data.map((d, i) => (
-          <LinkCard
-            title={d.title}
-            description={d.description}
-            link={d.link}
-            key={i}
-          />
+        {apps.map((l, i) => (
+          <LinkCard item={l} key={i} />
         ))}
       </div>
-      {new Array(4).fill(0).map((_, i) => (
-        <LoremIpsum key={i} />
-      ))}
+      <Spacer y={4} />
+      <h1 className="font-bold text-xl pl-2">AI 應用</h1>
+      <div className="flex flex-wrap py-3 gap-4">
+        {aiApps.map((l, i) => (
+          <LinkCard item={l} key={i} />
+        ))}
+      </div>
+      <Spacer y={4} />
+      <h1 className="font-bold text-xl pl-2">其他工具</h1>
+      <div className="flex flex-wrap py-3 gap-4">
+        {otherTools.map((l, i) => (
+          <LinkCard item={l} key={i} />
+        ))}
+      </div>
+      <Spacer y={4} />
+      <Spacer y={16} />
     </MainLayout>
   );
 }

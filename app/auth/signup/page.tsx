@@ -11,7 +11,7 @@ import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { StatusResponse } from "@/constants/types";
 import { useRouter } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
-import { userInfoStore } from "@/hooks/useUserInfo";
+import { useUserInfo } from "@/hooks/useUserInfo";
 import { SIGNIN_PATHNAME } from "@/constants/app";
 
 export default function SignUp() {
@@ -32,6 +32,8 @@ export default function SignUp() {
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
 
+  const { isPending, isLoggedIn, update: userUpdate } = useUserInfo();
+
   const post = async () => {
     setIsPosting(true);
     const { success, message }: StatusResponse = await (
@@ -41,7 +43,7 @@ export default function SignUp() {
       })
     ).json();
     if (message) openErrorMessageBox(message);
-    if (success) return userInfoStore.$update(), redirectToDone();
+    if (success) return userUpdate(), redirectToDone();
     else if (!message) openErrorMessageBox();
     setIsPosting(false);
   };
@@ -67,15 +69,27 @@ export default function SignUp() {
     setTimeout(() => setResendCooling((r) => r - 1), 1000);
   }, [resendCooling]);
 
+  const redirected = useRef(false);
+  useEffect(() => {
+    if (redirected.current) return;
+    if (isLoggedIn) {
+      redirected.current = true;
+      redirectToHome();
+      setIsPosting(undefined);
+    }
+  }, [isLoggedIn, redirectToHome, setIsPosting]);
+
+  if (isPending || isLoggedIn)
+    return (
+      <>
+        {errorMessageBox}
+        <FullpageSpinner />
+      </>
+    );
+
   return (
     <>
       {errorMessageBox}
-      <FullpageSpinner
-        callback={async () => {
-          if ((await userInfoStore.$init()).auth > 0)
-            redirectToHome(), setIsPosting(undefined);
-        }}
-      />
       <div
         className="w-full flex-center pb-16 absolute left-0 top-14"
         style={{

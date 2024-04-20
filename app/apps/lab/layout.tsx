@@ -1,18 +1,16 @@
-import AppNavbar from '@/app/components/app-navbar'
-import type { Metadata } from 'next';
-import { appTitle } from '@/constants/app';
+import type { Metadata } from "next";
+import { appTitle } from "@/constants/app";
+import MainLayout from "../../components/MainLayout";
 
 export const metadata: Metadata = {
-  title: appTitle('Lab'),
-  description: 'Lab',
-}
+  title: appTitle("Lab"),
+  description: "Lab",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  return (<>
-    {children}
-  </>)
+  return <MainLayout>{children}</MainLayout>;
 }

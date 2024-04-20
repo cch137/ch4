@@ -29,7 +29,7 @@ export default function AppNavbarMenu() {
   const isAiChatPage = `${pathname}/`.startsWith(AICHAT_PATH);
 
   const userInfo = useUserInfo();
-  const { name: username, $inited, auth } = userInfo;
+  const { name: username, isPending, auth } = userInfo;
   const isSignedIn = auth > 0;
   const isLvl2 = auth >= 2;
   const isAdmin = auth >= 5;
@@ -63,7 +63,7 @@ export default function AppNavbarMenu() {
   return (
     <>
       <div className="flex-center gap-2 mr-1">
-        {$inited && !isSignedIn && !isSignInPage ? (
+        {!isPending && !isSignedIn && !isSignInPage ? (
           <Button
             as={Link}
             href={SIGNIN_PATHNAME}
@@ -89,7 +89,7 @@ export default function AppNavbarMenu() {
           Join
         </Button>
       </div>
-      {$inited && isSignedIn ? (
+      {!isPending && isSignedIn ? (
         <Avatar
           isBordered
           as="button"

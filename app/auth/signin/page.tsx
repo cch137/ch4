@@ -5,14 +5,14 @@ import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { StatusResponse } from "@/constants/types";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
-import { userInfoStore } from "@/hooks/useUserInfo";
 import toolUrlParams from "@/app/tools/toolUrlParams";
+import useUserInfo from "@/hooks/useUserInfo";
 
 export default function SignIn() {
   const variant = "underlined";
@@ -29,6 +29,8 @@ export default function SignIn() {
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
 
+  const { isPending, isLoggedIn, update: userUpdate } = useUserInfo();
+
   const post = async () => {
     setIsPosting(true);
     const res: StatusResponse = await (
@@ -37,26 +39,38 @@ export default function SignIn() {
         body: packData(form, 70614, 1),
       })
     ).json();
-    await userInfoStore.$update();
+    await userUpdate();
     if (res?.success) return redirectToNext();
     openErrorMessageBox(res?.message || "Failed to sign in");
     setIsPosting(false);
   };
 
+  const redirected = useRef(false);
+  useEffect(() => {
+    if (redirected.current) return;
+    if (isLoggedIn) {
+      redirected.current = true;
+      redirectToNext();
+      setIsPosting(undefined);
+    }
+  }, [isLoggedIn, redirectToNext, setIsPosting]);
+
+  if (isPending || isLoggedIn)
+    return (
+      <>
+        {errorMessageBox}
+        <FullpageSpinner />
+      </>
+    );
+
   return (
     <>
       {errorMessageBox}
-      <FullpageSpinner
-        callback={async () => {
-          if ((await userInfoStore.$init()).auth > 0)
-            redirectToNext(), setIsPosting(undefined);
-        }}
-      />
       <div
         className="w-full flex-center pb-16 absolute left-0 top-14"
         style={{
           height: "calc(100dvh - 3rem)",
-          visibility: isPosting === undefined ? "hidden" : "visible",
+          // visibility: isPosting === undefined ? "hidden" : "visible",
         }}
       >
         <div className="w-unit-80 max-w-full flex flex-col gap-4">

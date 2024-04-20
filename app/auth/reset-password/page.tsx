@@ -5,13 +5,13 @@ import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { StatusResponse } from "@/constants/types";
 import { useRouter } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
-import { userInfoStore } from "@/hooks/useUserInfo";
+import { useUserInfo } from "@/hooks/useUserInfo";
 import { PROFILE_PATHNAME, SIGNIN_PATHNAME } from "@/constants/app";
 
 export default function ResetPassword() {
@@ -31,6 +31,8 @@ export default function ResetPassword() {
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
 
+  const user = useUserInfo();
+
   const post = async () => {
     setIsPosting(true);
     const { success, message }: StatusResponse = await (
@@ -40,7 +42,7 @@ export default function ResetPassword() {
       })
     ).json();
     if (message) openErrorMessageBox(message);
-    if (success) return userInfoStore.$update(), redirectToDone();
+    if (success) return user.update(), redirectToDone();
     else if (!message) openErrorMessageBox();
     setIsPosting(false);
   };
@@ -66,16 +68,17 @@ export default function ResetPassword() {
     setTimeout(() => setResendCooling((r) => r - 1), 1000);
   }, [resendCooling]);
 
-  const [isSignedIn, setIsSignedIn] = useState(false);
+  if (user.isPending)
+    return (
+      <>
+        {errorMessageBox}
+        <FullpageSpinner />
+      </>
+    );
 
   return (
     <>
       {errorMessageBox}
-      <FullpageSpinner
-        callback={async () => {
-          if ((await userInfoStore.$init()).auth > 0) setIsSignedIn(true);
-        }}
-      />
       <div
         className="w-full flex-center pb-16 absolute left-0 top-14"
         style={{
@@ -163,7 +166,7 @@ export default function ResetPassword() {
           <div className="text-default-500 flex-center flex-col">
             <div>
               <span>Back to </span>
-              {isSignedIn ? (
+              {user.isLoggedIn ? (
                 <UiLink
                   href={PROFILE_PATHNAME}
                   color={color}

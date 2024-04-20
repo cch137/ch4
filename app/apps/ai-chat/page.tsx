@@ -113,20 +113,36 @@ export default function AiChatApp({
     };
   }, [router, currentConv, appPath]);
 
-  const { auth, $inited } = useUserInfo();
+  const { isPending, isLoggedIn } = useUserInfo();
 
-  return isHeadlessBrowser ? (
-    <div className="p-4">
-      <div>
-        Your browser does not support this page. Please use another browser.
+  if (isPending || !isReady) return <FullpageSpinner />;
+
+  if (!isLoggedIn)
+    return (
+      <SigninToContinue
+        nextPath={appPath}
+        title="AI Chat"
+        descriptions={[
+          "A simple AI chat app by @cch137.",
+          "Offers various models for free.",
+          "This is for everyone.",
+        ]}
+      />
+    );
+
+  if (isHeadlessBrowser)
+    return (
+      <div className="p-4">
+        <div>
+          Your browser does not support this page. Please use another browser.
+        </div>
+        <Link href="/" underline="hover">
+          Back to Home
+        </Link>
       </div>
-      <Link href="/" underline="hover">
-        Back to Home
-      </Link>
-    </div>
-  ) : !isReady || !$inited ? (
-    <FullpageSpinner />
-  ) : auth > 0 ? (
+    );
+
+  return (
     <>
       {errorMessageBox}
       <div
@@ -159,15 +175,5 @@ export default function AiChatApp({
         </div>
       </div>
     </>
-  ) : (
-    <SigninToContinue
-      nextPath={appPath}
-      title="AI Chat"
-      descriptions={[
-        "A simple AI chat app by @cch137.",
-        "Offers various models for free.",
-        "This is for everyone.",
-      ]}
-    />
   );
 }
