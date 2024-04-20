@@ -191,7 +191,7 @@ export default function MainLayout({
         <div
           className={`h-dvh flex-1 ${
             overflowYHidden ? "overflow-y-hidden" : "overflow-y-scroll"
-          } text-default-500 transition-all ease-out duration-500`}
+          } text-default-600 transition-all ease-out duration-500`}
           style={{
             width: `calc(100vw - ${sidebarWidth(sidebarOpen)}px)`,
           }}
