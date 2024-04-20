@@ -194,7 +194,7 @@ export default function TextUnlock() {
           if (!chapters.includes(chapter)) chapters.push(chapter);
           const sourceLink = `https://raw.githubusercontent.com/cch137/ggehc/main/${isbn}/${isbn}_${chapter}_${problem}.png`;
           const apiTraceLink = `${QUESTIONBASE_URL}${chapter}_${problem}?id=${ydiskId}&b=${isbn}`;
-          const viewLink = `/view/text-unlock/${packDataWithHash(
+          const viewLink = `/view/text-ans/${packDataWithHash(
             apiTraceLink.split("/").at(-1),
             "MD5",
             112
