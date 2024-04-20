@@ -36,13 +36,13 @@ export default function Laundry() {
   );
 
   useEffect(() => {
-    if (!inited.current) {
+    if (!inited.current && city) {
       inited.current = true;
       update();
     }
     const interval = setInterval(() => update(false), 60000);
     return () => clearInterval(interval);
-  }, [inited, update]);
+  }, [inited, city, update]);
 
   return (
     <div className="max-w-sm m-auto py-8 px-4">
