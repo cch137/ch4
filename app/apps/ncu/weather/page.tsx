@@ -16,31 +16,37 @@ export default function Laundry() {
   const [content, setContent] = useState("");
   const inited = useRef(false);
 
-  useEffect(() => {
-    if (auth > 3 && !city) setCity("中壢");
-  }, [auth, city, setCity]);
-
   const update = useCallback(
-    async (useLoading = true) => {
+    async (loc: string = city, useLoading = true) => {
+      setCity(city);
       if (useLoading) setIsLoading(true);
       try {
         const res = await fetch("https://api.cch137.link/weather-text", {
           method: "POST",
-          body: JSON.stringify({ loc: city }),
+          body: JSON.stringify({ loc }),
         });
         setContent(await res.text());
       } catch {}
       setIsLoading(false);
     },
-    [setIsLoading, setContent, city]
+    [setIsLoading, setContent, city, setCity]
   );
 
+  const autoLoad = useRef(false);
   useEffect(() => {
-    if (!inited.current && city) {
-      inited.current = true;
-      update();
+    if (autoLoad.current) return;
+    if (auth > 3 && !city) {
+      autoLoad.current = true;
+      update("中壢");
     }
-    const interval = setInterval(() => update(false), 60000);
+  }, [auth, city, update]);
+
+  useEffect(() => {
+    if (!inited.current) {
+      inited.current = true;
+      if (city) update();
+    }
+    const interval = setInterval(() => update(city, false), 60000);
     return () => clearInterval(interval);
   }, [inited, city, update]);
 
@@ -63,9 +69,9 @@ export default function Laundry() {
         <Input
           label="City"
           type="text"
-          defaultValue={city}
           variant="bordered"
-          onChange={(e) => setCity(e.target.value)}
+          value={city}
+          onValueChange={(v) => setCity(v)}
           size="sm"
         />
         <Button color="default" variant="flat" onClick={() => update()}>

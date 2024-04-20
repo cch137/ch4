@@ -5,7 +5,7 @@ import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { StatusResponse } from "@/constants/types";
@@ -22,10 +22,10 @@ export default function SignIn() {
   const [form, setForm] = useState({ user: "", pass: "" });
 
   const router = useRouter();
-  const redirectToNext = () => {
+  const redirectToNext = useCallback(() => {
     const path = toolUrlParams(location).get("next") || "/";
     return router.replace(path);
-  };
+  }, [router]);
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
 

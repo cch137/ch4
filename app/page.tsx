@@ -52,6 +52,7 @@ function LinkCard(item: LinkItem | { item: LinkItem }) {
             <div className="flex-center w-10 h-10">
               <Image
                 src={icon}
+                alt={title}
                 height={40}
                 width={40}
                 className={`${roundIcon ? "rounded-full" : ""} ${

@@ -7,7 +7,7 @@ import useUserInfo from "@/hooks/useUserInfo";
 import { unpackDataWithHash } from "@cch137/utils/shuttle";
 import { Image } from "@nextui-org/image";
 import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const parseLink = (id: string) => {
   try {
@@ -36,32 +36,32 @@ export default function TextUnlockView() {
   const blur = (!isFocus || isPressing) && !isMember;
   const notPressingTimeout = useRef<NodeJS.Timeout>();
 
-  const initTextUnlockView = () => {
+  const initTextUnlockView = useCallback(() => {
     if (!isLink) return;
     ttxRecord("text-ans-view", { link });
     ttxRecord("known-text-ans");
-  };
-  const detectIsFocus = () => {
+  }, [isLink, link, ttxRecord]);
+  const detectIsFocus = useCallback(() => {
     if (!isFocus) {
       setIsPressing(false);
       _setIsPressing(false);
     }
     const _isFocus = document.hasFocus();
     setIsFocus(_isFocus);
-  };
-  const setIsPressingT = () => {
+  }, [isFocus, _setIsPressing, setIsPressing, setIsFocus]);
+  const setIsPressingT = useCallback(() => {
     clearTimeout(notPressingTimeout.current);
     _setIsPressing(true);
     setIsPressing(true);
-  };
-  const setIsPressingF = () => {
+  }, [_setIsPressing, setIsPressing, notPressingTimeout]);
+  const setIsPressingF = useCallback(() => {
     _setIsPressing(false);
     setIsPressing(true);
     clearTimeout(notPressingTimeout.current);
     notPressingTimeout.current = setTimeout(() => {
       setIsPressing(false);
     }, 1000);
-  };
+  }, [_setIsPressing, setIsPressing, notPressingTimeout]);
 
   useEffect(() => {
     if (typeof isFocus === "undefined") detectIsFocus();

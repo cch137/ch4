@@ -30,7 +30,7 @@ function HomeLink() {
   return (
     <div className="flex">
       <Link href="/" className="flex gap-1">
-        <Image src="/favicon.ico" height={32} width={32} />
+        <Image src="/favicon.ico" alt="Favicon" height={32} width={32} />
         <h1 className="flex-center justify-start text-xl font-bold">
           {appName}
         </h1>

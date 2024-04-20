@@ -20,7 +20,7 @@ import {
   useDisclosure,
 } from "@nextui-org/modal";
 import Link from "next/link";
-import { createRef, useEffect, useRef, useState } from "react";
+import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import { IoCopyOutline, IoCreateOutline } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import type { StatusResponse } from "@/constants/types";
@@ -110,9 +110,14 @@ export default function Profile() {
   const color = "secondary";
 
   const router = useRouter();
-  const redirectToSignIn = () =>
-    router.replace(`${SIGNIN_PATHNAME}?next=${PROFILE_PATHNAME}`);
-  const goToResetPassword = () => router.push("/auth/reset-password");
+  const redirectToSignIn = useCallback(
+    () => router.replace(`${SIGNIN_PATHNAME}?next=${PROFILE_PATHNAME}`),
+    [router]
+  );
+  const goToResetPassword = useCallback(
+    () => router.push("/auth/reset-password"),
+    [router]
+  );
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
 

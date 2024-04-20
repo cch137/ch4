@@ -5,7 +5,7 @@ import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/fullpage-spiner";
 import { StatusResponse } from "@/constants/types";
@@ -27,8 +27,11 @@ export default function SignUp() {
   });
 
   const router = useRouter();
-  const redirectToHome = () => router.replace("/");
-  const redirectToDone = () => router.replace("/auth/signup/done");
+  const redirectToHome = useCallback(() => router.replace("/"), [router]);
+  const redirectToDone = useCallback(
+    () => router.replace("/auth/signup/done"),
+    [router]
+  );
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
 
