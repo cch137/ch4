@@ -251,9 +251,9 @@ export default function TextUnlock() {
   const computedPreview = (1 || isMember) && preview;
   const preventDefault = (e: any) => e.preventDefault();
 
-  return !ttxShow ? (
-    <>{ttxBlock ? <NotFound /> : null}</>
-  ) : (
+  if (!ttxShow) return ttxBlock ? <NotFound /> : <></>;
+
+  return (
     <>
       {errorMessageBox}
       {displayUrl ? (
@@ -301,21 +301,7 @@ export default function TextUnlock() {
         </div>
       ) : null}
       <div className="flex-center flex-col w-full">
-        <div
-          className={`${computedPreview ? "" : "max-w-2xl"} w-full py-8 px-4`}
-        >
-          <div className="mb-2">
-            <Button
-              as={Link}
-              href="/"
-              variant="light"
-              size="sm"
-              className="text-sm text-default-300"
-              isIconOnly
-            >
-              <IoChevronBackOutline className="text-lg" />
-            </Button>
-          </div>
+        <div className={`${computedPreview ? "" : "max-w-2xl"} w-full`}>
           <div className="flex-center w-full">
             <div className="flex-1 h-16">
               <div className="relative">
