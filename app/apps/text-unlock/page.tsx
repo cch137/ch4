@@ -65,7 +65,7 @@ interface Question extends RawQuestion {
 const maxPreviewChapter = Infinity;
 
 export default function TextUnlock() {
-  const color = "secondary";
+  const color = "default";
   const [questionsIsLoading, setQuestionsIsLoading] = useState(false);
   const [selectedBooknames, setSelectedBooknames] = useState<string[]>([]);
   const [booklist, setBooklist] = useState<Book[]>([]);
@@ -314,6 +314,9 @@ export default function TextUnlock() {
                       label="Book"
                       placeholder="Please select a book"
                       className="BookSelect"
+                      classNames={{
+                        value: "!text-default-500",
+                      }}
                       onChange={(e: ChangeEvent<HTMLSelectElement>) =>
                         selectBook(e.target.value)
                       }
@@ -325,6 +328,7 @@ export default function TextUnlock() {
                       {booklist.map((book) => (
                         <SelectItem
                           color={color}
+                          className="text-default-600"
                           variant="light"
                           key={book.name}
                           value={book.name}
@@ -362,7 +366,7 @@ export default function TextUnlock() {
                         chapters.length === selectedChapters.length || lock
                       }
                       isIconOnly
-                      className="text-2xl"
+                      className="text-2xl text-default-600"
                     >
                       <MdUnfoldMore />
                     </Button>
@@ -372,7 +376,7 @@ export default function TextUnlock() {
                       variant="light"
                       isDisabled={selectedChapters.length === 0 || lock}
                       isIconOnly
-                      className="text-2xl"
+                      className="text-2xl text-default-600"
                     >
                       <MdUnfoldLess />
                     </Button>
@@ -381,7 +385,7 @@ export default function TextUnlock() {
                       color={color}
                       variant={lock ? "flat" : "light"}
                       isIconOnly
-                      className="text-lg"
+                      className="text-lg text-default-600"
                     >
                       {lock ? <IoLockClosed /> : <IoLockOpen />}
                     </Button>
@@ -394,7 +398,7 @@ export default function TextUnlock() {
                       color={color}
                       variant="light"
                       isIconOnly
-                      className="text-lg"
+                      className="text-lg text-default-600"
                     >
                       {preview ? <IoEye /> : <IoEyeOff />}
                     </Button>
@@ -403,7 +407,7 @@ export default function TextUnlock() {
                       color={color}
                       variant="light"
                       isIconOnly
-                      className="text-2xl"
+                      className="text-2xl text-default-600"
                     >
                       {openAsViewLink ? <MdInsertPhoto /> : <MdInsertLink />}
                     </Button>
@@ -503,7 +507,7 @@ export default function TextUnlock() {
                                       onContextMenu={preventDefault}
                                       draggable="false"
                                     />
-                                    <div className="absolute bottom-0 left-0 py-1 z-10 w-full text-sm flex-center text-secondary-600 bg-opacity-75 bg-black">
+                                    <div className="absolute bottom-0 left-0 py-1 z-10 w-full text-sm flex-center text-default-600 bg-opacity-75 bg-black">
                                       <span>{problem}</span>
                                     </div>
                                   </Link>
@@ -511,7 +515,7 @@ export default function TextUnlock() {
                                   <UiLink
                                     href={viewLink}
                                     underline="hover"
-                                    color={color}
+                                    className="text-default-500"
                                     size="md"
                                     key={viewLink}
                                     draggable={true}
