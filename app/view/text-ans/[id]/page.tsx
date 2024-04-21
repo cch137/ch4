@@ -26,7 +26,7 @@ export default function TextUnlockView() {
   const link = parseLink(Array.isArray(params.id) ? params.id[0] : params.id);
   const isLink = typeof link === "string";
   const { auth } = useUserInfo();
-  const { ttxBlock, ttxShow, ttxRecord } = useTTX();
+  const { ttxBlock, ttxShow, ttxError, ttxRecord } = useTTX();
   const isMember = auth > 3;
   const title = isLink ? link.split("?")[0] : "Unknown";
   const url = `https://api.cch137.link/ls/i/${link}`;
@@ -85,7 +85,8 @@ export default function TextUnlockView() {
     setIsPressingF,
   ]);
 
-  if (ttxBlock || !isLink) return <NotFound />;
+  if (!isLink) return <NotFound />;
+  if (!isMember && !ttxError && ttxBlock) return <NotFound />;
 
   return (
     <div

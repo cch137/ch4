@@ -76,7 +76,7 @@ export default function TextUnlock() {
   const [preview, setPreview] = useState(false);
   const [openAsViewLink, setOpenAsViewLink] = useState(false);
   const [displayUrl, setDisplayUrl] = useState("");
-  const { ttxBlock, ttxShow } = useTTX();
+  const { ttxBlock, ttxShow, ttxError } = useTTX();
 
   const getSelectedBook = useCallback(
     () => booklist.find((book) => selectedBooknames[0] === book.name) || null,
@@ -251,7 +251,8 @@ export default function TextUnlock() {
   const computedPreview = (1 || isMember) && preview;
   const preventDefault = (e: any) => e.preventDefault();
 
-  if (!ttxShow) return ttxBlock ? <NotFound /> : <></>;
+  if (!isMember && !ttxError && !ttxShow)
+    return ttxBlock ? <NotFound /> : <></>;
 
   return (
     <>
@@ -411,6 +412,12 @@ export default function TextUnlock() {
                     >
                       {openAsViewLink ? <MdInsertPhoto /> : <MdInsertLink />}
                     </Button>
+                  </div>
+                ) : null}
+                {ttxError ? (
+                  <div className="text-danger-300 -my-2 text-center select-none">
+                    <span className="font-bold">Caution: </span>
+                    <span>TTX is not responding.</span>
                   </div>
                 ) : null}
                 <div>
