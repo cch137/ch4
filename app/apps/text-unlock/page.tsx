@@ -251,8 +251,10 @@ export default function TextUnlock() {
   const computedPreview = (1 || isMember) && preview;
   const preventDefault = (e: any) => e.preventDefault();
 
-  if (!isMember && !ttxError && !ttxShow)
-    return ttxBlock ? <NotFound /> : <></>;
+  if (!isMember && !ttxError) {
+    if (!ttxShow) return <></>;
+    if (ttxBlock) return <NotFound />;
+  }
 
   return (
     <>

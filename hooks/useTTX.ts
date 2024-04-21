@@ -27,11 +27,14 @@ export default function useTTX() {
   );
   const ttxExecBlock = useCallback(() => _ttxExecBlock(false), [_ttxExecBlock]);
   const ttxExecBlockR = useCallback(() => _ttxExecBlock(true), [_ttxExecBlock]);
-  const ttxExecUnblock = useCallback(
-    () => (setShow(true), setBlock(false), setError(false)),
-    [setShow, setBlock, setError]
-  );
-  const ttxOnError = useCallback(() => setError(true), [setError]);
+  const ttxExecUnblock = useCallback(() => {
+    setShow(true);
+    setBlock(false);
+    setError(false);
+  }, [setShow, setBlock, setError]);
+  const ttxOnError = useCallback(() => {
+    setError(true);
+  }, [setError]);
   const isHeadless = useIsHeadlessBrowser();
 
   useEffect(() => {
