@@ -1,21 +1,22 @@
 "use client";
 
 import { UserInfo, UserDetails, StatusResponse } from "@/constants/types";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useInit from "./useInit";
 import store from "@cch137/utils/dev/store";
 
+const userInfoAge = 60000;
+const userInfoLastFetched = store({ t: 0 });
 export const userInfoCache = store<UserInfo>({ id: "", name: "", auth: 0 });
 
-let fetchingUserInfo: Promise<any> | null = null;
-const fetchUserInfo = async () => {
-  const res =
-    fetchingUserInfo ||
-    (await fetch("/api/auth/user", { method: "POST" })).json();
-  if (fetchingUserInfo !== res) fetchingUserInfo = res;
-  const { value: user } = (await res) as StatusResponse<UserInfo>;
-  fetchingUserInfo = null;
+const fetchUserInfo = async (force = false) => {
+  if (!force && Date.now() - userInfoLastFetched.t < userInfoAge)
+    return userInfoCache.$object;
+  const res = await (await fetch("/api/auth/user", { method: "POST" })).json();
+  const { value: user } = res as StatusResponse<UserInfo>;
   if (!user) throw new Error("Failed to fetch user info");
+  userInfoLastFetched.t = Date.now();
+  userInfoCache.$assign(user);
   return user;
 };
 
@@ -25,28 +26,24 @@ const fetchUserDetails = async () => {
     fetchingUserDetails ||
     (await fetch("/api/auth/user/details", { method: "POST" })).json();
   if (fetchingUserDetails !== res) fetchingUserDetails = res;
-  const { value: user } = (await res) as StatusResponse<UserDetails>;
+  const { value: user = {} } = (await res) as StatusResponse<UserDetails>;
   fetchingUserDetails = null;
-  if (!user) throw new Error("Failed to fetch user details");
   return user;
 };
 
 export function useUserInfo() {
-  const lastFetched = useRef(0);
   const [user, setUser] = useState<UserInfo | undefined>(
     userInfoCache.auth ? userInfoCache : void 0
   );
   const auth = user?.auth || 0;
   const isLoggedIn = auth > 0;
   const update = async () => {
-    lastFetched.current = Date.now();
-    const user = await fetchUserInfo();
-    setUser(user);
-    if (user) userInfoCache.$assign(user);
+    setUser(await fetchUserInfo(true));
   };
   useInit(() => {
-    update();
-  }, [setUser, lastFetched]);
+    fetchUserInfo().then(setUser);
+  }, [setUser]);
+  useEffect(() => userInfoCache.$on(setUser), []);
   return {
     ...user,
     auth,
@@ -59,15 +56,13 @@ export function useUserInfo() {
 export default useUserInfo;
 
 export function useUserDetails() {
-  const lastFetched = useRef(0);
   const [user, setUser] = useState<UserDetails>();
   const update = async () => {
-    lastFetched.current = Date.now();
     setUser((await fetchUserDetails()) || {});
   };
   useInit(() => {
     update();
-  }, [setUser, lastFetched]);
+  }, [setUser]);
   return { ...user, update, isPending: user === undefined };
 }
 
