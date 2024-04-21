@@ -153,12 +153,7 @@ export default function Profile() {
     }
   }, [isPending, isLoggedIn, redirectToSignIn, setIsPostingUsername]);
 
-  return isPending || !isLoggedIn ? (
-    <>
-      {errorMessageBox}
-      <FullpageSpinner />
-    </>
-  ) : (
+  return (
     <>
       {errorMessageBox}
       <Modal
@@ -318,74 +313,81 @@ export default function Profile() {
           )}
         </ModalContent>
       </Modal>
-      <div
-        className="max-w-full flex flex-col px-2 m-auto"
-        style={{ width: 540, userSelect: isPostingUsername ? "none" : "auto" }}
-      >
-        <h1 className="text-3xl pt-8 pb-4 px-1 font-bold text-default-600">
-          Profile
-        </h1>
-        <div className="w-full pb-4 overflow-x-auto">
-          <table>
-            <tbody>
-              {(
-                [
-                  ["Username", name, true, true, editUsernameOnOpen],
-                  ["Email", eadd, true, true, editEmailOnOpen],
-                  ["Password", "********", true, false, goToResetPassword],
+      {isPending || !isLoggedIn ? (
+        <FullpageSpinner />
+      ) : (
+        <div
+          className="max-w-full flex flex-col px-2 m-auto"
+          style={{
+            width: 540,
+            userSelect: isPostingUsername ? "none" : "auto",
+          }}
+        >
+          <h1 className="text-3xl pt-8 pb-4 px-1 font-bold text-default-600">
+            Profile
+          </h1>
+          <div className="w-full pb-4 overflow-x-auto">
+            <table>
+              <tbody>
+                {(
                   [
-                    "Created",
-                    !ctms ? undefined : formatDate(new Date(ctms)),
-                    false,
-                    true,
-                    void 0,
-                  ],
-                  [
-                    "Modified",
-                    !mtms ? undefined : formatDate(new Date(mtms)),
-                    false,
-                    true,
-                    void 0,
-                  ],
-                  [
-                    "Accessed",
-                    !atms ? undefined : formatDate(new Date(atms)),
-                    false,
-                    true,
-                    void 0,
-                  ],
-                ] as [
-                  string,
-                  string | undefined,
-                  boolean,
-                  boolean,
-                  () => void | undefined
-                ][]
-              ).map(([name, value, editable, copiable, edit], i) => (
-                <ProfileTableRow
-                  key={i}
-                  name={name}
-                  value={value}
-                  editable={editable}
-                  copiable={copiable}
-                  edit={edit}
-                />
-              ))}
-            </tbody>
-          </table>
+                    ["Username", name, true, true, editUsernameOnOpen],
+                    ["Email", eadd, true, true, editEmailOnOpen],
+                    ["Password", "********", true, false, goToResetPassword],
+                    [
+                      "Created",
+                      !ctms ? undefined : formatDate(new Date(ctms)),
+                      false,
+                      true,
+                      void 0,
+                    ],
+                    [
+                      "Modified",
+                      !mtms ? undefined : formatDate(new Date(mtms)),
+                      false,
+                      true,
+                      void 0,
+                    ],
+                    [
+                      "Accessed",
+                      !atms ? undefined : formatDate(new Date(atms)),
+                      false,
+                      true,
+                      void 0,
+                    ],
+                  ] as [
+                    string,
+                    string | undefined,
+                    boolean,
+                    boolean,
+                    () => void | undefined
+                  ][]
+                ).map(([name, value, editable, copiable, edit], i) => (
+                  <ProfileTableRow
+                    key={i}
+                    name={name}
+                    value={value}
+                    editable={editable}
+                    copiable={copiable}
+                    edit={edit}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex mt-8">
+            <Button
+              variant="ghost"
+              className="min-w-unit-24"
+              color="danger"
+              as={Link}
+              href={SIGNOUT_PATHNAME}
+            >
+              Sign out
+            </Button>
+          </div>
         </div>
-        <div className="flex mt-8">
-          <Button
-            variant="ghost"
-            className="min-w-unit-24"
-            color="danger"
-            as={Link}
-            href={SIGNOUT_PATHNAME}
-          >
-            Sign out
-          </Button>
-        </div>
-      </div>
+      )}
     </>
   );
 }

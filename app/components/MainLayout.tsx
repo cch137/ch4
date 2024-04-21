@@ -13,8 +13,8 @@ import { SiDiscord } from "react-icons/si";
 import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
 import { Spacer } from "@nextui-org/spacer";
+import { Skeleton } from "@nextui-org/skeleton";
 
-import { sansFont } from "@/constants/font";
 import {
   appName,
   discordLink,
@@ -49,48 +49,45 @@ function LayoutNavbar({
   const { isPending, isLoggedIn, name: username } = useUserInfo();
   return (
     <div
-      className="sticky z-50 top-0 w-full bg-neutral-900 bg-opacity-50 backdrop-blur-sm border-y-1 border-solid border-neutral-900"
+      className="sticky z-50 top-0 w-full px-4 flex gap-2 items-center bg-neutral-900 bg-opacity-50 backdrop-blur-sm border-y-1 border-solid border-neutral-900"
       style={{ height: headerHeight }}
     >
-      <div className="flex h-full p-4 items-center justify-end">
-        <div className="flex-1 text-default-600">
-          {showHomeLink ? <HomeLink /> : null}
-        </div>
-        <div
-          className={`flex-center gap-2 ${
-            isPending ? "opacity-0 select-none" : ""
-          }`}
-        >
-          <Button
-            as={Link}
-            href={discordLink}
-            variant="flat"
-            isIconOnly
-            className="h-8 rounded-lg text-secondary-600"
-            target="_blank"
-            color="secondary"
-          >
-            <SiDiscord className="text-xl" />
-          </Button>
-          <Button
-            as={Link}
-            href={isLoggedIn ? PROFILE_PATHNAME : SIGNIN_PATHNAME}
-            variant="flat"
-            className="h-8 rounded-lg text-default-600 font-bold"
-            startContent={
-              <span>
-                {isLoggedIn ? (
-                  <MdAccountCircle className="text-xl" />
-                ) : (
-                  <MdLogin className="text-xl" />
-                )}
-              </span>
-            }
-          >
-            {isLoggedIn ? username : "Sign in"}
-          </Button>
-        </div>
+      <div className="flex-1 text-default-600">
+        {showHomeLink ? <HomeLink /> : null}
       </div>
+      <Button
+        as={Link}
+        href={discordLink}
+        variant="flat"
+        isIconOnly
+        className="h-8 rounded-lg text-secondary-600"
+        target="_blank"
+        color="secondary"
+      >
+        <SiDiscord className="text-xl" />
+      </Button>
+      <Button
+        as={Link}
+        href={isLoggedIn ? PROFILE_PATHNAME : SIGNIN_PATHNAME}
+        variant="flat"
+        className={`h-8 rounded-lg ${
+          isPending ? "px-4 text-opacity-0" : "text-default-600"
+        } font-bold`}
+        isDisabled={isPending}
+        startContent={
+          isPending ? null : isLoggedIn ? (
+            <MdAccountCircle className="text-xl" />
+          ) : (
+            <MdLogin className="text-xl" />
+          )
+        }
+      >
+        {isPending ? (
+          <Skeleton className="h-4 w-20 rounded" />
+        ) : (
+          `${isLoggedIn ? username : "Sign in"}`
+        )}
+      </Button>
     </div>
   );
 }
@@ -176,36 +173,31 @@ export default function MainLayout({
   const [_sidebarOpen, setSidebarOpen] = useState(true);
   const sidebarOpen = Boolean(sidebar && _sidebarOpen);
   return (
-    <div className={sansFont.className}>
-      <div className="w-full h-dvh flex bg-neutral-950 text-default-600">
-        {sidebar ? (
-          <LayoutSidebar
-            isOpen={sidebarOpen}
-            open={() => setTimeout(() => setSidebarOpen(true), 100)}
-            close={() => setTimeout(() => setSidebarOpen(false), 100)}
-            headerHeight={headerHeight}
-          >
-            {sidebar}
-          </LayoutSidebar>
-        ) : null}
-        <div
-          className={`h-dvh flex-1 ${
-            overflowYHidden ? "overflow-y-hidden" : "overflow-y-scroll"
-          } text-default-600 transition-all ease-out duration-500`}
-          style={{
-            width: `calc(100vw - ${sidebarWidth(sidebarOpen)}px)`,
-          }}
+    <div className="w-full h-dvh flex bg-neutral-950 text-default-600">
+      {sidebar ? (
+        <LayoutSidebar
+          isOpen={sidebarOpen}
+          open={() => setTimeout(() => setSidebarOpen(true), 100)}
+          close={() => setTimeout(() => setSidebarOpen(false), 100)}
+          headerHeight={headerHeight}
         >
-          <LayoutNavbar
-            showHomeLink={!sidebarOpen}
-            headerHeight={headerHeight}
-          />
-          <Spacer y={4} />
-          <div className="py-4 max-sm:py-2 px-8 max-md:px-6 max-sm:px-4">
-            {children}
-          </div>
-          <Spacer y={4} />
+          {sidebar}
+        </LayoutSidebar>
+      ) : null}
+      <div
+        className={`h-dvh flex-1 text-default-600 ${
+          overflowYHidden ? "overflow-y-hidden" : "overflow-y-scroll"
+        } transition-all ease-out duration-500`}
+        style={{
+          width: `calc(100vw - ${sidebarWidth(sidebarOpen)}px)`,
+        }}
+      >
+        <LayoutNavbar showHomeLink={!sidebarOpen} headerHeight={headerHeight} />
+        <Spacer y={4} />
+        <div className="py-4 max-sm:py-2 px-8 max-md:px-6 max-sm:px-4">
+          {children}
         </div>
+        <Spacer y={4} />
       </div>
     </div>
   );
