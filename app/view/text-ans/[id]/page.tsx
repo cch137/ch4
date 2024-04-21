@@ -86,7 +86,10 @@ export default function TextUnlockView() {
   ]);
 
   if (!isLink) return <NotFound />;
-  if (!isMember && !ttxError && ttxBlock) return <NotFound />;
+  if (!isMember && !ttxError) {
+    if (ttxBlock) return <NotFound />;
+    if (!ttxShow) return <></>;
+  }
 
   return (
     <div
@@ -96,18 +99,16 @@ export default function TextUnlockView() {
     >
       <title>{appTitle(title)}</title>
       <div className={`max-w-full ${isMember ? "" : "pointer-events-none"}`}>
-        {ttxShow ? (
-          <Image
-            alt={url}
-            src={url}
-            className={`rounded-none w-full select-none ${
-              isMember ? "" : "pointer-events-none"
-            } ${blur ? "blur" : ""}`}
-            classNames={{ wrapper: isMember ? "" : "pointer-events-none" }}
-            draggable="false"
-            style={{ width: 960 }}
-          />
-        ) : null}
+        <Image
+          alt={url}
+          src={url}
+          className={`rounded-none w-full select-none ${
+            isMember ? "" : "pointer-events-none"
+          } ${blur ? "blur" : ""}`}
+          classNames={{ wrapper: isMember ? "" : "pointer-events-none" }}
+          draggable="false"
+          style={{ width: 960 }}
+        />
       </div>
       {typeof isFocus !== "undefined" && blur ? (
         <div className="fixed top-0 m-auto h-screen z-50 flex-center select-none">
