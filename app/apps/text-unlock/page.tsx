@@ -39,6 +39,7 @@ import { packDataWithHash } from "@cch137/utils/shuttle";
 import useUserInfo from "@/hooks/useUserInfo";
 import useTTX from "@/hooks/useTTX";
 import NotFound from "@/app/not-found";
+import { STEPBYSTEP_PATHNAME } from "@/constants/apps/text-unlock";
 
 interface Book {
   name: string;
@@ -415,7 +416,17 @@ export default function TextUnlock() {
                       {openAsViewLink ? <MdInsertPhoto /> : <MdInsertLink />}
                     </Button>
                   </div>
-                ) : null}
+                ) : (
+                  <div className="pt-8 text-center">
+                    <UiLink
+                      className="text-default-400 text-xs border-b-2 border-solid border-current"
+                      as={Link}
+                      href={STEPBYSTEP_PATHNAME}
+                    >
+                      more textbooks (no caching)
+                    </UiLink>
+                  </div>
+                )}
                 {ttxError ? (
                   <div className="text-danger-300 -my-2 text-center select-none">
                     <span className="font-bold">Caution: </span>
