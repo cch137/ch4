@@ -1,12 +1,13 @@
 "use client";
 
+import useToggle from "@/hooks/useToggle";
 import { type ReactNode, useEffect, useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 
 export default function Collapsible({
   summary,
   children,
-  isOpen = false,
+  isOpen,
   close,
   open,
 }: {
@@ -16,28 +17,25 @@ export default function Collapsible({
   close?: () => any;
   open?: () => any;
 }) {
-  const [_isOpen, setIsOpen] = useState(isOpen);
-  useEffect(() => {
-    setIsOpen(isOpen);
-  }, [isOpen, setIsOpen]);
+  const hasIsOpenArgument = typeof isOpen === "boolean";
+  const [_isOpen, toggle] = useToggle(hasIsOpenArgument ? isOpen : false);
+  const computedIsOpen = hasIsOpenArgument ? isOpen : _isOpen;
   return (
     <div className="border-b-1 border-solid border-default-200 transition-all ease-soft-spring">
       <div
         className="flex-center h-9 w-full cursor-pointer"
-        onClick={
-          isOpen
-            ? close || (() => setIsOpen(false))
-            : open || (() => setIsOpen(true))
-        }
+        onClick={(computedIsOpen ? close : open) || toggle}
       >
         <div className="flex-1">{summary}</div>
         <MdKeyboardArrowDown
-          className={`${isOpen ? "" : "rotate-90"} transition ease-soft-spring`}
+          className={`${
+            computedIsOpen ? "" : "rotate-90"
+          } transition ease-soft-spring`}
         />
       </div>
       <div
         className={`grid w-full transition-all ease-soft-spring ${
-          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          computedIsOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
         }`}
       >
         <div className="overflow-hidden">{children}</div>

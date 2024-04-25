@@ -95,7 +95,7 @@ function ChapterSection({
   return (
     <Collapsible isOpen={isOpen} open={open} close={close} summary={chapter}>
       <div
-        className={`flex flex-wrap gap-2 pt-1 pb-4 transition-all ${
+        className={`flex flex-wrap gap-2 pt-1 pb-4 transition ${
           isOpen ? "" : "opacity-0"
         }`}
       >
