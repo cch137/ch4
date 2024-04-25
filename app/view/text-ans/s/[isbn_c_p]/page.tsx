@@ -82,6 +82,8 @@ export default function TextUnlockView() {
       if (ttxBlock) return <NotFound />;
       if (!ttxShow) return <></>;
     }
+  } else {
+    if (ttxBlock) return <NotFound />;
   }
 
   return (
