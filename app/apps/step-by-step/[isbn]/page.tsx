@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
-import { createRef, useCallback, useEffect, useState } from "react";
+import { createRef, useCallback, useEffect, useRef, useState } from "react";
 
 import { Skeleton } from "@nextui-org/skeleton";
 import { Spacer } from "@nextui-org/spacer";
@@ -50,9 +50,23 @@ function ChapterSection({
 }) {
   const sectionRef = createRef<HTMLDivElement>();
   const [sectionHeight, setSectionHeight] = useState(0);
+  const [_renderSection, setRenderSection] = useState(false);
+  const renderSection = isOpen || _renderSection;
   useEffect(() => {
     setSectionHeight(sectionRef.current?.clientHeight || 0);
   }, [sectionRef, setSectionHeight]);
+  const closeRenderSection = useRef<NodeJS.Timeout>();
+  useEffect(() => {
+    if (isOpen) {
+      setRenderSection(true);
+      clearTimeout(closeRenderSection.current);
+    } else {
+      closeRenderSection.current = setTimeout(
+        () => setRenderSection(false),
+        1000
+      );
+    }
+  }, [isOpen, setRenderSection]);
   return (
     <div className="border-b-1 border-solid border-default-200">
       <div>
@@ -66,33 +80,40 @@ function ChapterSection({
           />
         </div>
       </div>
-      <div
-        className={`transition-all ease-in-out overflow-hidden ${
-          isOpen ? "" : "!h-0 opacity-0"
-        }`}
-        style={{ height: sectionHeight }}
-      >
-        <div className="flex flex-wrap gap-2 pt-1 pb-2" ref={sectionRef}>
-          {problems
-            .map(({ isbn_c_p, link }, i) => {
-              const [_isbn, _c, p] = isbn_c_p.split("_");
-              return { isbn_c_p, p, link };
-            })
-            .sort((a, b) => toNumber(a.p) - toNumber(b.p))
-            .map(({ isbn_c_p, p, link }, i) => (
-              <Link
-                key={i}
-                href={viewProblemPathname(isbn_c_p, encodeURIComponent(link))}
-                target="_blank"
-                className="text-sm text-default-500"
-                prefetch={false}
-              >
-                {p}
-              </Link>
-            ))}
-        </div>
-      </div>
-      <Spacer y={isOpen ? 4 : 0} className="transition-height" />
+      {!renderSection ? null : (
+        <>
+          <div
+            className={`transition-all ease-in-out overflow-hidden ${
+              isOpen ? "" : "!h-0 opacity-0"
+            }`}
+            style={{ height: sectionHeight }}
+          >
+            <div className="flex flex-wrap gap-2 pt-1 pb-2" ref={sectionRef}>
+              {problems
+                .map(({ isbn_c_p, link }, i) => {
+                  const [_isbn, _c, p] = isbn_c_p.split("_");
+                  return { isbn_c_p, p, link };
+                })
+                .sort((a, b) => toNumber(a.p) - toNumber(b.p))
+                .map(({ isbn_c_p, p, link }, i) => (
+                  <Link
+                    key={i}
+                    href={viewProblemPathname(
+                      isbn_c_p,
+                      encodeURIComponent(link)
+                    )}
+                    target="_blank"
+                    className="text-sm text-default-500 border-b-2 border-solid border-transparent hover:border-current transition"
+                    prefetch={false}
+                  >
+                    {p}
+                  </Link>
+                ))}
+            </div>
+          </div>
+          <Spacer y={isOpen ? 4 : 0} className="transition-height" />
+        </>
+      )}
     </div>
   );
 }
