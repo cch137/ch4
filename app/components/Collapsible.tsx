@@ -24,7 +24,7 @@ export default function Collapsible({
     <div className="border-b-1 border-solid border-default-200 transition-all ease-soft-spring">
       <div>
         <div
-          className="flex-center h-9 w-full text-medium cursor-pointer"
+          className="flex-center h-9 w-full cursor-pointer"
           onClick={
             isOpen
               ? close || (() => setIsOpen(false))
