@@ -85,6 +85,7 @@ function ChapterSection({
                 href={viewProblemPathname(isbn_c_p, encodeURIComponent(link))}
                 target="_blank"
                 className="text-sm text-default-500"
+                prefetch={false}
               >
                 {p}
               </Link>

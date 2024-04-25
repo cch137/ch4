@@ -66,6 +66,7 @@ export default function StepByStep() {
           className="text-default-400 text-xs border-b-2 border-solid border-current -translate-y-2"
           as={Link}
           href={TEXTUNLOCK_PATHNAME}
+          prefetch={false}
         >
           cached textbooks
         </UiLink>
