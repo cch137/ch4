@@ -37,7 +37,7 @@ export default function TextUnlockView() {
   }, [setLink, params]);
 
   useEffect(() => {
-    if (isLink) location.href = link;
+    if (isLink) location.assign(link);
   }, [isLink, url]);
 
   return (

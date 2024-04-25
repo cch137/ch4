@@ -95,6 +95,7 @@ export default function StepByStep() {
             variant="light"
             href={textUnlockBookPathname(b.isbn)}
             title={b.name}
+            prefetch={false}
           >
             {b.name}
           </Button>

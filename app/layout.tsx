@@ -7,7 +7,8 @@ import { sansFont, css } from "@/constants/font";
 
 export const metadata: Metadata = {
   title: appTitle(),
-  description: "A website that integrates many useful tools.",
+  description: "A humble yet intricate corner of the internet.",
+  referrer: "no-referrer",
   // openGraph: {
   //   title: `${appName}`,
   //   description: 'A website that integrates many useful tools.',
