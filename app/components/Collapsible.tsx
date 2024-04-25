@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 
 export default function Collapsible({
@@ -22,22 +22,18 @@ export default function Collapsible({
   }, [isOpen, setIsOpen]);
   return (
     <div className="border-b-1 border-solid border-default-200 transition-all ease-soft-spring">
-      <div>
-        <div
-          className="flex-center h-9 w-full cursor-pointer"
-          onClick={
-            isOpen
-              ? close || (() => setIsOpen(false))
-              : open || (() => setIsOpen(true))
-          }
-        >
-          <div className="flex-1">{summary}</div>
-          <MdKeyboardArrowDown
-            className={`${
-              isOpen ? "" : "rotate-90"
-            } transition ease-soft-spring`}
-          />
-        </div>
+      <div
+        className="flex-center h-9 w-full cursor-pointer"
+        onClick={
+          isOpen
+            ? close || (() => setIsOpen(false))
+            : open || (() => setIsOpen(true))
+        }
+      >
+        <div className="flex-1">{summary}</div>
+        <MdKeyboardArrowDown
+          className={`${isOpen ? "" : "rotate-90"} transition ease-soft-spring`}
+        />
       </div>
       <div
         className={`grid w-full transition-all ease-soft-spring ${
