@@ -12,7 +12,6 @@ import {
 import { SiDiscord } from "react-icons/si";
 import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
-import { Spacer } from "@nextui-org/spacer";
 import { Skeleton } from "@nextui-org/skeleton";
 
 import {
@@ -193,11 +192,12 @@ export default function MainLayout({
         }}
       >
         <LayoutNavbar showHomeLink={!sidebarOpen} headerHeight={headerHeight} />
-        <Spacer y={4} />
-        <div className="py-4 max-sm:py-2 px-8 max-md:px-6 max-sm:px-4">
+        <div
+          className="relative py-8 max-sm:py-2 px-8 max-md:px-6 max-sm:px-4"
+          style={{ minHeight: `calc(100dvh - ${headerHeight}px)` }}
+        >
           {children}
         </div>
-        <Spacer y={4} />
       </div>
     </div>
   );

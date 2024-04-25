@@ -2,7 +2,14 @@
 
 import Link from "next/link";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
-import { createRef, useCallback, useEffect, useRef, useState } from "react";
+import {
+  type ReactNode,
+  createRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { Skeleton } from "@nextui-org/skeleton";
 import { Spacer } from "@nextui-org/spacer";
@@ -12,15 +19,18 @@ import {
   MdKeyboardArrowDown,
   MdUnfoldLess,
   MdUnfoldMore,
+  MdVisibility,
+  MdVisibilityOff,
 } from "react-icons/md";
 
 import {
   getQueryJSONUrl,
-  STEPBYSTEP_PATHNAME,
-  viewProblemPathname,
+  TEXTUNLOCK_PATHNAME,
+  getProblemLinks,
 } from "@/constants/apps/text-unlock";
 import useInit from "@/hooks/useInit";
 import { appTitle } from "@/constants/app";
+import { Image } from "@nextui-org/react";
 
 interface Problem {
   isbn_c_p: string;
@@ -38,12 +48,16 @@ const toNumber = (s: string) =>
 function ChapterSection({
   chapter,
   problems,
+  isCached,
+  openPreview,
   isOpen,
   open,
   close,
 }: {
   chapter: string;
   problems: Problem[];
+  isCached: boolean;
+  openPreview: boolean;
   isOpen: boolean;
   open: () => void;
   close: () => void;
@@ -84,7 +98,7 @@ function ChapterSection({
         <>
           <div
             className={`transition-all ease-in-out overflow-hidden ${
-              isOpen ? "" : "!h-0 opacity-0"
+              isOpen ? "pb-4" : "!h-0 opacity-0"
             }`}
             style={{ height: sectionHeight }}
           >
@@ -95,25 +109,74 @@ function ChapterSection({
                   return { isbn_c_p, p, link };
                 })
                 .sort((a, b) => toNumber(a.p) - toNumber(b.p))
-                .map(({ isbn_c_p, p, link }, i) => (
-                  <Link
-                    key={i}
-                    href={viewProblemPathname(
-                      isbn_c_p,
-                      encodeURIComponent(link)
-                    )}
-                    target="_blank"
-                    className="text-sm text-default-500 border-b-2 border-solid border-transparent hover:border-current transition"
-                    prefetch={false}
-                  >
-                    {p}
-                  </Link>
-                ))}
+                .map(({ isbn_c_p, p, link }, i) => {
+                  const { view, preview } = getProblemLinks(
+                    isbn_c_p,
+                    encodeURIComponent(link),
+                    isCached
+                  );
+                  return openPreview ? (
+                    <Link
+                      key={i}
+                      href={view}
+                      target="_blank"
+                      className="relative select-none text-sm text-default-500 border-transparent transition"
+                      prefetch={false}
+                    >
+                      <Image
+                        width={160}
+                        alt={p}
+                        src={preview}
+                        style={{
+                          height: 120,
+                          objectPosition: "top",
+                          objectFit: "cover",
+                        }}
+                        className="pointer-events-none select-none"
+                        onContextMenu={(e) => e.preventDefault()}
+                        draggable="false"
+                      />
+                      <div className="absolute bottom-0 left-0 py-1 z-10 w-full text-sm flex-center text-default-600 bg-opacity-75 bg-black">
+                        <span>{p}</span>
+                      </div>
+                    </Link>
+                  ) : (
+                    <Link
+                      key={i}
+                      href={view}
+                      target="_blank"
+                      className="text-sm text-default-500 border-b-2 border-solid border-transparent hover:border-current transition"
+                      prefetch={false}
+                    >
+                      {p}
+                    </Link>
+                  );
+                })}
             </div>
           </div>
-          <Spacer y={isOpen ? 4 : 0} className="transition-height" />
         </>
       )}
+    </div>
+  );
+}
+
+function ActionButton({
+  onClick,
+  isDisabled = false,
+  children,
+}: {
+  onClick?: () => void;
+  isDisabled?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={`flex-center size-8 rounded-lg hover:bg-default-100 bg-transparent transition cursor-pointer ${
+        isDisabled ? "opacity-50 pointer-events-none" : ""
+      }`}
+      onClick={isDisabled ? void 0 : onClick}
+    >
+      {children}
     </div>
   );
 }
@@ -126,7 +189,10 @@ export default function TextUnlockBook() {
     ? params.isbn[0]
     : params.isbn;
   const [bookname, setBookname] = useState("");
-  const [isbn, seIsbn] = useState("");
+  const [isbn, setIsbn] = useState("");
+  const [isCached, setIsCached] = useState(false);
+  const [_openPreview, setOpenPreview] = useState(false);
+  const openPreview = _openPreview && isCached;
   const [chapters, setChapters] = useState<string[]>([]);
   const [problems, setProblems] = useState<{ [chapter: string]: Problem[] }>(
     {}
@@ -140,17 +206,18 @@ export default function TextUnlockBook() {
     const controller = new AbortController();
     fetch(getQueryJSONUrl(`books/${_isbn}/book`), { signal: controller.signal })
       .then(async (res) => {
-        const { isbn, name, chapters } = await res.json();
-        seIsbn(isbn || "Unknown");
+        const { isbn, name, chapters, cached } = await res.json();
+        setIsbn(isbn || "Unknown");
         setBookname(name || "Unknown");
         setChapters(
           ((chapters || []) as string[]).sort((a, b) => Number(a) - Number(b))
         );
+        setIsCached(Boolean(cached));
       })
       .catch(() => {
         controller.abort();
         setError(true);
-        seIsbn("Unknown");
+        setIsbn("Unknown");
         setBookname("Unknown");
       });
     fetch(getQueryJSONUrl(`books/${_isbn}/problems`), {
@@ -168,20 +235,27 @@ export default function TextUnlockBook() {
       });
   }, [
     bookname,
-    seIsbn,
+    setIsbn,
     setBookname,
     setChapters,
     setProblems,
+    setIsCached,
     setError,
     setChaptersLoaded,
   ]);
 
+  const chaptersParamName = "c";
+  const openPreviewParamName = "p";
+
   const createQueryString = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
-    if (selectedChapters.length) params.set("c", selectedChapters.join("_"));
-    else params.delete("c");
+    if (selectedChapters.length)
+      params.set(chaptersParamName, selectedChapters.join("_"));
+    else params.delete(chaptersParamName);
+    if (openPreview) params.set(openPreviewParamName, "1");
+    else params.delete(openPreviewParamName);
     return params.toString();
-  }, [searchParams, selectedChapters]);
+  }, [searchParams, selectedChapters, openPreview]);
 
   useEffect(() => {
     const query = createQueryString();
@@ -194,28 +268,31 @@ export default function TextUnlockBook() {
 
   useEffect(() => {
     if (searchParamsLoaded) return;
-    const chapters = (searchParams.get("c") || "").split("_");
+    const chapters = (searchParams.get(chaptersParamName) || "").split("_");
+    const openPreview = searchParams.has(openPreviewParamName);
     if (chapters.length === 0) return;
     setSearchParamsLoaded(true);
     setSelectedChapters(chapters.filter((i) => i));
+    setOpenPreview(openPreview);
   }, [
     searchParams,
     searchParamsLoaded,
     setSearchParamsLoaded,
     setSelectedChapters,
+    setOpenPreview,
   ]);
 
   return (
     <div
-      className={`m-auto max-w-screen-md transition ${
-        chaptersLoaded ? "" : "opacity-50"
+      className={`m-auto transition ${chaptersLoaded ? "" : "opacity-50"} ${
+        openPreview ? "w-full" : "max-w-screen-md"
       }`}
     >
       <Button
         variant="light"
         size="sm"
         as={Link}
-        href={STEPBYSTEP_PATHNAME}
+        href={TEXTUNLOCK_PATHNAME}
         className="text-default-300 h-7 pl-2 -translate-y-2"
         startContent={<MdChevronLeft className="text-xl -mr-1" />}
       >
@@ -243,24 +320,27 @@ export default function TextUnlockBook() {
       </h1>
       {chaptersLoaded || chapters.length ? (
         <div className="flex gap-2">
-          <Button
-            isIconOnly
-            variant="light"
-            size="sm"
+          <ActionButton
             onClick={() => setSelectedChapters(chapters)}
             isDisabled={selectedChapters.length === chapters.length}
           >
             <MdUnfoldMore className="text-xl" />
-          </Button>
-          <Button
-            isIconOnly
-            variant="light"
-            size="sm"
+          </ActionButton>
+          <ActionButton
             onClick={() => setSelectedChapters([])}
             isDisabled={selectedChapters.length === 0}
           >
             <MdUnfoldLess className="text-xl" />
-          </Button>
+          </ActionButton>
+          {!isCached ? null : (
+            <ActionButton onClick={() => setOpenPreview((i) => !i)}>
+              {openPreview ? (
+                <MdVisibility className="text-xl" />
+              ) : (
+                <MdVisibilityOff className="text-xl" />
+              )}
+            </ActionButton>
+          )}
         </div>
       ) : (
         <div className="flex flex-col gap-3 pt-8">
@@ -275,6 +355,8 @@ export default function TextUnlockBook() {
           key={i}
           chapter={c}
           problems={problems[c] || []}
+          isCached={isCached}
+          openPreview={openPreview}
           isOpen={selectedChapters.includes(c)}
           open={() => setSelectedChapters((l) => [...l, c].sort())}
           close={() => setSelectedChapters((l) => l.filter((i) => i !== c))}

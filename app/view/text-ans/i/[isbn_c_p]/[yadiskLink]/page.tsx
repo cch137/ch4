@@ -4,27 +4,25 @@ import useInit from "@/hooks/useInit";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const parseLink = (id: string) => {
+const parseLink = async (id: string) => {
   try {
-    const xhr = new XMLHttpRequest();
     const metadataUrl = `https://cloud-api.yandex.net/v1/disk/public/resources?public_key=${decodeURIComponent(
       id
     )}`;
-    xhr.open("GET", metadataUrl, false);
-    xhr.send();
-    const res = JSON.parse(xhr.responseText).sizes.find(
+    const { url } = (await (await fetch(metadataUrl)).json()).sizes.find(
       (s: any) => s.name === "ORIGINAL"
     );
-    const resourceUrl = res.url;
-    if (!resourceUrl) throw new Error("Not Found");
-    return resourceUrl;
-  } catch {
-    return null;
-  }
+    if (!url) throw new Error("Not Found");
+    return url;
+  } catch {}
+  return null;
 };
 
 export default function TextUnlockView() {
   const params = useParams();
+  const yadiskLink = Array.isArray(params.yadiskLink)
+    ? params.yadiskLink[0]
+    : params.yadiskLink;
   const isbn_c_p = Array.isArray(params.isbn_c_p)
     ? params.isbn_c_p[0]
     : params.isbn_c_p;
@@ -35,7 +33,7 @@ export default function TextUnlockView() {
   const url = link || "";
 
   useInit(() => {
-    setLink(parseLink(Array.isArray(params.id) ? params.id[0] : params.id));
+    parseLink(yadiskLink).then(setLink);
   }, [setLink, params]);
 
   useEffect(() => {

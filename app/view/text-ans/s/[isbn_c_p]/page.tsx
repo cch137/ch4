@@ -2,36 +2,27 @@
 
 import NotFound from "@/app/not-found";
 import { appTitle } from "@/constants/app";
+import { getStaticLink } from "@/constants/apps/text-unlock";
 import useTTX from "@/hooks/useTTX";
 import useUserInfo from "@/hooks/useUserInfo";
-import { unpackDataWithHash } from "@cch137/utils/shuttle";
 import { Image } from "@nextui-org/image";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const secure = false;
 
-const parseLink = (id: string) => {
-  try {
-    return unpackDataWithHash(
-      id.replace(/-/g, "+").replace(/_/g, "/"),
-      "MD5",
-      112
-    );
-  } catch {
-    return null;
-  }
-};
-
 export default function TextUnlockView() {
   const params = useParams();
-  const link = parseLink(Array.isArray(params.id) ? params.id[0] : params.id);
-  const isLink = typeof link === "string";
+  const isbn_c_p = Array.isArray(params.isbn_c_p)
+    ? params.isbn_c_p[0]
+    : params.isbn_c_p;
+  const [isbn, chapter, problem] = isbn_c_p.split("_");
+  const title = isbn_c_p ? `${chapter}_${problem}_${isbn}` : "Unknown";
+  const link = getStaticLink(isbn_c_p);
+  const url = link || "";
   const { auth } = useUserInfo();
   const { ttxBlock, ttxShow, ttxError, ttxRecord } = useTTX();
   const isMember = auth > 3;
-  const title = isLink ? link.split("?")[0] : "Unknown";
-  const url = `https://api.cch137.link/ls/i/${link}`;
   const [isFocus, setIsFocus] = useState<boolean>();
   const [isPressing, setIsPressing] = useState(false);
   const [_isPressing, _setIsPressing] = useState(false);
@@ -39,10 +30,9 @@ export default function TextUnlockView() {
   const notPressingTimeout = useRef<NodeJS.Timeout>();
 
   const initTextUnlockView = useCallback(() => {
-    if (!isLink) return;
     ttxRecord("text-ans-view", { link });
     ttxRecord("known-text-ans");
-  }, [isLink, link, ttxRecord]);
+  }, [link, ttxRecord]);
   const detectIsFocus = useCallback(() => {
     if (!isFocus) {
       setIsPressing(false);
@@ -87,7 +77,6 @@ export default function TextUnlockView() {
     setIsPressingF,
   ]);
 
-  if (!isLink) return <NotFound />;
   if (secure) {
     if (!isMember && !ttxError) {
       if (ttxBlock) return <NotFound />;
@@ -104,7 +93,7 @@ export default function TextUnlockView() {
       <title>{appTitle(title)}</title>
       <div className={`max-w-full ${isMember ? "" : "pointer-events-none"}`}>
         <Image
-          alt={url}
+          alt={title}
           src={url}
           className={`rounded-none w-full select-none ${
             isMember ? "" : "pointer-events-none"

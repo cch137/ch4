@@ -100,7 +100,7 @@ const apps: LinkItem[] = [
   },
   {
     title: "Text Unlock",
-    description: "數本舊教科書的答案",
+    description: "Textbook solutions",
     link: "/apps/text-unlock",
     icon: "/assets/icons/text-unlock.jpg",
   },
