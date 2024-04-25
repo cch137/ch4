@@ -1,8 +1,8 @@
 "use client";
 
-import useToggle from "@/hooks/useToggle";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
+import useToggle from "@/hooks/useToggle";
 
 export default function Collapsible({
   summary,
