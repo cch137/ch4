@@ -31,18 +31,10 @@ import { appTitle } from "@/constants/app";
 import { Image } from "@nextui-org/image";
 import { IoMdClose } from "react-icons/io";
 
-interface Problem {
+type Problem = {
   isbn_c_p: string;
   link: string;
-}
-
-const toNumber = (s: string) =>
-  Number(
-    s
-      .split("")
-      .filter((i) => "1234567890".includes(i))
-      .join("")
-  );
+};
 
 function ChapterSection({
   chapter,
@@ -65,6 +57,32 @@ function ChapterSection({
   const [sectionHeight, setSectionHeight] = useState(0);
   const [_renderSection, setRenderSection] = useState(false);
   const renderSection = isOpen || _renderSection;
+  const sortedProblems = problems
+    .map(({ isbn_c_p, link }) => ({
+      isbn_c_p,
+      p: isbn_c_p.split("_").at(-1)!,
+      link,
+    }))
+    .map((item) => {
+      const numeric = Number(
+        item.p
+          .split("")
+          .filter((i) => "1234567890".includes(i))
+          .join("")
+      );
+      const alphabetic = item.p
+        .split("")
+        .filter((i) => !"1234567890".includes(i))
+        .join("");
+      return { item, numeric, alphabetic };
+    })
+    .sort((a, b) => a.numeric - b.numeric)
+    // .sort((a, b) => {
+    //   if (a.alphabetic > b.alphabetic) return 1;
+    //   if (a.alphabetic < b.alphabetic) return -1;
+    //   return 0;
+    // })
+    .map(({ item: { p, isbn_c_p, link } }) => ({ p, isbn_c_p, link }));
   useEffect(() => {
     setSectionHeight(sectionRef.current?.clientHeight || 0);
   }, [sectionRef, setSectionHeight]);
@@ -97,60 +115,54 @@ function ChapterSection({
         <>
           <div
             className={`transition-all ease-in-out overflow-hidden ${
-              isOpen ? "pb-4" : "!h-0 opacity-0"
+              isOpen ? "" : "!h-0 opacity-0"
             }`}
             style={{ height: sectionHeight }}
           >
-            <div className="flex flex-wrap gap-2 pt-1 pb-2" ref={sectionRef}>
-              {problems
-                .map(({ isbn_c_p, link }, i) => {
-                  const [_isbn, _c, p] = isbn_c_p.split("_");
-                  return { isbn_c_p, p, link };
-                })
-                .sort((a, b) => toNumber(a.p) - toNumber(b.p))
-                .map(({ isbn_c_p, p, link }, i) => {
-                  const { view, preview } = getProblemLinks(
-                    isbn_c_p,
-                    encodeURIComponent(link),
-                    isCached
-                  );
-                  return openPreview ? (
-                    <Link
-                      key={i}
-                      href={view}
-                      target="_blank"
-                      className="relative select-none text-sm text-default-500 border-transparent transition"
-                      prefetch={false}
-                    >
-                      <Image
-                        width={160}
-                        alt={p}
-                        src={preview}
-                        style={{
-                          height: 120,
-                          objectPosition: "top",
-                          objectFit: "cover",
-                        }}
-                        className="pointer-events-none select-none"
-                        onContextMenu={(e) => e.preventDefault()}
-                        draggable="false"
-                      />
-                      <div className="absolute bottom-0 left-0 py-1 z-10 w-full text-sm flex-center text-default-600 bg-opacity-75 bg-black">
-                        <span>{p}</span>
-                      </div>
-                    </Link>
-                  ) : (
-                    <Link
-                      key={i}
-                      href={view}
-                      target="_blank"
-                      className="text-sm text-default-500 border-b-2 border-solid border-transparent hover:border-current transition"
-                      prefetch={false}
-                    >
-                      {p}
-                    </Link>
-                  );
-                })}
+            <div className="flex flex-wrap gap-2 pt-1 pb-4" ref={sectionRef}>
+              {sortedProblems.map(({ isbn_c_p, p, link }, i) => {
+                const { view, preview } = getProblemLinks(
+                  isbn_c_p,
+                  encodeURIComponent(link),
+                  isCached
+                );
+                return openPreview ? (
+                  <Link
+                    key={i}
+                    href={view}
+                    target="_blank"
+                    className="relative select-none text-sm text-default-500 border-transparent transition"
+                    prefetch={false}
+                  >
+                    <Image
+                      width={160}
+                      alt={p}
+                      src={preview}
+                      style={{
+                        height: 120,
+                        objectPosition: "top",
+                        objectFit: "cover",
+                      }}
+                      className="pointer-events-none select-none"
+                      onContextMenu={(e) => e.preventDefault()}
+                      draggable="false"
+                    />
+                    <div className="absolute bottom-0 left-0 py-1 z-10 w-full text-sm flex-center text-default-600 bg-opacity-75 bg-black">
+                      <span>{p}</span>
+                    </div>
+                  </Link>
+                ) : (
+                  <Link
+                    key={i}
+                    href={view}
+                    target="_blank"
+                    className="text-sm text-default-500 border-b-2 border-solid border-transparent hover:border-current transition"
+                    prefetch={false}
+                  >
+                    {p}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </>
