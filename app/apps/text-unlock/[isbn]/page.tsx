@@ -31,6 +31,11 @@ import {
 import useInit from "@/hooks/useInit";
 import { appTitle } from "@/constants/app";
 import { Image } from "@nextui-org/react";
+import {
+  IoMdClose,
+  IoMdCloseCircle,
+  IoMdCloseCircleOutline,
+} from "react-icons/io";
 
 interface Problem {
   isbn_c_p: string;
@@ -288,36 +293,35 @@ export default function TextUnlockBook() {
         openPreview ? "w-full" : "max-w-screen-md"
       }`}
     >
-      <Button
-        variant="light"
-        size="sm"
-        as={Link}
-        href={TEXTUNLOCK_PATHNAME}
-        className="text-default-300 h-7 pl-2 -translate-y-2"
-        startContent={<MdChevronLeft className="text-xl -mr-1" />}
-      >
-        Back
-      </Button>
       {!error ? null : (
         <div className="pb-4 text-danger-400">Oops! Something went wrong.</div>
       )}
-      <div className="text-sm text-default-300">
-        {isbn ? (
-          `ISBN: ${isbn}`
-        ) : (
-          <Skeleton className="h-4 mb-1 w-32 rounded" />
-        )}
+      <div className="flex gap-2">
+        <div className="flex-1">
+          <div className="text-sm text-default-300">
+            {isbn ? (
+              `ISBN: ${isbn}`
+            ) : (
+              <Skeleton className="h-4 mb-1 w-32 rounded" />
+            )}
+          </div>
+          <h1 className="text-xl text-default-600 pb-1">
+            {bookname ? (
+              <>
+                <title>{appTitle(`${bookname}`)}</title>
+                {bookname}
+              </>
+            ) : (
+              <Skeleton className="h-8 w-full rounded" />
+            )}
+          </h1>
+        </div>
+        <Link href={TEXTUNLOCK_PATHNAME} className="mt-2 h-max rounded-lg">
+          <ActionButton>
+            <IoMdClose className="text-default-400 text-xl" />
+          </ActionButton>
+        </Link>
       </div>
-      <h1 className="text-xl text-default-600 pb-1">
-        {bookname ? (
-          <>
-            <title>{appTitle(`${bookname}`)}</title>
-            {bookname}
-          </>
-        ) : (
-          <Skeleton className="h-8 w-full rounded" />
-        )}
-      </h1>
       {chaptersLoaded || chapters.length ? (
         <div className="flex gap-2">
           <ActionButton
