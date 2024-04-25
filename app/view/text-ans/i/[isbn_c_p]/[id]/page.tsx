@@ -19,7 +19,7 @@ const parseLink = (id: string) => {
     xhr.send();
     const resourceUrl = JSON.parse(xhr.responseText).href;
     if (!resourceUrl) throw new Error("Not Found");
-    return resourceUrl;
+    return `https://api.cch137.link/proxy/${encodeURIComponent(resourceUrl)}`;
   } catch {
     return null;
   }
@@ -120,6 +120,7 @@ export default function TextUnlockView() {
         <Image
           alt={url}
           src={url}
+          crossOrigin="anonymous"
           className={`rounded-none w-full select-none ${
             isMember ? "" : "pointer-events-none"
           } ${blur ? "blur" : ""}`}
