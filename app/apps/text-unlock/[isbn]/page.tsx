@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useParams, usePathname, useSearchParams } from "next/navigation";
 import {
   type ReactNode,
-  createRef,
   useCallback,
   useEffect,
   useRef,
@@ -14,7 +13,6 @@ import {
 import { Skeleton } from "@nextui-org/skeleton";
 import { Spacer } from "@nextui-org/spacer";
 import {
-  MdKeyboardArrowDown,
   MdUnfoldLess,
   MdUnfoldMore,
   MdVisibility,
@@ -30,6 +28,7 @@ import useInit from "@/hooks/useInit";
 import { appTitle } from "@/constants/app";
 import { Image } from "@nextui-org/image";
 import { IoMdClose } from "react-icons/io";
+import Collapsible from "@/app/components/Collapsible";
 
 type Problem = {
   isbn_c_p: string;
@@ -53,8 +52,6 @@ function ChapterSection({
   open: () => void;
   close: () => void;
 }) {
-  const sectionRef = createRef<HTMLDivElement>();
-  const [sectionHeight, setSectionHeight] = useState(0);
   const [_renderSection, setRenderSection] = useState(false);
   const renderSection = isOpen || _renderSection;
   const sortedProblems = problems
@@ -83,9 +80,6 @@ function ChapterSection({
     //   return 0;
     // })
     .map(({ item: { p, isbn_c_p, link } }) => ({ p, isbn_c_p, link }));
-  useEffect(() => {
-    setSectionHeight(sectionRef.current?.clientHeight || 0);
-  }, [sectionRef, setSectionHeight]);
   const closeRenderSection = useRef<NodeJS.Timeout>();
   useEffect(() => {
     if (isOpen) {
@@ -99,75 +93,59 @@ function ChapterSection({
     }
   }, [isOpen, setRenderSection]);
   return (
-    <div className="border-b-1 border-solid border-default-200">
-      <div>
-        <div
-          className="flex-center h-9 w-full text-medium cursor-pointer"
-          onClick={isOpen ? close : open}
-        >
-          <div className="flex-1">{chapter}</div>
-          <MdKeyboardArrowDown
-            className={`${isOpen ? "" : "rotate-90"} transition`}
-          />
-        </div>
+    <Collapsible isOpen={isOpen} open={open} close={close} summary={chapter}>
+      <div
+        className={`flex flex-wrap gap-2 pt-1 pb-4 transition-all ${
+          isOpen ? "" : "opacity-0"
+        }`}
+      >
+        {!renderSection
+          ? null
+          : sortedProblems.map(({ isbn_c_p, p, link }, i) => {
+              const { view, preview } = getProblemLinks(
+                isbn_c_p,
+                encodeURIComponent(link),
+                isCached
+              );
+              return openPreview ? (
+                <Link
+                  key={i}
+                  href={view}
+                  target="_blank"
+                  className="relative select-none text-sm text-default-500 border-transparent transition"
+                  prefetch={false}
+                >
+                  <Image
+                    width={160}
+                    alt={p}
+                    src={preview}
+                    style={{
+                      height: 120,
+                      objectPosition: "top",
+                      objectFit: "cover",
+                    }}
+                    className="pointer-events-none select-none"
+                    onContextMenu={(e) => e.preventDefault()}
+                    draggable="false"
+                  />
+                  <div className="absolute bottom-0 left-0 py-1 z-10 w-full text-sm flex-center text-default-600 bg-opacity-75 bg-black">
+                    <span>{p}</span>
+                  </div>
+                </Link>
+              ) : (
+                <Link
+                  key={i}
+                  href={view}
+                  target="_blank"
+                  className="text-sm text-default-500 border-b-2 border-solid border-transparent hover:border-current transition"
+                  prefetch={false}
+                >
+                  {p}
+                </Link>
+              );
+            })}
       </div>
-      {!renderSection ? null : (
-        <>
-          <div
-            className={`transition-all ease-in-out overflow-hidden ${
-              isOpen ? "" : "!h-0 opacity-0"
-            }`}
-            style={{ height: sectionHeight }}
-          >
-            <div className="flex flex-wrap gap-2 pt-1 pb-4" ref={sectionRef}>
-              {sortedProblems.map(({ isbn_c_p, p, link }, i) => {
-                const { view, preview } = getProblemLinks(
-                  isbn_c_p,
-                  encodeURIComponent(link),
-                  isCached
-                );
-                return openPreview ? (
-                  <Link
-                    key={i}
-                    href={view}
-                    target="_blank"
-                    className="relative select-none text-sm text-default-500 border-transparent transition"
-                    prefetch={false}
-                  >
-                    <Image
-                      width={160}
-                      alt={p}
-                      src={preview}
-                      style={{
-                        height: 120,
-                        objectPosition: "top",
-                        objectFit: "cover",
-                      }}
-                      className="pointer-events-none select-none"
-                      onContextMenu={(e) => e.preventDefault()}
-                      draggable="false"
-                    />
-                    <div className="absolute bottom-0 left-0 py-1 z-10 w-full text-sm flex-center text-default-600 bg-opacity-75 bg-black">
-                      <span>{p}</span>
-                    </div>
-                  </Link>
-                ) : (
-                  <Link
-                    key={i}
-                    href={view}
-                    target="_blank"
-                    className="text-sm text-default-500 border-b-2 border-solid border-transparent hover:border-current transition"
-                    prefetch={false}
-                  >
-                    {p}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
+    </Collapsible>
   );
 }
 
