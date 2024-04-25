@@ -13,9 +13,7 @@ import {
 
 import { Skeleton } from "@nextui-org/skeleton";
 import { Spacer } from "@nextui-org/spacer";
-import { Button } from "@nextui-org/button";
 import {
-  MdChevronLeft,
   MdKeyboardArrowDown,
   MdUnfoldLess,
   MdUnfoldMore,
@@ -30,12 +28,8 @@ import {
 } from "@/constants/apps/text-unlock";
 import useInit from "@/hooks/useInit";
 import { appTitle } from "@/constants/app";
-import { Image } from "@nextui-org/react";
-import {
-  IoMdClose,
-  IoMdCloseCircle,
-  IoMdCloseCircleOutline,
-} from "react-icons/io";
+import { Image } from "@nextui-org/image";
+import { IoMdClose } from "react-icons/io";
 
 interface Problem {
   isbn_c_p: string;

@@ -30,7 +30,6 @@ export default function TextUnlockView() {
   const [link, setLink] = useState<string | null>();
   const isLink = typeof link === "string";
   const title = isbn_c_p ? `${chapter}_${problem}_${isbn}` : "Unknown";
-  const url = link || "";
 
   useInit(() => {
     parseLink(yadiskLink).then(setLink);
@@ -38,7 +37,7 @@ export default function TextUnlockView() {
 
   useEffect(() => {
     if (isLink) location.assign(link);
-  }, [isLink, url]);
+  }, [isLink, link]);
 
   return (
     <>
