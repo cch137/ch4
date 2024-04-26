@@ -66,7 +66,7 @@ export default function Sidebar({
       style={{
         width: isSmallScreen ? "100dvw" : `${SIDEBAR_WIDTH}px`,
         height: "calc(100dvh - 3rem)",
-        top: "3rem",
+        top: 0,
         left: isSmallScreen
           ? `${isSidebarOpen ? 0 : -100}dvw`
           : `${sidebarWidth - SIDEBAR_WIDTH}px`,

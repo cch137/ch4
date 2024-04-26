@@ -145,11 +145,7 @@ export default function AiChatApp({
   return (
     <>
       {errorMessageBox}
-      <div
-        id="aichat"
-        className="absolute top-0 left-0"
-        style={{ width: "100dvw", height: "100dvh" }}
-      >
+      <div id="aichat" className="absolute top-0 left-0 h-dvh w-dvw">
         <div className="overflow-hidden" style={{ maxWidth: "100dvw" }}>
           <Sidebar
             appPath={appPath}
@@ -163,7 +159,6 @@ export default function AiChatApp({
         <div
           className="chat-content"
           style={{
-            top: "3rem",
             right: 0,
             width: isSmallScreen
               ? "100dvw"
