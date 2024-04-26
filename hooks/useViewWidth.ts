@@ -3,14 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 
 export default function useViewWidth() {
-  const [viewWidth, setInnerWidth] = useState(0);
+  const [viewWidth, setInnerWidth] = useState<number>();
 
   const updateWidth = useCallback(() => {
-    if (typeof window === "undefined") return;
     setInnerWidth(window.innerWidth);
   }, [setInnerWidth]);
 
   useEffect(() => {
+    updateWidth();
     window.addEventListener("resize", updateWidth);
     window.addEventListener("focus", updateWidth);
     return () => {
@@ -23,16 +23,16 @@ export default function useViewWidth() {
 }
 
 export function useWindowWidth() {
-  const [innerWidth, setInnerWidth] = useState(0);
-  const [outerWidth, setOuterWidth] = useState(0);
+  const [innerWidth, setInnerWidth] = useState<number>();
+  const [outerWidth, setOuterWidth] = useState<number>();
 
   const updateWidth = useCallback(() => {
-    if (typeof window === "undefined") return;
     setInnerWidth(window.innerWidth);
     setOuterWidth(window.innerWidth);
   }, [setInnerWidth, setOuterWidth]);
 
   useEffect(() => {
+    updateWidth();
     window.addEventListener("resize", updateWidth);
     window.addEventListener("focus", updateWidth);
     return () => {

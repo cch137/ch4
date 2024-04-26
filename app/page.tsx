@@ -28,51 +28,44 @@ function LinkCard(item: LinkItem | { item: LinkItem }) {
   } = "item" in item ? item.item : item;
   const isExternal = /^(\/\/|http:\/\/|https:\/\/|file:\/\/)/.test(link);
   return (
-    <div
-      className="flex justify-start items-start
-    xl:w-32 lg:w-32 md:w-32 sm:w-24
-    xl:max-w-[18%] lg:max-w-[24%] md:max-w-[32%] sm:max-w-[40%]
-    xl:flex-[18%] lg:flex-[24%] md:flex-[32%] sm:flex-[40%]"
+    <Tooltip
+      placement="bottom"
+      showArrow
+      title={title}
+      content={description || title}
+      classNames={{
+        content: "text-default-600",
+      }}
     >
-      <Tooltip
-        placement="bottom"
-        showArrow
-        title={title}
-        content={description || title}
-        classNames={{
-          content: "text-default-600",
-        }}
+      <Link
+        href={link}
+        target={isExternal ? "_blank" : void 0}
+        className="block group w-full h-[72px] py-4 px-3 rounded-md flex-auto bg-neutral-900 text-default-500 hover:text-default-600 transition ease-in-out hover:-translate-y-1"
       >
-        <Link
-          href={link}
-          target={isExternal ? "_blank" : void 0}
-          className="block group w-full h-[72px] py-4 px-3 rounded-md flex-auto bg-neutral-900 text-default-500 hover:text-default-600 transition ease-in-out hover:-translate-y-1"
-        >
-          <div className="flex-center gap-2 flex-1">
-            <div className="flex-center w-10 h-10">
-              <Image
-                src={icon}
-                alt={title}
-                height={40}
-                width={40}
-                className={`${roundIcon ? "rounded-full" : ""} ${
-                  whiteBg ? "bg-white" : ""
-                }`}
-              />
-            </div>
-            <div className="flex-1 overflow-hidden flex flex-col">
-              <div className="text-md font-bold truncate">{title}</div>
-              <div className="text-xs text-default-400 truncate">
-                {description || title}
-              </div>
-            </div>
-            <div className="text-default-300 text-sm border-1 border-solid border-current rounded-full transition group-hover:brightness-125 group-hover:shadow-[0_0_3px_var(--tw-shadow-color)] group-hover:shadow-default-300">
-              <MdKeyboardArrowRight />
+        <div className="flex-center gap-2 flex-1">
+          <div className="flex-center w-10 h-10">
+            <Image
+              src={icon}
+              alt={title}
+              height={40}
+              width={40}
+              className={`${roundIcon ? "rounded-full" : ""} ${
+                whiteBg ? "bg-white" : ""
+              }`}
+            />
+          </div>
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <div className="text-md font-bold truncate">{title}</div>
+            <div className="text-xs text-default-400 truncate">
+              {description || title}
             </div>
           </div>
-        </Link>
-      </Tooltip>
-    </div>
+          <div className="text-default-300 text-sm border-1 border-solid border-current rounded-full transition group-hover:brightness-125 group-hover:shadow-[0_0_3px_var(--tw-shadow-color)] group-hover:shadow-default-300">
+            <MdKeyboardArrowRight />
+          </div>
+        </div>
+      </Link>
+    </Tooltip>
   );
 }
 
@@ -205,30 +198,27 @@ const otherTools: LinkItem[] = [
   // },
 ];
 
-export default function Cyberpunk() {
+function LinkGroup({ title, links }: { title: string; links: LinkItem[] }) {
+  return (
+    <>
+      <h1 className="font-bold text-xl pl-2">{title}</h1>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] -mx-2 pt-1 pb-5">
+        {links.map((link, i) => (
+          <div key={i} className="p-2">
+            {link ? <LinkCard key={i} item={link} /> : null}
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+export default function Homepage() {
   return (
     <MainLayout>
-      <h1 className="font-bold text-xl pl-2">本站應用</h1>
-      <div className="flex flex-wrap py-3 gap-4">
-        {apps.map((l, i) => (
-          <LinkCard item={l} key={i} />
-        ))}
-      </div>
-      <Spacer y={4} />
-      <h1 className="font-bold text-xl pl-2">AI 應用</h1>
-      <div className="flex flex-wrap py-3 gap-4">
-        {aiApps.map((l, i) => (
-          <LinkCard item={l} key={i} />
-        ))}
-      </div>
-      <Spacer y={4} />
-      <h1 className="font-bold text-xl pl-2">其他工具</h1>
-      <div className="flex flex-wrap py-3 gap-4">
-        {otherTools.map((l, i) => (
-          <LinkCard item={l} key={i} />
-        ))}
-      </div>
-      <Spacer y={4} />
+      <LinkGroup title="本站應用" links={apps} />
+      <LinkGroup title="AI 應用" links={aiApps} />
+      <LinkGroup title="其他工具" links={otherTools} />
       <Spacer y={16} />
     </MainLayout>
   );
