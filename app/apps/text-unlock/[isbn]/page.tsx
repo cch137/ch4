@@ -29,6 +29,7 @@ import { appTitle } from "@/constants/app";
 import { Image } from "@nextui-org/image";
 import { IoMdClose } from "react-icons/io";
 import Collapsible from "@/app/components/Collapsible";
+import useTTXSecure from "@/hooks/useTTXSecure";
 
 type Problem = {
   isbn_c_p: string;
@@ -92,6 +93,10 @@ function ChapterSection({
       );
     }
   }, [isOpen, setRenderSection]);
+
+  const { ttxBlock } = useTTXSecure();
+  if (ttxBlock) return <></>;
+
   return (
     <Collapsible isOpen={isOpen} open={open} close={close} summary={chapter}>
       <div
