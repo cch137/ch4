@@ -33,7 +33,7 @@ function _NotFound() {
         <>
           <title>{title}</title>
           <div className="fixed max-w-[480px] px-4 w-full text-default-600 z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div>The page you're looking for has been moved.</div>
+            <div>{"The page you're looking for has been moved."}</div>
             <div>Please use the following link:</div>
             <div className="flex justify-start items-center gap-4 text-default-600 py-4">
               <Button
