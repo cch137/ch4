@@ -32,7 +32,7 @@ const getRedirectLink = (pathname: string, origin: string = "") => {
 function _NotFound({ redirectTo }: { redirectTo?: string }) {
   const origin = useOrigin();
   const pathname = usePathname();
-  const redirectLink = redirectTo || getRedirectLink(pathname);
+  const redirectLink = redirectTo || getRedirectLink(pathname, origin);
   const [copied, copyText] = useCopyText(redirectLink || "");
   if (redirectLink) {
     return (
