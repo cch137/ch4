@@ -37,7 +37,7 @@ function _NotFound({ redirectTo }: { redirectTo?: string }) {
   if (redirectLink) {
     return (
       <>
-        <title>{title}</title>
+        <title>Redirecting...</title>
         <div className="fixed max-w-[480px] px-4 w-full text-default-600 z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
           <div>{"The page you're looking for has been moved."}</div>
           <div>Please use the following link:</div>
