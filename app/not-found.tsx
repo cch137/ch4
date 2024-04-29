@@ -19,54 +19,59 @@ export const metadata: Metadata = {
   description,
 };
 
-function _NotFound() {
-  const origin = useOrigin();
-  const pathname = usePathname();
-  const link = `${origin}/apps/text-unlock`;
-  const [copied, copyText] = useCopyText(link);
+const getRedirectLink = (pathname: string, origin: string = "") => {
   switch (pathname) {
-    // old stuff redirect
     case "/apps/ncu/text-ans":
     case "/apps/ncu/harimau":
     case "/tools/ls": {
-      return (
-        <>
-          <title>{title}</title>
-          <div className="fixed max-w-[480px] px-4 w-full text-default-600 z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div>{"The page you're looking for has been moved."}</div>
-            <div>Please use the following link:</div>
-            <div className="flex justify-start items-center gap-4 text-default-600 py-4">
-              <Button
-                as={Link}
-                href={link}
-                variant="flat"
-                isLoading={!Boolean(origin)}
-              >
-                {link}
-              </Button>
-              <Button
-                variant="light"
-                isIconOnly
-                onClick={copyText}
-                as={copied ? Link : void 0}
-                href={copied ? link : void 0}
-                color={copied ? "success" : "default"}
-                className={`${
-                  copied ? "text-success-500" : ""
-                } text-lg text-current`}
-                isDisabled={!Boolean(origin)}
-              >
-                {copied ? (
-                  <MdCheck className="text-success-500" />
-                ) : (
-                  <MdContentCopy />
-                )}
-              </Button>
-            </div>
-          </div>
-        </>
-      );
+      return `${origin}/apps/text-unlock`;
     }
+  }
+};
+
+function _NotFound({ redirectTo }: { redirectTo?: string }) {
+  const origin = useOrigin();
+  const pathname = usePathname();
+  const redirectLink = redirectTo || getRedirectLink(pathname);
+  const [copied, copyText] = useCopyText(redirectLink || "");
+  if (redirectLink) {
+    return (
+      <>
+        <title>{title}</title>
+        <div className="fixed max-w-[480px] px-4 w-full text-default-600 z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div>{"The page you're looking for has been moved."}</div>
+          <div>Please use the following link:</div>
+          <div className="flex justify-start items-center gap-4 text-default-600 py-4">
+            <Button
+              as={Link}
+              href={redirectLink}
+              variant="flat"
+              isLoading={!Boolean(origin)}
+            >
+              {redirectLink}
+            </Button>
+            <Button
+              variant="light"
+              isIconOnly
+              onClick={copyText}
+              as={copied ? Link : void 0}
+              href={copied ? redirectLink : void 0}
+              color={copied ? "success" : "default"}
+              className={`${
+                copied ? "text-success-500" : ""
+              } text-lg text-current`}
+              isDisabled={!Boolean(origin)}
+            >
+              {copied ? (
+                <MdCheck className="text-success-500" />
+              ) : (
+                <MdContentCopy />
+              )}
+            </Button>
+          </div>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -90,10 +95,10 @@ function _NotFound() {
   );
 }
 
-export default function NotFound() {
+export default function NotFound({ redirectTo }: { redirectTo?: string }) {
   return (
     <Suspense>
-      <_NotFound />
+      <_NotFound redirectTo={redirectTo} />
     </Suspense>
   );
 }

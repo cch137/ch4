@@ -22,13 +22,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "if((location.origin==='https://ch4.cch137.link'||location.origin==='https://x.cch137.link')&&location.pathname!=='/view/redirect')location=`/view/redirect?to=${decodeURIComponent(location.pathname+(location.search?'?'+location.search:''))}`",
+          }}
+          suppressHydrationWarning
+        />
+        <script async src="/t3b.js" />
+      </head>
       <body className={sansFont.className} suppressHydrationWarning>
         <style
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: css }}
         />
         {children}
-        <script async src="/t3b.js"></script>
       </body>
     </html>
   );
