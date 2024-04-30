@@ -5,12 +5,15 @@ export const appTitle = (...title: string[]) =>
   title.length ? `${title.join(" ")} | ${appName}` : appName;
 
 export const CONTENT_MAX_W = 765;
+
 export const SIGNIN_PATHNAME = "/auth/signin";
 export const SIGNUP_PATHNAME = "/auth/signup";
-export const SIGNUPDONE_PATHNAME = "/auth/signup/done";
 export const SIGNOUT_PATHNAME = "/auth/signout";
 export const RESETPW_PATHNAME = "/auth/reset-password";
+
+export const SIGNUPDONE_PATHNAME = "/auth/signup/done";
 export const RESETPWDONE_PATHNAME = "/auth/reset-password/done";
+
 export const PROFILE_PATHNAME = "/profile";
 
 const withNext = (pathname: string, next?: string | null) =>
