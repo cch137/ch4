@@ -17,7 +17,7 @@ export const RESETPWDONE_PATHNAME = "/auth/reset-password/done";
 export const PROFILE_PATHNAME = "/profile";
 
 const withNext = (pathname: string, next?: string | null) =>
-  `${pathname}/?next=${next || "/"}`;
+  `${pathname}/?next=${next === pathname ? "/" : next || "/"}`;
 export const signInHrefWithNext = (next?: string | null) =>
   withNext(SIGNIN_PATHNAME, next);
 export const signUpHrefWithNext = (next?: string | null) =>
