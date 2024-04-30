@@ -1,8 +1,9 @@
 import { Button } from "@nextui-org/button";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function ResetPasswordDone() {
+function _ResetPasswordDone() {
   const color = "secondary";
   const search = useSearchParams();
   const next = search.get("next");
@@ -23,5 +24,13 @@ export default function ResetPasswordDone() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function ResetPasswordDone() {
+  return (
+    <Suspense>
+      <_ResetPasswordDone />
+    </Suspense>
   );
 }

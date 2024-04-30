@@ -3,8 +3,9 @@
 import FullpageSpinner from "@/app/components/FullpageSpinner";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function SignOut() {
+function _SignOut() {
   const user = useUserInfo();
   const search = useSearchParams();
   const next = search.get("next");
@@ -22,5 +23,13 @@ export default function SignOut() {
       }}
       delay={1000}
     />
+  );
+}
+
+export default function SignOut() {
+  return (
+    <Suspense>
+      <_SignOut />
+    </Suspense>
   );
 }

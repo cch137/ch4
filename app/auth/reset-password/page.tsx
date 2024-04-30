@@ -5,7 +5,7 @@ import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/FullpageSpinner";
 import { StatusResponse } from "@/constants/types";
@@ -18,7 +18,7 @@ import {
   signInHrefWithNext,
 } from "@/constants/app";
 
-export default function ResetPassword() {
+function _ResetPassword() {
   const variant = "underlined";
   const color = "secondary";
   const [pwIsVisible, setPwIsVisible] = useState(false);
@@ -195,5 +195,13 @@ export default function ResetPassword() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function ResetPassword() {
+  return (
+    <Suspense>
+      <_ResetPassword />
+    </Suspense>
   );
 }

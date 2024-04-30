@@ -5,7 +5,7 @@ import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 import FullpageSpinner from "@/app/components/FullpageSpinner";
 import { StatusResponse } from "@/constants/types";
@@ -14,7 +14,7 @@ import useErrorMessage from "@/hooks/useErrorMessage";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { signInHrefWithNext, SIGNUPDONE_PATHNAME } from "@/constants/app";
 
-export default function SignUp() {
+function _SignUp() {
   const variant = "underlined";
   const color = "secondary";
   const [pwIsVisible, setPwIsVisible] = useState(false);
@@ -203,5 +203,13 @@ export default function SignUp() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function SignUp() {
+  return (
+    <Suspense>
+      <_SignUp />
+    </Suspense>
   );
 }
