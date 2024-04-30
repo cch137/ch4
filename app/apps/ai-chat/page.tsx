@@ -4,7 +4,7 @@ import "./chat.css";
 import { useEffect, useRef, useState } from "react";
 import { AICHAT_PATH, AICHAT_SHORTPATH, SIDEBAR_WIDTH } from "@/constants/chat";
 import { Link } from "@nextui-org/link";
-import FullpageSpinner from "@/app/components/fullpage-spiner";
+import FullpageSpinner from "@/app/components/FullpageSpinner";
 import { useParams } from "next/navigation";
 
 import Sidebar from "./components/sidebar";
@@ -13,7 +13,7 @@ import useErrorMessage from "@/hooks/useErrorMessage";
 import { useRouter } from "next/navigation";
 import { appTitle } from "@/constants/app";
 import useUserInfo from "@/hooks/useUserInfo";
-import SigninToContinue from "../../components/signin-to-continue";
+import SigninToContinue from "../../components/SignInToContinue";
 import { useAiChatPage, errorBroadcaster, loadConv } from "@/hooks/useAiChat";
 import useIsHeadlessBrowser from "@/hooks/useIsHeadlessBrowser";
 import useIsSmallScreen from "@/hooks/useIsSmallScreen";

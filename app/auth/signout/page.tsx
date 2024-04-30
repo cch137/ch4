@@ -1,13 +1,16 @@
 "use client";
 
-import FullpageSpinner from "@/app/components/fullpage-spiner";
+import FullpageSpinner from "@/app/components/FullpageSpinner";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import { useSearchParams } from "next/navigation";
 
 export default function SignOut() {
   const user = useUserInfo();
+  const search = useSearchParams();
+  const next = search.get("next");
   return (
     <FullpageSpinner
-      redirectTo="/"
+      redirectTo={next || "/"}
       label="Signing out..."
       callback={async () => {
         try {

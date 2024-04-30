@@ -18,10 +18,11 @@ import {
   appName,
   discordLink,
   PROFILE_PATHNAME,
-  SIGNIN_PATHNAME,
+  signInHrefWithNext,
 } from "@/constants/app";
 import useIsHover from "@/hooks/useIsHover";
 import useUserInfo from "@/hooks/useUserInfo";
+import { usePathname } from "next/navigation";
 
 const sidebarWidth = (isOpen: boolean) => (isOpen ? 256 : 48);
 
@@ -46,6 +47,7 @@ function LayoutNavbar({
   headerHeight?: number;
 }) {
   const { isPending, isLoggedIn, name: username } = useUserInfo();
+  const pathname = usePathname();
   return (
     <div
       className="sticky z-50 top-0 w-full px-4 flex gap-2 items-center bg-neutral-900 bg-opacity-50 backdrop-blur-sm border-y-1 border-solid border-neutral-900"
@@ -67,7 +69,7 @@ function LayoutNavbar({
       </Button>
       <Button
         as={Link}
-        href={isLoggedIn ? PROFILE_PATHNAME : SIGNIN_PATHNAME}
+        href={isLoggedIn ? PROFILE_PATHNAME : signInHrefWithNext(pathname)}
         variant="flat"
         className={`h-8 rounded-lg ${
           isPending ? "px-4 text-opacity-0" : "text-default-600"

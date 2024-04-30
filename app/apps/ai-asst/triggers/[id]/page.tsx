@@ -47,9 +47,9 @@ import {
   updateTrigger,
 } from "@/hooks/useAiTriggers";
 import useUserInfo from "@/hooks/useUserInfo";
-import SigninToContinue from "@/app/components/signin-to-continue";
+import SigninToContinue from "@/app/components/SignInToContinue";
 import useConfirm from "@/hooks/useConfirm";
-import FullpageSpinner from "@/app/components/fullpage-spiner";
+import FullpageSpinner from "@/app/components/FullpageSpinner";
 
 type PluginObjectDisplay = PluginObject & {
   isNew?: boolean;

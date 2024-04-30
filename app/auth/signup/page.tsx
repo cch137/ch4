@@ -7,12 +7,12 @@ import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
-import FullpageSpinner from "@/app/components/fullpage-spiner";
+import FullpageSpinner from "@/app/components/FullpageSpinner";
 import { StatusResponse } from "@/constants/types";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import { useUserInfo } from "@/hooks/useUserInfo";
-import { SIGNIN_PATHNAME } from "@/constants/app";
+import { signInHrefWithNext, SIGNUPDONE_PATHNAME } from "@/constants/app";
 
 export default function SignUp() {
   const variant = "underlined";
@@ -27,9 +27,11 @@ export default function SignUp() {
   });
 
   const router = useRouter();
+  const search = useSearchParams();
+  const next = search.get("next");
   const redirectToHome = useCallback(() => router.replace("/"), [router]);
   const redirectToDone = useCallback(
-    () => router.replace("/auth/signup/done"),
+    () => router.replace(SIGNUPDONE_PATHNAME),
     [router]
   );
 
@@ -189,7 +191,7 @@ export default function SignUp() {
             <div>
               <span>Already have an account? </span>
               <UiLink
-                href={SIGNIN_PATHNAME}
+                href={signInHrefWithNext(next)}
                 color={color}
                 className="hover:underline"
                 as={Link}

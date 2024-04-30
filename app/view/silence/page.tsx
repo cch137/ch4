@@ -20,7 +20,7 @@ import {
   MdPause,
 } from "react-icons/md";
 import useInit from "@/hooks/useInit";
-import FullpageSpinner from "@/app/components/fullpage-spiner";
+import FullpageSpinner from "@/app/components/FullpageSpinner";
 
 const LOCALSTORAGE_KEY = "silence";
 const DEFAULT_VOLUME = 0;

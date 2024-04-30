@@ -7,12 +7,13 @@ import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
-import FullpageSpinner from "@/app/components/fullpage-spiner";
+import FullpageSpinner from "@/app/components/FullpageSpinner";
 import { StatusResponse } from "@/constants/types";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import toolUrlParams from "@/app/tools/toolUrlParams";
 import useUserInfo from "@/hooks/useUserInfo";
+import { resetPwHrefWithNext, signUpHrefWithNext } from "@/constants/app";
 
 export default function SignIn() {
   const variant = "underlined";
@@ -22,6 +23,8 @@ export default function SignIn() {
   const [form, setForm] = useState({ user: "", pass: "" });
 
   const router = useRouter();
+  const search = useSearchParams();
+  const next = search.get("next");
   const redirectToNext = useCallback(() => {
     const path = toolUrlParams(location).get("next") || "/";
     return router.replace(path);
@@ -116,7 +119,7 @@ export default function SignIn() {
             <div>
               <span>Create a new account! </span>
               <UiLink
-                href="/auth/signup"
+                href={signUpHrefWithNext(next)}
                 color={color}
                 className="hover:underline"
                 as={Link}
@@ -126,7 +129,7 @@ export default function SignIn() {
             </div>
             <div>
               <UiLink
-                href="/auth/reset-password"
+                href={resetPwHrefWithNext(next)}
                 color={color}
                 className="hover:underline"
                 as={Link}

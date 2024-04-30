@@ -1,6 +1,6 @@
 "use client";
 
-import NotFound from "@/app/not-found";
+import { Redirect } from "@/app/not-found";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 
@@ -14,7 +14,7 @@ function _Redirecting() {
     if (!to) location.href = "/";
   }, [router, to]);
 
-  return <NotFound redirectTo={url} />;
+  return <Redirect to={url} auto={false} />;
 }
 
 export default function Redirecting() {

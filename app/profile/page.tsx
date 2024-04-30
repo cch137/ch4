@@ -22,7 +22,7 @@ import {
 import Link from "next/link";
 import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import { IoCopyOutline, IoCreateOutline } from "react-icons/io5";
-import FullpageSpinner from "@/app/components/fullpage-spiner";
+import FullpageSpinner from "@/app/components/FullpageSpinner";
 import type { StatusResponse } from "@/constants/types";
 import { useRouter } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
@@ -31,7 +31,8 @@ import { useUserProfile } from "@/hooks/useUserInfo";
 import { packData } from "@cch137/utils/shuttle";
 import {
   PROFILE_PATHNAME,
-  SIGNIN_PATHNAME,
+  RESETPW_PATHNAME,
+  signInHrefWithNext,
   SIGNOUT_PATHNAME,
 } from "@/constants/app";
 
@@ -111,11 +112,11 @@ export default function Profile() {
 
   const router = useRouter();
   const redirectToSignIn = useCallback(
-    () => router.replace(`${SIGNIN_PATHNAME}?next=${PROFILE_PATHNAME}`),
+    () => router.replace(signInHrefWithNext(PROFILE_PATHNAME)),
     [router]
   );
   const goToResetPassword = useCallback(
-    () => router.push("/auth/reset-password"),
+    () => router.push(RESETPW_PATHNAME),
     [router]
   );
 

@@ -7,12 +7,16 @@ import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
-import FullpageSpinner from "@/app/components/fullpage-spiner";
+import FullpageSpinner from "@/app/components/FullpageSpinner";
 import { StatusResponse } from "@/constants/types";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import { useUserInfo } from "@/hooks/useUserInfo";
-import { PROFILE_PATHNAME, SIGNIN_PATHNAME } from "@/constants/app";
+import {
+  PROFILE_PATHNAME,
+  RESETPWDONE_PATHNAME,
+  signInHrefWithNext,
+} from "@/constants/app";
 
 export default function ResetPassword() {
   const variant = "underlined";
@@ -26,8 +30,9 @@ export default function ResetPassword() {
   });
 
   const router = useRouter();
-  const redirectToHome = () => router.replace("/");
-  const redirectToDone = () => router.replace("/auth/reset-password/done");
+  const search = useSearchParams();
+  const next = search.get("next");
+  const redirectToDone = () => router.replace(RESETPWDONE_PATHNAME);
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
 
@@ -177,7 +182,7 @@ export default function ResetPassword() {
                 </UiLink>
               ) : (
                 <UiLink
-                  href={SIGNIN_PATHNAME}
+                  href={signInHrefWithNext(next)}
                   color={color}
                   className="hover:underline"
                   as={Link}

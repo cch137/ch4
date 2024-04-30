@@ -1,5 +1,5 @@
-import FullpageSpinner from "@/app/components/fullpage-spiner";
+import FullpageSpinner from "@/app/components/FullpageSpinner";
 
 export default function Curreny() {
-  return <FullpageSpinner redirectTo="/" delay={1500} />
+  return <FullpageSpinner redirectTo="/" delay={1500} />;
 }

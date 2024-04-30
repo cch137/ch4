@@ -27,8 +27,8 @@ import { useEffect, useRef, useState } from "react";
 import { IoAddOutline, IoRefreshOutline } from "react-icons/io5";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import useUserInfo from "@/hooks/useUserInfo";
-import FullpageSpinner from "@/app/components/fullpage-spiner";
-import SigninToContinue from "@/app/components/signin-to-continue";
+import FullpageSpinner from "@/app/components/FullpageSpinner";
+import SigninToContinue from "@/app/components/SignInToContinue";
 
 function TriggerList() {
   const router = useRouter();

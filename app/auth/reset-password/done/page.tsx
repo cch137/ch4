@@ -1,8 +1,11 @@
 import { Button } from "@nextui-org/button";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 export default function ResetPasswordDone() {
   const color = "secondary";
+  const search = useSearchParams();
+  const next = search.get("next");
   return (
     <>
       <div
@@ -14,7 +17,7 @@ export default function ResetPasswordDone() {
             Reset Password Successful!
           </h1>
           <div></div>
-          <Button color={color} href="/" className="mx-12" as={Link}>
+          <Button color={color} href={next || "/"} className="mx-12" as={Link}>
             Continue
           </Button>
         </div>

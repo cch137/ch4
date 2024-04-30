@@ -1,10 +1,11 @@
 "use client";
 
-import { SIGNIN_PATHNAME } from "@/constants/app";
 import "./signin-to-continue.css";
-import useIsSmallScreen from "@/hooks/useIsSmallScreen";
+
 import { Button } from "@nextui-org/button";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { signInHrefWithNext } from "@/constants/app";
+import useIsSmallScreen from "@/hooks/useIsSmallScreen";
 
 export default function SigninToContinue({
   nextPath: nextPath,
@@ -16,7 +17,6 @@ export default function SigninToContinue({
   descriptions: string[] | string;
 }) {
   const isSmallScreen = useIsSmallScreen();
-  const router = useRouter();
   return (
     <>
       <div
@@ -39,7 +39,8 @@ export default function SigninToContinue({
               color="secondary"
               className="rounded-full"
               variant="shadow"
-              onClick={() => router.push(`${SIGNIN_PATHNAME}?next=${nextPath}`)}
+              as={Link}
+              href={signInHrefWithNext(nextPath)}
             >
               Sign in
             </Button>

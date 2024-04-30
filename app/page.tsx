@@ -219,7 +219,10 @@ export default function Homepage() {
       <LinkGroup title="本站應用" links={apps} />
       <LinkGroup title="AI 應用" links={aiApps} />
       <LinkGroup title="其他工具" links={otherTools} />
-      <Spacer y={16} />
+      <Spacer y={8} />
+      <div className="text-center text-default-200 select-none">
+        <span>by</span> <Link href="https://github.com/cch137">@cch137</Link>
+      </div>
     </MainLayout>
   );
 }
