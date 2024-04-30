@@ -14,6 +14,8 @@ class TTXRecordEvent extends Event {
   }
 }
 
+const neverBlock = true;
+
 export default function useTTXSecure({
   textAnsViewLink,
 }: {
@@ -87,7 +89,7 @@ export default function useTTXSecure({
   const ttxIsBlurPending = typeof isFocus === "undefined";
 
   return {
-    ttxBlock,
+    ttxBlock: neverBlock ? false : ttxBlock,
     ttxShow,
     ttxError,
     ttxHasPass,
