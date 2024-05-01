@@ -4,14 +4,6 @@ import formatDate from "@cch137/utils/format/date";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import {
-  Table,
-  TableHeader,
-  TableColumn,
-  TableBody,
-  TableRow,
-  TableCell,
-} from "@nextui-org/table";
-import {
   Modal,
   ModalContent,
   ModalHeader,
@@ -22,7 +14,7 @@ import {
 import Link from "next/link";
 import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import { IoCopyOutline, IoCreateOutline } from "react-icons/io5";
-import FullpageSpinner from "@/app/components/FullpageSpinner";
+import PageSpinner from "@/app/components/PageSpinner";
 import type { StatusResponse } from "@/constants/types";
 import { useRouter } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
@@ -31,9 +23,9 @@ import { useUserProfile } from "@/hooks/useUserInfo";
 import { packData } from "@cch137/utils/shuttle";
 import {
   PROFILE_PATHNAME,
-  RESETPW_PATHNAME,
-  signInHrefWithNext,
   SIGNOUT_PATHNAME,
+  resetPwHrefWithNext,
+  signInHrefWithNext,
 } from "@/constants/app";
 
 function ProfileTableRow({
@@ -116,7 +108,7 @@ export default function Profile() {
     [router]
   );
   const goToResetPassword = useCallback(
-    () => router.push(RESETPW_PATHNAME),
+    () => router.push(resetPwHrefWithNext(PROFILE_PATHNAME)),
     [router]
   );
 
@@ -315,7 +307,7 @@ export default function Profile() {
         </ModalContent>
       </Modal>
       {isPending || !isLoggedIn ? (
-        <FullpageSpinner />
+        <PageSpinner />
       ) : (
         <div
           className="max-w-full flex flex-col px-2 m-auto"

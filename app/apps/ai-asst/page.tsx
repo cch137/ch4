@@ -27,7 +27,7 @@ import { useEffect, useRef, useState } from "react";
 import { IoAddOutline, IoRefreshOutline } from "react-icons/io5";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import useUserInfo from "@/hooks/useUserInfo";
-import FullpageSpinner from "@/app/components/FullpageSpinner";
+import PageSpinner from "@/app/components/PageSpinner";
 import SigninToContinue from "@/app/components/SignInToContinue";
 
 function TriggerList() {
@@ -87,7 +87,7 @@ export default function AiAsst() {
 
   const { isPending, isLoggedIn } = useUserInfo();
 
-  if (isPending) return <FullpageSpinner />;
+  if (isPending) return <PageSpinner />;
 
   if (!isLoggedIn)
     return (

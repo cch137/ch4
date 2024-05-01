@@ -7,7 +7,7 @@ import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
-import FullpageSpinner from "@/app/components/FullpageSpinner";
+import PageSpinner from "@/app/components/PageSpinner";
 import { StatusResponse } from "@/constants/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
@@ -88,7 +88,7 @@ function _SignUp() {
     return (
       <>
         {errorMessageBox}
-        <FullpageSpinner />
+        <PageSpinner />
       </>
     );
 

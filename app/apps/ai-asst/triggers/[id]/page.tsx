@@ -49,7 +49,7 @@ import {
 import useUserInfo from "@/hooks/useUserInfo";
 import SigninToContinue from "@/app/components/SignInToContinue";
 import useConfirm from "@/hooks/useConfirm";
-import FullpageSpinner from "@/app/components/FullpageSpinner";
+import PageSpinner from "@/app/components/PageSpinner";
 
 type PluginObjectDisplay = PluginObject & {
   isNew?: boolean;
@@ -521,7 +521,7 @@ export default function AiAsst() {
 
   const { isPending, isLoggedIn } = useUserInfo();
 
-  if (isPending) return <FullpageSpinner />;
+  if (isPending) return <PageSpinner />;
 
   if (!isLoggedIn)
     return (

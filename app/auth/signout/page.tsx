@@ -1,6 +1,6 @@
 "use client";
 
-import FullpageSpinner from "@/app/components/FullpageSpinner";
+import { Redirect } from "@/app/not-found";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -10,8 +10,8 @@ function _SignOut() {
   const search = useSearchParams();
   const next = search.get("next");
   return (
-    <FullpageSpinner
-      redirectTo={next || "/"}
+    <Redirect
+      to={next || "/"}
       label="Signing out..."
       callback={async () => {
         try {
@@ -21,7 +21,7 @@ function _SignOut() {
           await user.update();
         }
       }}
-      delay={1000}
+      sleep={1000}
     />
   );
 }

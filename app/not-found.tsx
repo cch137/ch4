@@ -10,12 +10,13 @@ import {
 } from "@/constants/app";
 import { Button } from "@nextui-org/button";
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import useOrigin from "@/hooks/useOrigin";
 import { MdCheck, MdContentCopy } from "react-icons/md";
 import useCopyText from "@/hooks/useCopyText";
-import FullpageSpinner from "./components/FullpageSpinner";
+import PageSpinner from "./components/PageSpinner";
+import sleep from "@/utils/sleep";
 
 const title = appTitle("Not Found");
 const description = "This page could not be found.";
@@ -60,18 +61,33 @@ export function Redirect({
   to,
   auto = true,
   isLoading = false,
+  label,
+  sleep: _sleepMs,
+  callback,
 }: {
   to: string;
   auto?: boolean;
   isLoading?: boolean;
+  label?: string;
+  sleep?: number;
+  callback?: Function;
 }) {
+  const router = useRouter();
   const [copied, copyText] = useCopyText(to || "");
 
   if (auto)
     return (
       <>
         <title>Redirecting...</title>
-        <FullpageSpinner redirectTo={to} />
+        <PageSpinner
+          task={async () => {
+            const sleeping = sleep(_sleepMs);
+            if (callback) await callback();
+            router.replace(to);
+            await sleeping;
+          }}
+          label={label}
+        />
       </>
     );
 

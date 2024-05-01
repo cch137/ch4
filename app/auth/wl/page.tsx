@@ -1,13 +1,13 @@
 "use client";
 
-import FullpageSpinner from "@/app/components/FullpageSpinner";
+import { Redirect } from "@/app/not-found";
 import useTTX from "@/hooks/useTTX";
 
 export default function AuthUnblock() {
   const { ttxRecord } = useTTX();
   return (
-    <FullpageSpinner
-      redirectTo={`/`}
+    <Redirect
+      to={`/`}
       callback={async () =>
         prompt("What is your lucky number") === "cch137"
           ? ttxRecord("wl")

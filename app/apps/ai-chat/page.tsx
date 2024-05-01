@@ -4,7 +4,7 @@ import "./chat.css";
 import { useEffect, useRef, useState } from "react";
 import { AICHAT_PATH, AICHAT_SHORTPATH, SIDEBAR_WIDTH } from "@/constants/chat";
 import { Link } from "@nextui-org/link";
-import FullpageSpinner from "@/app/components/FullpageSpinner";
+import PageSpinner from "@/app/components/PageSpinner";
 import { useParams } from "next/navigation";
 
 import Sidebar from "./components/sidebar";
@@ -115,7 +115,7 @@ export default function AiChatApp({
 
   const { isPending, isLoggedIn } = useUserInfo();
 
-  if (isPending || !isReady) return <FullpageSpinner />;
+  if (isPending || !isReady) return <PageSpinner />;
 
   if (!isLoggedIn)
     return (

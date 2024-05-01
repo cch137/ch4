@@ -1,7 +1,7 @@
 "use client";
 
-import FullpageSpinner from "@/app/components/FullpageSpinner";
+import { Redirect } from "@/app/not-found";
 
 export default function Lab() {
-  return <FullpageSpinner redirectTo="/" />;
+  return <Redirect to="/" />;
 }

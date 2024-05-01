@@ -20,7 +20,7 @@ import {
   MdPause,
 } from "react-icons/md";
 import useInit from "@/hooks/useInit";
-import FullpageSpinner from "@/app/components/FullpageSpinner";
+import PageSpinner from "@/app/components/PageSpinner";
 
 const LOCALSTORAGE_KEY = "silence";
 const DEFAULT_VOLUME = 0;
@@ -480,7 +480,7 @@ export default function Silence() {
 
   return (
     <>
-      <FullpageSpinner color="white" show={isLoading} />
+      <PageSpinner color="white" show={isLoading} />
       <div className="px-4 py-8 m-auto select-none" style={{ maxWidth: 960 }}>
         <div className="flex-center text-sm text-default-500 justify-start pb-8">
           <Link className="text-default-300 flex-center gap-2" href="/">
