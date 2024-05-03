@@ -27,8 +27,8 @@ import { useEffect, useRef, useState } from "react";
 import { IoAddOutline, IoRefreshOutline } from "react-icons/io5";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import useUserInfo from "@/hooks/useUserInfo";
-import PageSpinner from "@/app/components/PageSpinner";
-import SigninToContinue from "@/app/components/SignInToContinue";
+import PageSpinner from "@/components/PageSpinner";
+import SigninToContinue from "@/components/SignInToContinue";
 
 function TriggerList() {
   const router = useRouter();

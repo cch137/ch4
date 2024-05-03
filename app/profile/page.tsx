@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import { IoCopyOutline, IoCreateOutline } from "react-icons/io5";
-import PageSpinner from "@/app/components/PageSpinner";
+import PageSpinner from "@/components/PageSpinner";
 import type { StatusResponse } from "@/constants/types";
 import { useRouter } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";

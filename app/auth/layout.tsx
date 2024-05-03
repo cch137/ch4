@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { appName } from "@/constants/app";
-import MainLayout from "../components/MainLayout";
+import MainLayout from "../../components/MainLayout";
 
 export const metadata: Metadata = {
   description: "Welcome to " + appName,

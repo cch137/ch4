@@ -15,7 +15,7 @@ import { Suspense } from "react";
 import useOrigin from "@/hooks/useOrigin";
 import { MdCheck, MdContentCopy } from "react-icons/md";
 import useCopyText from "@/hooks/useCopyText";
-import PageSpinner from "./components/PageSpinner";
+import PageSpinner from "../components/PageSpinner";
 import sleep from "@/utils/sleep";
 
 const title = appTitle("Not Found");

@@ -28,7 +28,7 @@ import useInit from "@/hooks/useInit";
 import { appTitle } from "@/constants/app";
 import { Image } from "@nextui-org/image";
 import { IoMdClose } from "react-icons/io";
-import Collapsible from "@/app/components/Collapsible";
+import Collapsible from "@/components/Collapsible";
 import useTTXSecure from "@/hooks/useTTXSecure";
 
 type Problem = {

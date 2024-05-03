@@ -6,7 +6,7 @@ import { Image } from "@nextui-org/image";
 import { Spacer } from "@nextui-org/spacer";
 import { Tooltip } from "@nextui-org/tooltip";
 
-import MainLayout from "@/app/components/MainLayout";
+import MainLayout from "@/components/MainLayout";
 
 type LinkItem = {
   title: string;

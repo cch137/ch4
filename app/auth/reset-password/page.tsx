@@ -7,7 +7,7 @@ import { Link as UiLink } from "@nextui-org/link";
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
-import PageSpinner from "@/app/components/PageSpinner";
+import PageSpinner from "@/components/PageSpinner";
 import { StatusResponse } from "@/constants/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";

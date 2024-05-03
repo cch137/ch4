@@ -20,7 +20,7 @@ import {
   MdPause,
 } from "react-icons/md";
 import useInit from "@/hooks/useInit";
-import PageSpinner from "@/app/components/PageSpinner";
+import PageSpinner from "@/components/PageSpinner";
 
 const LOCALSTORAGE_KEY = "silence";
 const DEFAULT_VOLUME = 0;
