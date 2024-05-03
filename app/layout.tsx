@@ -8,7 +8,7 @@ import { appTitle } from "@/constants/app";
 import { sansFont, css } from "@/constants/font";
 import type { AppData } from "@/constants/types";
 import { TOKEN_COOKIE_NAME } from "@/constants/cookies";
-import { AppDataProvider } from "@/hooks/useAppData";
+import { AppDataManagerProvider } from "@/hooks/useAppDataManager";
 import Token from "@/server/auth/tokenizer";
 
 export const metadata: Metadata = {
@@ -48,7 +48,9 @@ export default async function RootLayout({
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: css }}
         />
-        <AppDataProvider appData={initAppData()}>{children}</AppDataProvider>
+        <AppDataManagerProvider appData={initAppData()}>
+          {children}
+        </AppDataManagerProvider>
       </body>
     </html>
   );

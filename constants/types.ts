@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from "react";
 
 export type SetState<T> = Dispatch<SetStateAction<T>>;
+export type { Dispatch, SetStateAction };
 
 export type StatusResponse<T = undefined> = {
   success: boolean;

@@ -1,50 +1,13 @@
 "use client";
 
 import { UserInfo, UserDetails, StatusResponse } from "@/constants/types";
-import { useState, useMemo } from "react";
-import useAppData from "./useAppData";
+import useAppDataManager from "./useAppDataManager";
 import { useFetchJSON } from "./useFetch";
 
-const fetchUserInfo = async () => {
-  const res = await (await fetch("/api/auth/user", { method: "POST" })).json();
-  const { value: user } = res as StatusResponse<UserInfo>;
-  if (!user) throw new Error("Failed to fetch user info");
-  return user;
-};
-
 export function useUserInfo() {
-  const {
-    appData: { user },
-    setAppData,
-  } = useAppData();
-  const [isPending, setIsPending] = useState(false);
-  return useMemo(() => {
-    userInfoCache.$assign(user);
-    return {
-      get id() {
-        return user.id;
-      },
-      get name() {
-        return user.name;
-      },
-      get auth() {
-        return user.auth;
-      },
-      get isLoggedIn() {
-        return user.auth > 0;
-      },
-      isPending,
-      async update() {
-        setIsPending(true);
-        try {
-          const user = await fetchUserInfo();
-          setAppData((_) => ({ ..._, user }));
-        } finally {
-          setIsPending(false);
-        }
-      },
-    };
-  }, [user, setAppData]);
+  const { user } = useAppDataManager();
+  userInfoCache.$assign({ id: user.id, name: user.name, auth: user.auth });
+  return user;
 }
 
 export default useUserInfo;
