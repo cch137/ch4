@@ -45,7 +45,7 @@ import {
   getTrigger,
   testTrigger,
   updateTrigger,
-} from "@/hooks/useAiTriggers";
+} from "@/app/apps/ai-asst/useAiTriggers";
 import useUserInfo from "@/hooks/useUserInfo";
 import SigninToContinue from "@/components/SignInToContinue";
 import useConfirm from "@/hooks/useConfirm";

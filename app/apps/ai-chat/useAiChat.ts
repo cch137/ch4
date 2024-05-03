@@ -22,9 +22,9 @@ import {
   isTempMsgId,
 } from "@/constants/chat";
 
-import { vers, versionStore } from "./useVersion";
+import { vers, versionStore } from "../../../hooks/useVersion";
 import random from "@cch137/utils/random";
-import { userInfoCache } from "./useUserInfo";
+import { userInfoCache } from "../../../hooks/useUserInfo";
 
 type action = "send" | "stream";
 export const answerBroadcaster = new Broadcaster<action>("ai-chat-answer");

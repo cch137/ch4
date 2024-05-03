@@ -14,7 +14,11 @@ import { useRouter } from "next/navigation";
 import { appTitle } from "@/constants/app";
 import useUserInfo from "@/hooks/useUserInfo";
 import SigninToContinue from "../../../components/SignInToContinue";
-import { useAiChatPage, errorBroadcaster, loadConv } from "@/hooks/useAiChat";
+import {
+  useAiChatPage,
+  errorBroadcaster,
+  loadConv,
+} from "@/app/apps/ai-chat/useAiChat";
 import useIsHeadlessBrowser from "@/hooks/useIsHeadlessBrowser";
 import useIsSmallScreen from "@/hooks/useIsSmallScreen";
 

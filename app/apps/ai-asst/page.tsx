@@ -10,7 +10,7 @@ import useAiTriggers, {
   createTrigger,
   triggersErrorBroadcaster,
   triggersStore,
-} from "@/hooks/useAiTriggers";
+} from "@/app/apps/ai-asst/useAiTriggers";
 import { Button } from "@nextui-org/button";
 import { Spinner } from "@nextui-org/spinner";
 import { Spacer } from "@nextui-org/spacer";
