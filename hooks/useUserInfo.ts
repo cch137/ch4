@@ -2,7 +2,7 @@
 
 import { UserInfo, UserDetails, StatusResponse } from "@/constants/types";
 import useAppDataManager from "./useAppDataManager";
-import { useFetchJSON } from "./useFetch";
+import useFetch from "./useFetch";
 
 export function useUserInfo() {
   const { user } = useAppDataManager();
@@ -17,7 +17,7 @@ export function useUserDetails() {
     data,
     isPending,
     refresh: update,
-  } = useFetchJSON<StatusResponse<UserDetails>>("/api/auth/user/details", {
+  } = useFetch<StatusResponse<UserDetails>>("/api/auth/user/details", {
     method: "POST",
   });
   return { ...data?.value, update, isPending };
