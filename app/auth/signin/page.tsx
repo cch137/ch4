@@ -24,7 +24,10 @@ function _SignIn() {
   const router = useRouter();
   const search = useSearchParams();
   const next = search.get("next") || "/";
-  const redirectToNext = useCallback(() => router.replace(next), [router]);
+  const redirectToNext = useCallback(
+    () => router.replace(next),
+    [router, next]
+  );
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
 

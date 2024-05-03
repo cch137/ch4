@@ -2,7 +2,6 @@
 
 import { UserInfo, UserDetails, StatusResponse } from "@/constants/types";
 import { useState, useMemo } from "react";
-import useInit from "./useInit";
 import useAppData from "./useAppData";
 import { useFetchJSON } from "./useFetch";
 
@@ -20,6 +19,7 @@ export function useUserInfo() {
   } = useAppData();
   const [isPending, setIsPending] = useState(false);
   return useMemo(() => {
+    userInfoCache.$assign(user);
     return {
       get id() {
         return user.id;
@@ -59,3 +59,7 @@ export function useUserDetails() {
   });
   return { ...data?.value, update, isPending };
 }
+
+// this object is used to fix useAiChat bug :)
+import store from "@cch137/utils/dev/store";
+export const userInfoCache = store<UserInfo>({ id: "", name: "", auth: 0 });
