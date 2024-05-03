@@ -11,7 +11,6 @@ import PageSpinner from "@/app/components/PageSpinner";
 import { StatusResponse } from "@/constants/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
-import toolUrlParams from "@/app/tools/toolUrlParams";
 import useUserInfo from "@/hooks/useUserInfo";
 import { resetPwHrefWithNext, signUpHrefWithNext } from "@/constants/app";
 
@@ -24,11 +23,8 @@ function _SignIn() {
 
   const router = useRouter();
   const search = useSearchParams();
-  const next = search.get("next");
-  const redirectToNext = useCallback(() => {
-    const path = toolUrlParams(location).get("next") || "/";
-    return router.replace(path);
-  }, [router]);
+  const next = search.get("next") || "/";
+  const redirectToNext = useCallback(() => router.replace(next), [router]);
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
 

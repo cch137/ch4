@@ -19,7 +19,7 @@ import type { StatusResponse } from "@/constants/types";
 import { useRouter } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import useCopyText from "@/hooks/useCopyText";
-import { useUserProfile } from "@/hooks/useUserInfo";
+import useUserInfo, { useUserDetails } from "@/hooks/useUserInfo";
 import { packData } from "@cch137/utils/shuttle";
 import {
   PROFILE_PATHNAME,
@@ -88,17 +88,23 @@ function ProfileTableRow({
 }
 
 export default function Profile() {
-  const user = useUserProfile();
-
   const {
-    name = "",
-    eadd = "",
-    ctms,
-    mtms,
-    atms,
-    isPending,
-    isLoggedIn,
-  } = user || {};
+    update: updateUserInfo,
+    isPending: userInfoIsPending,
+    ...userInfo
+  } = useUserInfo();
+  const {
+    update: updateUserDetails,
+    isPending: userDetailsIsPending,
+    ...userDetails
+  } = useUserDetails();
+
+  const { name = "", isLoggedIn } = userInfo;
+  const { eadd = "", ctms, mtms, atms } = userDetails || {};
+  const isPending = userInfoIsPending || userDetailsIsPending;
+  const update = useCallback(async () => {
+    await Promise.all([updateUserInfo, updateUserDetails]);
+  }, [updateUserInfo, updateUserDetails]);
 
   const color = "secondary";
 
@@ -200,7 +206,7 @@ export default function Profile() {
                       if (success) onClose();
                       else openErrorMessageBox(message);
                     } finally {
-                      await user.update();
+                      await update();
                       setIsPostingUsername(false);
                     }
                   }}
@@ -278,7 +284,7 @@ export default function Profile() {
                         if (success) onClose();
                         else openErrorMessageBox(message);
                       } finally {
-                        await user.update();
+                        await update();
                         setIsPostingEmail(false);
                       }
                     } else {

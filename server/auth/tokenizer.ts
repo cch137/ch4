@@ -1,9 +1,11 @@
-import { SIGNIN_AGE_MS, CHECK_AGE_MS } from '@/constants/auth'
+import { SIGNIN_AGE_MS, CHECK_AGE_MS } from "@/constants/auth";
 import { packDataWithHash, unpackDataWithHash } from "@cch137/utils/shuttle";
-import userManager from './user-manager';
-import { base64ToBase64Url, base64UrlToBase64 } from '@cch137/utils/format/base64'
-import admin from '../admin';
-import { d as trollDecrypt } from "@cch137/utils/troll"
+import userManager from "./user-manager";
+import {
+  base64ToBase64Url,
+  base64UrlToBase64,
+} from "@cch137/utils/format/base64";
+import admin from "../admin";
 
 type TokenType = {
   id: string;
@@ -14,34 +16,43 @@ type TokenType = {
   /** if checkNeeded > now, check user id and hashedPass in database */
   checkNeeded: Date;
   /** if lastChecked + SIGNIN_AGE_MS < now, user needs to sign in again */
-  lastChecked: Date; 
-}
+  lastChecked: Date;
+};
 
-type TokenArrayType = [
-  string,
-  string,
-  string,
-  number,
-  Date,
-  Date,
-  Date,
-]
+type TokenArrayType = [string, string, string, number, Date, Date, Date];
 
 type AnyTokenType = TokenType | TokenArrayType | string | undefined;
 
-const SALTS = admin.config['token-salts'];
+const SALTS = admin.config["token-salts"];
 
 const tokenArrayToToken = (token: TokenArrayType): TokenType => {
   const [id, name, hashedPass, auth, created, lastChecked, expired] = token;
-  return {id, name, hashedPass, auth, created, lastChecked, checkNeeded: expired}
-}
+  return {
+    id,
+    name,
+    hashedPass,
+    auth,
+    created,
+    lastChecked,
+    checkNeeded: expired,
+  };
+};
 
 const tokenToTokenArray = (token: TokenType): TokenArrayType => {
-  const {id, name, hashedPass, auth, created, lastChecked, checkNeeded: expired} = token;
-  return [id, name, hashedPass, auth, created, lastChecked, expired]
-}
+  const {
+    id,
+    name,
+    hashedPass,
+    auth,
+    created,
+    lastChecked,
+    checkNeeded: expired,
+  } = token;
+  return [id, name, hashedPass, auth, created, lastChecked, expired];
+};
 
-class Token implements TokenType {id: string;
+class Token implements TokenType {
+  id: string;
   name: string;
   hashedPass: string;
   auth: number;
@@ -50,13 +61,18 @@ class Token implements TokenType {id: string;
   lastChecked: Date;
 
   constructor(token?: AnyTokenType) {
-    if (typeof token === 'string') token = unpackDataWithHash<TokenArrayType>(base64UrlToBase64(token), 'MD5', SALTS.value);
+    if (typeof token === "string")
+      token = unpackDataWithHash<TokenArrayType>(
+        base64UrlToBase64(token),
+        "MD5",
+        SALTS.value
+      );
     if (Array.isArray(token)) token = tokenArrayToToken(token);
     const now = new Date();
     const {
-      id = '',
-      name = '',
-      hashedPass = '',
+      id = "",
+      name = "",
+      hashedPass = "",
       auth = 0,
       created = now,
       lastChecked = now,
@@ -72,12 +88,17 @@ class Token implements TokenType {id: string;
     if (this.isExpired) this.clear();
   }
 
+  get info() {
+    const { id, name, auth } = this;
+    return { id, name, auth };
+  }
+
   clear() {
-    this.id = '';
-    this.name = '';
-    this.hashedPass = '';
+    this.id = "";
+    this.name = "";
+    this.hashedPass = "";
     this.auth = 0;
-    this.checkNeeded = new Date;
+    this.checkNeeded = new Date();
     return false;
   }
 
@@ -93,11 +114,11 @@ class Token implements TokenType {id: string;
   }
 
   get isCheckNeeded() {
-    return this.checkNeeded < new Date;
+    return this.checkNeeded < new Date();
   }
 
   get isExpired() {
-    return new Date(this.lastChecked.getTime() + SIGNIN_AGE_MS) < new Date;
+    return new Date(this.lastChecked.getTime() + SIGNIN_AGE_MS) < new Date();
   }
 
   get isSignedIn() {
@@ -113,14 +134,17 @@ class Token implements TokenType {id: string;
   }
 
   async check(forceUpdate = false) {
-    this.lastChecked = new Date;
+    this.lastChecked = new Date();
     if (!this.isCheckNeeded && !forceUpdate) return this.accessUser();
     if (this.isTempUser) return this.extend();
     if (this.isExpired) return this.clear();
-    const user = await userManager.getUserByIdAndHashedPass(this.id, this.hashedPass)
+    const user = await userManager.getUserByIdAndHashedPass(
+      this.id,
+      this.hashedPass
+    );
     if (!user || user.pass !== this.hashedPass) return this.clear();
     const { name, auth } = user;
-    this.name = name || '';
+    this.name = name || "";
     this.auth = auth || 0;
     return this.extend();
   }
@@ -138,17 +162,28 @@ class Token implements TokenType {id: string;
   }
 
   static serialize(token: AnyTokenType): string {
-    if (typeof token !== 'object' || Array.isArray(token)) return Token.parse(token).toString();
+    if (typeof token !== "object" || Array.isArray(token))
+      return Token.parse(token).toString();
     try {
-      return base64ToBase64Url(packDataWithHash(tokenToTokenArray(token), 'MD5', SALTS.value).toBase64());
+      return base64ToBase64Url(
+        packDataWithHash(
+          tokenToTokenArray(token),
+          "MD5",
+          SALTS.value
+        ).toBase64()
+      );
     } catch {
-      return '';
+      return "";
     }
   }
 
   static async createTempToken() {
-    const { value: newId = '', message } = await userManager._createUserTemporary();
-    if (!newId) throw new Error('Failed to create temporary user' + message ? `: ${message}` : '');
+    const { value: newId = "", message } =
+      await userManager._createUserTemporary();
+    if (!newId)
+      throw new Error(
+        "Failed to create temporary user" + message ? `: ${message}` : ""
+      );
     const token = new Token();
     token.id = newId;
     token.extend();
@@ -156,18 +191,23 @@ class Token implements TokenType {id: string;
   }
 
   static async create(nameOrEadd: string, pass: string, hashed = false) {
-    const user = await userManager.getUserByUserIdentityAndPass(nameOrEadd, pass, hashed)
+    const user = await userManager.getUserByUserIdentityAndPass(
+      nameOrEadd,
+      pass,
+      hashed
+    );
     if (!user) {
-      if (await userManager.hasUserByUserIdentity(nameOrEadd)) throw new Error('Password incorrect');
-      throw new Error('User does not exist');
+      if (await userManager.hasUserByUserIdentity(nameOrEadd))
+        throw new Error("Password incorrect");
+      throw new Error("User does not exist");
     }
     const { id, name, pass: hashedPass, auth } = user;
     const now = new Date();
     userManager.accessedUser(id);
     return new Token({
       id: id,
-      name: name || '',
-      hashedPass: hashedPass || '',
+      name: name || "",
+      hashedPass: hashedPass || "",
       auth: auth || 0,
       created: now,
       lastChecked: now,

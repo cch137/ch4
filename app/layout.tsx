@@ -2,8 +2,14 @@ import "./optimize.css";
 import "./globals.css";
 
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+
 import { appTitle } from "@/constants/app";
 import { sansFont, css } from "@/constants/font";
+import type { AppData } from "@/constants/types";
+import { TOKEN_COOKIE_NAME } from "@/constants/cookies";
+import { AppDataProvider } from "@/hooks/useAppData";
+import Token from "@/server/auth/tokenizer";
 
 export const metadata: Metadata = {
   title: appTitle(),
@@ -15,7 +21,12 @@ export const metadata: Metadata = {
   // },
 };
 
-export default function RootLayout({
+function initAppData(): AppData {
+  const token = new Token(cookies().get(TOKEN_COOKIE_NAME)?.value);
+  return { user: token.info };
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -37,7 +48,7 @@ export default function RootLayout({
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: css }}
         />
-        {children}
+        <AppDataProvider appData={initAppData()}>{children}</AppDataProvider>
       </body>
     </html>
   );
