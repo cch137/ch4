@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { messageManager } from "@/server/aichat";
 import AuthNext from "@/server/auth-next";
-import type { MssgItem, MssgItemWithVers } from "@/constants/chat/types";
+import type { MssgMeta, MssgMetaWithVers } from "@/constants/chat/types";
 import type { NextApiContext, StatusResponse } from "@/constants/types";
 import { readStream } from "@cch137/utils/stream";
 import { unpackDataWithHash } from "@cch137/utils/shuttle";
@@ -11,7 +11,7 @@ import { parse } from "@cch137/utils/format/version";
 export async function POST(
   req: NextRequest,
   context: NextApiContext
-): Promise<NextResponse<StatusResponse<MssgItem | null>>> {
+): Promise<NextResponse<StatusResponse<MssgMeta | null>>> {
   const { id: userId } = AuthNext.parseRequestToken(req);
   if (!userId)
     return NextResponse.json({ success: false, message: "Unauthorized" });
@@ -36,7 +36,7 @@ export async function PUT(
     return NextResponse.json({ success: false, message: "Unauthorized" });
   try {
     const { id: convId, msg: msgId } = context?.params || {};
-    const msg = unpackDataWithHash<MssgItemWithVers>(
+    const msg = unpackDataWithHash<MssgMetaWithVers>(
       await readStream(req.body),
       256,
       54715471,

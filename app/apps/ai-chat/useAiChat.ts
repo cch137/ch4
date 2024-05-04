@@ -10,7 +10,7 @@ import { packDataWithHash } from "@cch137/utils/shuttle";
 import { analyzeLanguages } from "@cch137/utils/lang/analyze-languages";
 import wrapStreamResponse from "@cch137/utils/crawl/wrap-stream-response";
 
-import { ConvCompleted, ConvItem, MssgItem } from "@/constants/chat/types";
+import { ConvCompleted, ConvMeta, MssgMeta } from "@/constants/chat/types";
 import { StatusResponse } from "@/constants/types";
 import {
   TEMP,
@@ -22,9 +22,9 @@ import {
   isTempMsgId,
 } from "@/constants/chat";
 
-import { vers, versionStore } from "../../../hooks/useVersion";
+import { vers } from "@/hooks/useAppDataManager";
 import random from "@cch137/utils/random";
-import { userInfoCache } from "../../../hooks/useUserInfo";
+import { userIdCache } from "@/hooks/useUserInfo";
 
 type action = "send" | "stream";
 export const answerBroadcaster = new Broadcaster<action>("ai-chat-answer");
@@ -49,12 +49,12 @@ const handleError = (e?: any) => {
 
 export const aiChatHandleError = handleError;
 
-const lastUser = store({ value: userInfoCache.id });
+const lastUser = store({ value: userIdCache.id });
 const chat = store(
   {
     convTail: null as string | null,
-    currentConv: undefined as ConvItem | undefined,
-    conversations: [] as ConvItem[],
+    currentConv: undefined as ConvMeta | undefined,
+    conversations: [] as ConvMeta[],
     messages: [] as Message[],
     currentThread: [] as Message[],
     convConfig: getDefConvConfig(),
@@ -67,8 +67,7 @@ const chat = store(
     isRenamingConv: false,
   },
   async () => {
-    versionStore.$init();
-    if (skippedInit || !userInfoCache.id) return;
+    if (skippedInit || !userIdCache.id) return;
     skippedInit = true;
     return {
       conversations: await fetchConvList(!getChatIsInited()),
@@ -84,14 +83,14 @@ const chat = store(
 const getChatIsInited = (): boolean => chat.$inited;
 
 let skippedInit = false;
-userInfoCache.$on((o) => {
-  if (userInfoCache.id !== lastUser.value) {
+userIdCache.$on((o) => {
+  if (userIdCache.id !== lastUser.value) {
     skippedInit = false;
     chat.$assign({ $inited: false });
     chat.$update();
   }
-  if (userInfoCache.id) {
-    lastUser.value = userInfoCache.id;
+  if (userIdCache.id) {
+    lastUser.value = userIdCache.id;
   }
   return;
 });
@@ -191,7 +190,7 @@ const updateMessages = (messages?: Message[]): void => {
 const generateTempMessageId = () => `${TEMP}-${random.base64(16)}`;
 
 class Message {
-  readonly source: MssgItem;
+  readonly source: MssgMeta;
 
   get _id() {
     return this.source._id;
@@ -210,7 +209,7 @@ class Message {
     return isTempMsgId(this._id);
   }
 
-  constructor(source: MssgItem) {
+  constructor(source: MssgMeta) {
     this.source = source;
   }
 
@@ -227,8 +226,7 @@ class Message {
   }
 
   get nthChild() {
-    const { siblings } = this;
-    return siblings.indexOf(this);
+    return this.siblings.indexOf(this);
   }
 
   gotoSibling(step: number) {
@@ -313,7 +311,7 @@ class Message {
               77455463
             ),
           })
-        ).json()) as StatusResponse<MssgItem>;
+        ).json()) as StatusResponse<MssgMeta>;
         if (!success || !mssg)
           throw new Error(`Failed to insert message: ${message || "Unknown"}`);
         const oldId = this.source._id;
@@ -409,7 +407,7 @@ const _createConv = async () => {
 };
 
 export const addMessage = async (
-  message: Partial<MssgItem>
+  message: Partial<MssgMeta>
 ): Promise<Message> => {
   const {
     text = "",
@@ -584,7 +582,7 @@ export const deleteConv = async (id?: string) => {
 };
 
 export async function loadConv(
-  id?: string | ConvItem,
+  id?: string | ConvMeta,
   force = false
 ): Promise<void> {
   if (!id) {
@@ -677,7 +675,7 @@ export async function fetchConvList(useLoading = true) {
   try {
     chat.isLoadingConvList = useLoading;
     const res = await fetch("/api/ai-chat/conv", { method: "POST" });
-    return ((await res.json()) as ConvItem[]).sort(
+    return ((await res.json()) as ConvMeta[]).sort(
       (a, b) => (b?.mtms || 0) - (a?.mtms || 0)
     );
   } catch {

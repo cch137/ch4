@@ -6,10 +6,10 @@ import { cookies } from "next/headers";
 
 import { appTitle } from "@/constants/app";
 import { sansFont, css } from "@/constants/font";
-import type { AppData } from "@/constants/types";
 import { TOKEN_COOKIE_NAME } from "@/constants/cookies";
 import { AppDataManagerProvider } from "@/hooks/useAppDataManager";
 import Token from "@/server/auth/tokenizer";
+import { v as version } from "@/server/version";
 
 export const metadata: Metadata = {
   title: appTitle(),
@@ -20,11 +20,6 @@ export const metadata: Metadata = {
   //   description: 'A website that integrates many useful tools.',
   // },
 };
-
-function initAppData(): AppData {
-  const token = new Token(cookies().get(TOKEN_COOKIE_NAME)?.value);
-  return { user: token.info };
-}
 
 export default async function RootLayout({
   children,
@@ -48,7 +43,12 @@ export default async function RootLayout({
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: css }}
         />
-        <AppDataManagerProvider appData={initAppData()}>
+        <AppDataManagerProvider
+          appData={{
+            version,
+            user: new Token(cookies().get(TOKEN_COOKIE_NAME)?.value).info,
+          }}
+        >
           {children}
         </AppDataManagerProvider>
       </body>

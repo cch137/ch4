@@ -4,22 +4,40 @@ import { useEffect, useRef, useState } from "react";
 
 export type UseFetchResponseType = "text" | "json" | "arrayBuffer" | "blob";
 
-function defineDataType<T>(_type: UseFetchResponseType | undefined, data?: T) {
-  const dataType = typeof data;
-  return (
-    _type ||
-    (dataType === "string"
-      ? "text"
-      : dataType === "object"
-      ? data instanceof Blob
-        ? "blob"
-        : !(data instanceof ArrayBuffer)
-        ? "json"
-        : 0
-      : 0) ||
-    "arrayBuffer"
-  );
-}
+const isUseFetchResponseType = (s?: string): s is UseFetchResponseType => {
+  if (s)
+    switch (s) {
+      case "json":
+      case "text":
+      case "arrayBuffer":
+      case "blob":
+        return true;
+    }
+  return false;
+};
+
+const defineResponseType = <T,>(
+  _type?: UseFetchResponseType,
+  contentType?: string | null,
+  data?: T
+) => {
+  if (isUseFetchResponseType(_type)) return _type;
+  if (contentType) {
+    const [_, t1, t2] =
+      /^([a-z]*)\/([a-z]*);?/.exec(contentType.toLowerCase()) || [];
+    if (isUseFetchResponseType(t1)) return t1;
+    if (isUseFetchResponseType(t2)) return t2;
+  }
+  switch (typeof data) {
+    case "string":
+      return "text";
+    case "object":
+      if (data instanceof Blob) return "blob";
+      if (data instanceof ArrayBuffer) return "arrayBuffer";
+      return "json";
+  }
+  return "arrayBuffer";
+};
 
 export default function useFetch<T = any>(
   input: string | URL | globalThis.Request,
@@ -31,7 +49,10 @@ export default function useFetch<T = any>(
   } = {}
 ) {
   const { type, data: defaultData, fetched: _fetched = false } = options;
+  const symbol = useRef<Symbol>();
+  const ctrl = useRef<AbortController>();
   const fetched = useRef(_fetched);
+  const [allowFetch, setAllowFetch] = useState(!_fetched);
   const [response, setResponse] = useState<Response>();
   const [data, setData] = useState<T | undefined>(defaultData);
   const [isPending, setIsPending] = useState(!_fetched);
@@ -39,15 +60,22 @@ export default function useFetch<T = any>(
   const [dataError, setDataError] = useState<any>();
 
   useEffect(() => {
-    if (fetched.current) return;
+    if (!allowFetch || fetched.current) return;
+    setAllowFetch(false);
     fetched.current = true;
     setResponse(void 0);
     setIsPending(true);
-    fetch(input, init)
+    const sym = Symbol();
+    const abt = new AbortController();
+    symbol.current = sym;
+    if (ctrl.current) ctrl.current.abort();
+    ctrl.current = abt;
+    fetch(input, { signal: abt.signal, ...init })
       .then((res) => {
+        if (symbol.current !== sym) throw new Error("Symbol changed");
         setResponse(res);
         setFetchError(void 0);
-        res[defineDataType(type, data)]()
+        res[defineResponseType(type, res.headers.get("Content-Type"), data)]()
           .then((r) => {
             setData(r);
             setDataError(void 0);
@@ -62,13 +90,16 @@ export default function useFetch<T = any>(
       })
       .finally(() => {
         setIsPending(false);
+        if (ctrl.current === abt) ctrl.current = void 0;
       });
   }, [
     fetched,
+    allowFetch,
     input,
     init,
     type,
     data,
+    setAllowFetch,
     setResponse,
     setData,
     setFetchError,
@@ -78,7 +109,15 @@ export default function useFetch<T = any>(
 
   const refresh = () => {
     fetched.current = false;
+    setAllowFetch(true);
   };
 
-  return { data, response, error: fetchError || dataError, isPending, refresh };
+  return {
+    data,
+    setData,
+    response,
+    error: fetchError || dataError,
+    isPending,
+    refresh,
+  };
 }

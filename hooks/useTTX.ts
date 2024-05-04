@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import useIsHeadlessBrowser from "./useIsHeadlessBrowser";
+import { useIsHeadlessBrowser } from "./useAppDataManager";
 
 class TTXRecordEvent extends Event {
   data: { type: string; data: Record<string, any> };

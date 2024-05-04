@@ -5,7 +5,7 @@ import "./signin-to-continue.css";
 import { Button } from "@nextui-org/button";
 import Link from "next/link";
 import { signInHrefWithNext } from "@/constants/app";
-import useIsSmallScreen from "@/hooks/useIsSmallScreen";
+import { useIsSmallScreen } from "@/hooks/useAppDataManager";
 
 export default function SigninToContinue({
   nextPath: nextPath,

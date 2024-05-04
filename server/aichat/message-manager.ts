@@ -1,6 +1,6 @@
 import { AiChatMessage, AiChatConversation, dataSetter } from "../mongoose";
 import type { ObjectId } from "mongodb";
-import type { ConvCompleted, ConvItem, MssgItem } from "@/constants/chat/types";
+import type { ConvCompleted, ConvMeta, MssgMeta } from "@/constants/chat/types";
 import { correctConvConfig } from "@/constants/chat";
 import type { StatusResponse } from "@/constants/types";
 import random from "@cch137/utils/random";
@@ -29,20 +29,20 @@ const isOwnerOfConv = async (userId?: string, convId?: string) => {
 
 const getMessages = async (userId: string, convId: string) => {
   if (!(await isOwnerOfConv(userId, convId))) return [];
-  return (await AiChatMessage.find({ conv: convId }).lean()) as MssgItem[];
+  return (await AiChatMessage.find({ conv: convId }).lean()) as MssgMeta[];
 };
 
 const getConv = async (
   userId?: string,
   convId?: string
-): Promise<ConvItem | null> => {
+): Promise<ConvMeta | null> => {
   if (!userId || !convId) return null;
   accessedConv(userId, convId);
   return (
     ((await ConvOp.find(userId, convId).get({
       _id: 0,
       user: 0,
-    })) as ConvItem) || null
+    })) as ConvMeta) || null
   );
 };
 
@@ -133,8 +133,8 @@ const createConv = async (userId?: string): Promise<StatusResponse<string>> => {
 
 const insertMessage = async (
   userId?: string,
-  msg?: MssgItem
-): Promise<StatusResponse<MssgItem>> => {
+  msg?: MssgMeta
+): Promise<StatusResponse<MssgMeta>> => {
   if (!msg) return { success: false, message: "Message is required" };
   const { conv, text, modl, root, urls, args, dtms } = msg;
   if (!userId || !conv || !(await isOwnerOfConv(userId, conv)))
@@ -170,14 +170,14 @@ const getMessage = async (userId: string, convId: string, msgId: string) => {
   return (await AiChatMessage.findOne({
     conv: convId,
     _id: msgId,
-  }).lean()) as MssgItem;
+  }).lean()) as MssgMeta;
 };
 
 const setMessage = async (
   userId: string,
   convId: string,
   _id?: ObjectId | string,
-  msg?: MssgItem
+  msg?: MssgMeta
 ) => {
   const msgId = _id || msg?._id;
   if (!msgId || !msg) return { success: false, message: "Message is empty" };

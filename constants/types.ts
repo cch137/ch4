@@ -10,10 +10,6 @@ export type StatusResponse<T = undefined> = {
 };
 export type StatusResponseV<T> = StatusResponse<T> & { value: T };
 
-export type AppData = {
-  user: UserInfo;
-};
-
 export type UserInfo = {
   id: string;
   name: string;

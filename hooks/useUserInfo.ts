@@ -1,12 +1,12 @@
 "use client";
 
-import { UserInfo, UserDetails, StatusResponse } from "@/constants/types";
+import type { UserDetails, StatusResponse } from "@/constants/types";
 import useAppDataManager from "./useAppDataManager";
 import useFetch from "./useFetch";
 
 export function useUserInfo() {
-  const { user } = useAppDataManager();
-  userInfoCache.$assign({ id: user.id, name: user.name, auth: user.auth });
+  const user = useAppDataManager().user;
+  userIdCache.id = user.id;
   return user;
 }
 
@@ -25,4 +25,4 @@ export function useUserDetails() {
 
 // this object is used to fix useAiChat bug :)
 import store from "@cch137/utils/dev/store";
-export const userInfoCache = store<UserInfo>({ id: "", name: "", auth: 0 });
+export const userIdCache = store<{ id: string }>({ id: "" });

@@ -13,14 +13,14 @@ import useErrorMessage from "@/hooks/useErrorMessage";
 import { useRouter } from "next/navigation";
 import { appTitle } from "@/constants/app";
 import useUserInfo from "@/hooks/useUserInfo";
-import SigninToContinue from "../../../components/SignInToContinue";
+import SigninToContinue from "@/components/SignInToContinue";
 import {
   useAiChatPage,
   errorBroadcaster,
   loadConv,
 } from "@/app/apps/ai-chat/useAiChat";
-import useIsHeadlessBrowser from "@/hooks/useIsHeadlessBrowser";
-import useIsSmallScreen from "@/hooks/useIsSmallScreen";
+import { useIsHeadlessBrowser } from "@/hooks/useAppDataManager";
+import { useIsSmallScreen, useVersion } from "@/hooks/useAppDataManager";
 
 export default function AiChatApp({
   appPath = AICHAT_PATH,
@@ -119,6 +119,9 @@ export default function AiChatApp({
 
   const { isPending, isLoggedIn } = useUserInfo();
 
+  // DO NOT REMOVE useVersion
+  const v = useVersion();
+
   if (isPending || !isReady) return <PageSpinner />;
 
   if (!isLoggedIn)
@@ -148,6 +151,7 @@ export default function AiChatApp({
 
   return (
     <>
+      <div className="hidden">{v}</div>
       {errorMessageBox}
       <div id="aichat" className="absolute top-0 left-0 h-dvh w-dvw">
         <div className="overflow-hidden" style={{ maxWidth: "100dvw" }}>

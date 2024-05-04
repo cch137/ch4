@@ -12,7 +12,7 @@ import { Button } from "@nextui-org/button";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import useOrigin from "@/hooks/useOrigin";
+import { useOrigin } from "@/hooks/useAppDataManager";
 import { MdCheck, MdContentCopy } from "react-icons/md";
 import useCopyText from "@/hooks/useCopyText";
 import PageSpinner from "../components/PageSpinner";

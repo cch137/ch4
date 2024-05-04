@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import useIsHeadlessBrowser from "./useIsHeadlessBrowser";
 import useUserInfo from "./useUserInfo";
 import useTTX from "./useTTX";
 

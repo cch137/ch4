@@ -178,6 +178,10 @@ const aiApps: LinkItem[] = [
 
 const otherTools: LinkItem[] = [
   {
+    title: "test",
+    link: "/c/",
+  },
+  {
     title: "Google 翻譯",
     link: "//translate.google.com",
     icon: "//translate.google.com/favicon.ico",

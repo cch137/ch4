@@ -19,18 +19,13 @@ import {
 
 import { IoAddOutline, IoEllipsisVertical } from "react-icons/io5";
 
+import baseConverter from "@cch137/utils/format/base-converter";
 import { models as _models } from "@/constants/chat";
 import type { ConvMeta } from "@/constants/chat/types";
-import baseConverter from "@cch137/utils/format/base-converter";
-import {
-  useAiChatConvList,
-  useAiChatConv,
-  renameConv,
-  deleteConv as _deleteConv,
-  loadConv,
-} from "@/app/apps/ai-chat/useAiChat";
 import useConfirm from "@/hooks/useConfirm";
 import { useIsSmallScreen } from "@/hooks/useAppDataManager";
+import useInit from "@/hooks/useInit";
+import useAiChat, { type Conversation } from "../useAiChat";
 
 const convIdToKey = (id?: string) => "aichat-conv-" + id || "";
 
@@ -40,7 +35,7 @@ function ConversationButton({
   sidebarLoadConv,
 }: {
   appPath: string;
-  conv: ConvMeta;
+  conv: Conversation;
   sidebarLoadConv: (c: ConvMeta) => void;
 }) {
   const [isHover, setIsHover] = useState(false);
@@ -48,9 +43,9 @@ function ConversationButton({
   const { id, name: _name } = conv;
   const name = _name || baseConverter.convert(id, "64w", 10);
 
-  const { currentConv, isLoadingConv } = useAiChatConv();
+  const { currConv, isLoadingMessages } = useAiChat();
 
-  const isCurrentConv = conv.id === currentConv?.id;
+  const isCurrentConv = conv.id === currConv?.id;
 
   useEffect(() => {
     if (!isHover) ref.current!.removeAttribute("data-hover");
@@ -71,11 +66,9 @@ function ConversationButton({
     setIsHover(false);
     setIsPopoverOpen(false);
     setIsDeleting(true);
-    try {
-      await _deleteConv(id);
-    } catch {}
+    await conv.delete();
     setIsDeleting(false);
-  }, [onConfirmDelete, setIsHover, setIsPopoverOpen, setIsDeleting, id]);
+  }, [conv, onConfirmDelete, setIsHover, setIsPopoverOpen, setIsDeleting]);
 
   return (
     <>
@@ -112,10 +105,10 @@ function ConversationButton({
                   isDisabled={isRenaming}
                   isLoading={isRenaming}
                   onPress={async () => {
-                    const convName = renameInput.current?.value || "";
+                    const name = renameInput.current?.value || "";
                     setIsRenaming(true);
                     try {
-                      if (await renameConv(id, convName)) onClose();
+                      if (await conv.edit({ name })) onClose();
                     } finally {
                       setIsRenaming(false);
                     }
@@ -142,7 +135,7 @@ function ConversationButton({
         onClick={() => sidebarLoadConv(conv)}
         // draggable={true}
         // as={Link}
-        isDisabled={isLoadingConv || isDeleting}
+        isDisabled={isLoadingMessages || isDeleting}
       >
         <div className="flex-center h-full w-full">
           <Tooltip
@@ -229,11 +222,12 @@ export default function ConversationList({
   const convListEl = createRef<HTMLDivElement>();
 
   const {
-    conversations: convList,
-    isLoadingConvList,
-    currentConv,
-    isLoadingConv,
-  } = useAiChatConvList();
+    openNewChat,
+    currConv,
+    conversations,
+    isLoadingConvs,
+    isLoadingMessages,
+  } = useAiChat();
 
   const getScrollTopRatio = useCallback(
     (offset = 0) => {
@@ -251,16 +245,16 @@ export default function ConversationList({
   const convListOnScoll = useCallback(() => {
     const el = convListEl.current;
     if (!el) return;
-    const noScroll = convList.length < 16;
+    const noScroll = conversations.length < 16;
     el.style.setProperty(
       "--shd-h",
-      `${Math.min(10, (10 * convList.length) / 32)}rem`
+      `${Math.min(10, (10 * conversations.length) / 32)}rem`
     );
     const topShadowOpacity = noScroll ? 0 : getScrollTopRatio();
     const btmShadowOpacity = noScroll ? 0 : 1 - topShadowOpacity;
     el.style.setProperty("--top-shd-opa", topShadowOpacity.toString());
     el.style.setProperty("--btm-shd-opa", btmShadowOpacity.toString());
-  }, [convList, convListEl, getScrollTopRatio]);
+  }, [conversations, convListEl, getScrollTopRatio]);
 
   const scrollToCurrentConvInConvList = useCallback(
     (parentEl?: HTMLElement | null, el?: HTMLElement | null) => {
@@ -296,37 +290,21 @@ export default function ConversationList({
 
   const _lastConvId = useRef<string>();
   useEffect(() => {
-    const currConvId = currentConv?.id;
+    const currConvId = currConv?.id;
     const lastConvId = _lastConvId.current;
     if (lastConvId === currConvId) return;
     scrollToCurrentConvInConvList(
       convListEl.current,
-      document.getElementById(convIdToKey(currentConv?.id || ""))
+      document.getElementById(convIdToKey(currConv?.id || ""))
     );
     _lastConvId.current = currConvId;
-  }, [_lastConvId, currentConv, scrollToCurrentConvInConvList, convListEl]);
-
-  const inited = useRef(false);
+  }, [_lastConvId, currConv, scrollToCurrentConvInConvList, convListEl]);
 
   const isSmallScreen = useIsSmallScreen();
 
-  const sidebarLoadConv = useCallback(
-    (conv?: ConvMeta) => {
-      loadConv(conv);
-      if (isSmallScreen) closeSidebar();
-    },
-    [isSmallScreen, closeSidebar]
-  );
-
-  useEffect(() => {
+  useInit(() => {
     convListOnScoll();
-    if (inited.current) return;
-    inited.current = true;
-    loadConv(
-      currentConv ||
-        (!inited.current && initConvId ? { id: initConvId } : undefined)
-    );
-  }, [convListOnScoll, inited, currentConv, initConvId]);
+  }, [convListOnScoll]);
 
   return (
     <div className="flex flex-col h-full w-full absolute">
@@ -348,8 +326,11 @@ export default function ConversationList({
                   style={{ scale: 0.67, transform: "translateY(-33%)" }}
                   variant="light"
                   color="secondary"
-                  isDisabled={isLoadingConvList || isLoadingConv}
-                  onClick={() => sidebarLoadConv()}
+                  isDisabled={isLoadingConvs || isLoadingMessages}
+                  onClick={() => {
+                    if (isSmallScreen) closeSidebar();
+                    openNewChat();
+                  }}
                 >
                   <IoAddOutline style={{ scale: 2.5 }} />
                 </Button>
@@ -363,25 +344,25 @@ export default function ConversationList({
           <div
             ref={convListEl}
             className="overflow-y-auto py-2 px-1 conv-list-bg conv-list"
-            style={isLoadingConvList ? { minHeight: "100%" } : {}}
+            style={isLoadingConvs ? { minHeight: "100%" } : {}}
             onScroll={convListOnScoll}
           >
-            {isLoadingConvList ? (
+            {isLoadingConvs ? (
               <div className="w-full h-full flex-center">
                 <Spinner size="lg" color="secondary" />
               </div>
             ) : (
-              convList.map((c) => {
-                const isCurrentConv = c.id === currentConv?.id;
-                return (
-                  <ConversationButton
-                    appPath={appPath}
-                    conv={c}
-                    sidebarLoadConv={sidebarLoadConv}
-                    key={convIdToKey(c.id)}
-                  />
-                );
-              })
+              conversations.map((c) => (
+                <ConversationButton
+                  appPath={appPath}
+                  conv={c}
+                  sidebarLoadConv={() => () => {
+                    if (isSmallScreen) closeSidebar();
+                    c.select();
+                  }}
+                  key={convIdToKey(c.id)}
+                />
+              ))
             )}
           </div>
         </div>
