@@ -29,7 +29,7 @@ import { appTitle } from "@/constants/app";
 import { Image } from "@nextui-org/image";
 import { IoMdClose } from "react-icons/io";
 import Collapsible from "@/components/Collapsible";
-import useTTXSecure from "@/hooks/useTTXSecure";
+import { useTTXSecure } from "@/hooks/useTTX";
 
 type Problem = {
   isbn_c_p: string;

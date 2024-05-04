@@ -3,7 +3,7 @@
 import NotFound from "@/app/not-found";
 import { appTitle } from "@/constants/app";
 import useInit from "@/hooks/useInit";
-import useTTXSecure from "@/hooks/useTTXSecure";
+import { useTTXSecure } from "@/hooks/useTTX";
 import { Image } from "@nextui-org/react";
 import { useParams } from "next/navigation";
 import { useState } from "react";

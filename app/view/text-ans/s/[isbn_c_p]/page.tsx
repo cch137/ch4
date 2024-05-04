@@ -3,7 +3,7 @@
 import NotFound from "@/app/not-found";
 import { appTitle } from "@/constants/app";
 import { getStaticLink } from "@/constants/apps/text-unlock";
-import useTTXSecure from "@/hooks/useTTXSecure";
+import { useTTXSecure } from "@/hooks/useTTX";
 import { Image } from "@nextui-org/image";
 import { useParams } from "next/navigation";
 
