@@ -65,6 +65,8 @@ export default function useFetch<T = any>(
       });
   }, [
     fetched,
+    input,
+    init,
     type,
     data,
     setResponse,
