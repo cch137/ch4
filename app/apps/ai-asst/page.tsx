@@ -26,7 +26,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { IoAddOutline, IoRefreshOutline } from "react-icons/io5";
 import useErrorMessage from "@/hooks/useErrorMessage";
-import useUserInfo from "@/hooks/useUserInfo";
+import { useUserInfo } from "@/hooks/useAppDataManager";
 import PageSpinner from "@/components/PageSpinner";
 import SigninToContinue from "@/components/SignInToContinue";
 

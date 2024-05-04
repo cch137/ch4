@@ -12,7 +12,7 @@ import AiChatContent from "./components/content";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import { useRouter } from "next/navigation";
 import { appTitle } from "@/constants/app";
-import useUserInfo from "@/hooks/useUserInfo";
+import { useUserInfo } from "@/hooks/useAppDataManager";
 import SigninToContinue from "@/components/SignInToContinue";
 import {
   useAiChatPage,

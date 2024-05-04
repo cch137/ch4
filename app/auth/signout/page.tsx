@@ -1,7 +1,7 @@
 "use client";
 
 import { Redirect } from "@/app/not-found";
-import { useUserInfo } from "@/hooks/useUserInfo";
+import { useUserInfo } from "@/hooks/useAppDataManager";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 

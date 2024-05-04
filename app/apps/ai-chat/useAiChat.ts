@@ -24,7 +24,7 @@ import {
 
 import { vers } from "@/hooks/useAppDataManager";
 import random from "@cch137/utils/random";
-import { userIdCache } from "@/hooks/useUserInfo";
+import { userIdCache } from "@/hooks/useAppDataManager";
 
 type action = "send" | "stream";
 export const answerBroadcaster = new Broadcaster<action>("ai-chat-answer");

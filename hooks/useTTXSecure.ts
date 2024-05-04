@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import useUserInfo from "./useUserInfo";
+import { useUserInfo } from "./useAppDataManager";
 import useTTX from "./useTTX";
 
 class TTXRecordEvent extends Event {

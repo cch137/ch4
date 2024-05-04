@@ -21,7 +21,7 @@ import {
   signInHrefWithNext,
 } from "@/constants/app";
 import useIsHover from "@/hooks/useIsHover";
-import useUserInfo from "@/hooks/useUserInfo";
+import { useUserInfo } from "@/hooks/useAppDataManager";
 import { usePathname } from "next/navigation";
 
 const sidebarWidth = (isOpen: boolean) => (isOpen ? 256 : 48);

@@ -116,30 +116,37 @@ export function AppDataManagerProvider({
  * **Please use this hook to construct a new hook.** \
  * **Do not use it directly in any component.**
  */
-export default function useAppDataManager() {
+function useAppData() {
   return useContext(appDataContext);
 }
 
 export function useOrigin() {
-  return useAppDataManager().origin;
+  return useAppData().origin;
 }
 
 export function useIsFocus() {
-  return useAppDataManager().isFocus;
+  return useAppData().isFocus;
 }
 
 export function useIsSmallScreen() {
-  return useAppDataManager().isSmallScreen;
+  return useAppData().isSmallScreen;
 }
 
 export function useIsHeadlessBrowser() {
-  return useAppDataManager().isHeadlessBrowser;
+  return useAppData().isHeadlessBrowser;
 }
 
 const v = store({ v: "" });
 export const vers = () => v.v;
 export function useVersion() {
-  const { version } = useAppDataManager();
-  v.v = version;
-  return version;
+  const s = useAppData().version;
+  v.v = s;
+  return s;
+}
+
+export const userIdCache = store<{ id: string }>({ id: "" });
+export function useUserInfo() {
+  const u = useAppData().user;
+  userIdCache.id = u.id;
+  return u;
 }

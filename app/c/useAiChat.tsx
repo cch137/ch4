@@ -17,7 +17,7 @@ import {
   MAX_CTXT,
   isTempMsgId,
 } from "@/constants/chat";
-import useUserInfo from "@/hooks/useUserInfo";
+import { useUserInfo } from "@/hooks/useAppDataManager";
 import { packDataWithHash } from "@cch137/utils/shuttle";
 import Broadcaster from "@cch137/utils/dev/broadcaster";
 import { vers } from "@/hooks/useAppDataManager";

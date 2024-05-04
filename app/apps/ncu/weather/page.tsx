@@ -7,7 +7,7 @@ import { Input } from "@nextui-org/input";
 import Link from "next/link";
 import { IoChevronBack } from "react-icons/io5";
 import { Spacer } from "@nextui-org/spacer";
-import useUserInfo from "@/hooks/useUserInfo";
+import { useUserInfo } from "@/hooks/useAppDataManager";
 
 export default function Laundry() {
   const { auth } = useUserInfo();

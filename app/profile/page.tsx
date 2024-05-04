@@ -15,11 +15,11 @@ import Link from "next/link";
 import { createRef, useCallback, useEffect, useRef, useState } from "react";
 import { IoCopyOutline, IoCreateOutline } from "react-icons/io5";
 import PageSpinner from "@/components/PageSpinner";
-import type { StatusResponse } from "@/constants/types";
+import type { StatusResponse, UserDetails } from "@/constants/types";
 import { useRouter } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import useCopyText from "@/hooks/useCopyText";
-import useUserInfo, { useUserDetails } from "@/hooks/useUserInfo";
+import { useUserInfo } from "@/hooks/useAppDataManager";
 import { packData } from "@cch137/utils/shuttle";
 import {
   PROFILE_PATHNAME,
@@ -27,6 +27,7 @@ import {
   resetPwHrefWithNext,
   signInHrefWithNext,
 } from "@/constants/app";
+import useFetch from "@/hooks/useFetch";
 
 function ProfileTableRow({
   name,
@@ -85,6 +86,17 @@ function ProfileTableRow({
       </td>
     </tr>
   );
+}
+
+function useUserDetails() {
+  const {
+    data,
+    isPending,
+    refresh: update,
+  } = useFetch<StatusResponse<UserDetails>>("/api/auth/user/details", {
+    method: "POST",
+  });
+  return { ...data?.value, update, isPending };
 }
 
 export default function Profile() {

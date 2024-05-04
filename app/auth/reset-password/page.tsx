@@ -11,7 +11,7 @@ import PageSpinner from "@/components/PageSpinner";
 import { StatusResponse } from "@/constants/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import useErrorMessage from "@/hooks/useErrorMessage";
-import { useUserInfo } from "@/hooks/useUserInfo";
+import { useUserInfo } from "@/hooks/useAppDataManager";
 import {
   PROFILE_PATHNAME,
   RESETPWDONE_PATHNAME,
