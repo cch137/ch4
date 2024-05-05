@@ -28,7 +28,7 @@ const appDataContext = createContext<
     innerWidth?: number;
     isSmallScreen: boolean;
     isHeadlessBrowser: boolean;
-    mouse: { x: number; y: number };
+    mouse: { x: number; y: number; elements: Set<Element> };
     user: {
       isPending: boolean;
       isLoggedIn: boolean;
@@ -72,7 +72,11 @@ export function AppDataManagerProvider({
   const [innerWidth, setInnerWidth] = useState<number>();
   const [outerWidth, setOuterWidth] = useState<number>();
   const [isHeadlessBrowser, setIsHeadlessBrowser] = useState<boolean>(false);
-  const [mouse, setMouse] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [mouse, setMouse] = useState({
+    x: 0,
+    y: 0,
+    elements: new Set<Element>(),
+  });
   const isSmallScreen = (innerWidth || Infinity) < SMALL_SCREEN_W;
   const updateProps = useCallback(() => {
     setInnerWidth(window.innerWidth);
@@ -81,7 +85,7 @@ export function AppDataManagerProvider({
   }, [setInnerWidth, setOuterWidth, setIsFocus]);
   const updateMouseProps = useCallback(
     ({ clientX: x, clientY: y }: MouseEvent) => {
-      setMouse({ x, y });
+      setMouse({ x, y, elements: new Set(document.elementsFromPoint(x, y)) });
     },
     [setMouse]
   );
@@ -92,15 +96,15 @@ export function AppDataManagerProvider({
         v || isHeadless(window, process.env.NODE_ENV === "development").value
     );
     updateProps();
-    window.addEventListener("resize", updateProps);
-    window.addEventListener("focus", updateProps);
-    window.removeEventListener("blur", updateProps);
-    window.addEventListener("mousemove", updateMouseProps);
+    addEventListener("resize", updateProps);
+    addEventListener("focus", updateProps);
+    removeEventListener("blur", updateProps);
+    addEventListener("mousemove", updateMouseProps);
     return () => {
-      window.removeEventListener("resize", updateProps);
-      window.removeEventListener("focus", updateProps);
-      window.removeEventListener("blur", updateProps);
-      window.removeEventListener("mousemove", updateMouseProps);
+      removeEventListener("resize", updateProps);
+      removeEventListener("focus", updateProps);
+      removeEventListener("blur", updateProps);
+      removeEventListener("mousemove", updateMouseProps);
     };
   }, [setOrigin, setIsHeadlessBrowser, updateProps, updateMouseProps]);
 
