@@ -219,7 +219,7 @@ function LinkGroup({ title, links }: { title: string; links: LinkItem[] }) {
 
 export default function Homepage() {
   return (
-    <MainLayout sidebar={<div>Hi</div>}>
+    <MainLayout>
       <LinkGroup title="本站應用" links={apps} />
       <LinkGroup title="AI 應用" links={aiApps} />
       <LinkGroup title="其他工具" links={otherTools} />
