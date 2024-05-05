@@ -28,6 +28,7 @@ const appDataContext = createContext<
     innerWidth?: number;
     isSmallScreen: boolean;
     isHeadlessBrowser: boolean;
+    mouse: { x: number; y: number };
     user: {
       isPending: boolean;
       isLoggedIn: boolean;
@@ -71,28 +72,37 @@ export function AppDataManagerProvider({
   const [innerWidth, setInnerWidth] = useState<number>();
   const [outerWidth, setOuterWidth] = useState<number>();
   const [isHeadlessBrowser, setIsHeadlessBrowser] = useState<boolean>(false);
+  const [mouse, setMouse] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const isSmallScreen = (innerWidth || Infinity) < SMALL_SCREEN_W;
   const updateProps = useCallback(() => {
     setInnerWidth(window.innerWidth);
     setOuterWidth(window.innerWidth);
     setIsFocus(document.hasFocus());
   }, [setInnerWidth, setOuterWidth, setIsFocus]);
+  const updateMouseProps = useCallback(
+    ({ clientX: x, clientY: y }: MouseEvent) => {
+      setMouse({ x, y });
+    },
+    [setMouse]
+  );
   useEffect(() => {
-    updateProps();
     setOrigin(location.origin);
     setIsHeadlessBrowser(
       (v) =>
         v || isHeadless(window, process.env.NODE_ENV === "development").value
     );
+    updateProps();
     window.addEventListener("resize", updateProps);
     window.addEventListener("focus", updateProps);
     window.removeEventListener("blur", updateProps);
+    window.addEventListener("mousemove", updateMouseProps);
     return () => {
       window.removeEventListener("resize", updateProps);
       window.removeEventListener("focus", updateProps);
       window.removeEventListener("blur", updateProps);
+      window.removeEventListener("mousemove", updateMouseProps);
     };
-  }, [updateProps, setOrigin, setIsHeadlessBrowser]);
+  }, [setOrigin, setIsHeadlessBrowser, updateProps, updateMouseProps]);
 
   return (
     <appDataContext.Provider
@@ -104,6 +114,7 @@ export function AppDataManagerProvider({
         innerWidth,
         isSmallScreen,
         isHeadlessBrowser,
+        mouse,
         user,
       }}
     >
@@ -134,6 +145,10 @@ export function useIsSmallScreen() {
 
 export function useIsHeadlessBrowser() {
   return useAppData().isHeadlessBrowser;
+}
+
+export function useMouse() {
+  return useAppData().mouse;
 }
 
 const v = store({ v: "" });

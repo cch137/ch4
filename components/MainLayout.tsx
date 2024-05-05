@@ -109,7 +109,7 @@ function LayoutSidebar({
   const sidebarRef = createRef<HTMLDivElement>();
   const menuRef = createRef<HTMLDivElement>();
   const sidebarIsFocus = useIsHover(sidebarRef);
-  const menuIsHover = useIsHover(menuRef, true);
+  const menuIsHover = useIsHover(menuRef);
 
   useEffect(() => {
     const el = menuRef.current;
