@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { cookies } from "next/headers";
 
 import { appTitle } from "@/constants/app";
-import { sansFont, css } from "@/constants/font";
+import { sansFontClassname, css } from "@/constants/font";
 import { TOKEN_COOKIE_NAME } from "@/constants/cookies";
 import { AppDataManagerProvider } from "@/hooks/useAppDataManager";
 import Token from "@/server/auth/tokenizer";
@@ -38,7 +38,7 @@ export default async function RootLayout({
         />
         <script async src="/t3b.js" />
       </head>
-      <body className={sansFont.className} suppressHydrationWarning>
+      <body className={sansFontClassname} suppressHydrationWarning>
         <style
           suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: css }}

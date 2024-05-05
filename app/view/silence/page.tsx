@@ -1,6 +1,6 @@
 "use client";
 
-import { serifFont } from "@/constants/font";
+import { serifFontClassname } from "@/constants/font";
 import "./silence.css";
 
 import { Slider } from "@nextui-org/slider";
@@ -489,7 +489,7 @@ export default function Silence() {
           </Link>
           <div className="flex-1" />
         </div>
-        <div className={`${serifFont.className} flex flex-col gap-4`}>
+        <div className={`${serifFontClassname} flex flex-col gap-4`}>
           <div className="flex flex-wrap gap-6 text-default-500">
             <div className="flex flex-col gap-3">
               <div

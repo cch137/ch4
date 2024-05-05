@@ -11,39 +11,42 @@ import {
   Noto_Serif_HK,
   Noto_Serif_JP,
   Noto_Serif_KR,
-} from 'next/font/google'
-import type { NextFont } from 'next/dist/compiled/@next/font/dist/types'
+} from "next/font/google";
+import type { NextFont } from "next/dist/compiled/@next/font/dist/types";
 
-export const notoSansSC = Noto_Sans_SC({subsets: ['latin'], weight: '300'});
-export const notoSansTC = Noto_Sans_TC({subsets: ['latin'], weight: '300'});
-export const notoSansHK = Noto_Sans_HK({subsets: ['latin'], weight: '300'});
-export const notoSansJP = Noto_Sans_JP({subsets: ['latin'], weight: '300'});
-export const notoSansKR = Noto_Sans_KR({subsets: ['latin'], weight: '300'});
-export const notoSans = Noto_Sans({subsets: ['latin'], weight: '400'});
+const notoSansSC = Noto_Sans_SC({ subsets: ["latin"], weight: "300" });
+const notoSansTC = Noto_Sans_TC({ subsets: ["latin"], weight: "300" });
+const notoSansHK = Noto_Sans_HK({ subsets: ["latin"], weight: "300" });
+const notoSansJP = Noto_Sans_JP({ subsets: ["latin"], weight: "300" });
+const notoSansKR = Noto_Sans_KR({ subsets: ["latin"], weight: "300" });
+const notoSans = Noto_Sans({ subsets: ["latin"], weight: "400" });
 
-export const notoSerifSC = Noto_Serif_SC({subsets: ['latin'], weight: '300'});
-export const notoSerifTC = Noto_Serif_TC({subsets: ['latin'], weight: '300'});
-export const notoSerifHK = Noto_Serif_HK({subsets: ['latin'], weight: '300'});
-export const notoSerifJP = Noto_Serif_JP({subsets: ['latin'], weight: '300'});
-export const notoSerifKR = Noto_Serif_KR({subsets: ['latin'], weight: '300'});
-export const notoSerif = Noto_Serif({subsets: ['latin'], weight: '400'});
+const notoSerifSC = Noto_Serif_SC({ subsets: ["latin"], weight: "300" });
+const notoSerifTC = Noto_Serif_TC({ subsets: ["latin"], weight: "300" });
+const notoSerifHK = Noto_Serif_HK({ subsets: ["latin"], weight: "300" });
+const notoSerifJP = Noto_Serif_JP({ subsets: ["latin"], weight: "300" });
+const notoSerifKR = Noto_Serif_KR({ subsets: ["latin"], weight: "300" });
+const notoSerif = Noto_Serif({ subsets: ["latin"], weight: "400" });
 
 const mergeFonts = (className: string, fonts: NextFont[]): NextFont => {
-  const style = fonts.reduce(({fontFamilies}, {style: {fontFamily}}, i, a) => {
-    fontFamilies.add(fontFamily);
-    return {fontFamilies};
-  }, {
-    fontFamilies: new Set<string>(),
-  });
+  const style = fonts.reduce(
+    ({ fontFamilies }, { style: { fontFamily } }, i, a) => {
+      fontFamilies.add(fontFamily);
+      return { fontFamilies };
+    },
+    {
+      fontFamilies: new Set<string>(),
+    }
+  );
   return {
     className: className,
     style: {
-      fontFamily: [...style.fontFamilies].join(',').replace(/,[\s]+/g, ','),
-    }
-  }
-}
+      fontFamily: [...style.fontFamilies].join(",").replace(/,[\s]+/g, ","),
+    },
+  };
+};
 
-export const sansFont = mergeFonts('sans-font', [
+const sansFont = mergeFonts("sans-font", [
   notoSans,
   notoSansTC,
   notoSansSC,
@@ -52,7 +55,7 @@ export const sansFont = mergeFonts('sans-font', [
   notoSansKR,
 ]);
 
-export const serifFont = mergeFonts('serif-font', [
+const serifFont = mergeFonts("serif-font", [
   notoSerif,
   notoSerifTC,
   notoSerifSC,
@@ -61,5 +64,12 @@ export const serifFont = mergeFonts('serif-font', [
   notoSerifKR,
 ]);
 
+export const sansFontClassname = sansFont.className;
+export const serifFontClassname = serifFont.className;
+
 export const css = [sansFont, serifFont]
-  .map(f => `.${f.className}{font-family:${f.style.fontFamily}}`).join('');
+  .map(
+    ({ className, style: { fontFamily } }) =>
+      `.${className}{font-family:${fontFamily}}`
+  )
+  .join("");
