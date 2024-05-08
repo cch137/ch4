@@ -9,13 +9,14 @@ import {
 } from "react";
 
 import store from "@cch137/utils/dev/store";
-import isHeadless from "@cch137/utils/webpage/is-headless";
 
 import type { StatusResponse, UserInfo } from "@/constants/types";
+import isHeadless from "@/utils/isHeadless";
 
 export const SMALL_SCREEN_W = 720;
 
 type AppData = {
+  serverUA: string;
   version: string;
   user: UserInfo;
 };
@@ -27,7 +28,8 @@ const appDataContext = createContext<
     outerWidth?: number;
     innerWidth?: number;
     isSmallScreen: boolean;
-    isHeadlessBrowser: boolean;
+    isBot: boolean;
+    botDetect: { [k: string]: boolean };
     mouse: { x: number; y: number; elements: Set<Element> };
     user: {
       isPending: boolean;
@@ -71,7 +73,8 @@ export function AppDataManagerProvider({
   const [isFocus, setIsFocus] = useState<boolean>();
   const [innerWidth, setInnerWidth] = useState<number>();
   const [outerWidth, setOuterWidth] = useState<number>();
-  const [isHeadlessBrowser, setIsHeadlessBrowser] = useState<boolean>(false);
+  const [isBot, setIsBot] = useState<boolean>(false);
+  const [botDetect, setBotDetect] = useState<{ [key: string]: boolean }>({});
   const [mouse, setMouse] = useState({
     x: 0,
     y: 0,
@@ -91,14 +94,16 @@ export function AppDataManagerProvider({
   );
   useEffect(() => {
     setOrigin(location.origin);
-    setIsHeadlessBrowser(
-      (v) =>
-        v || isHeadless(window, process.env.NODE_ENV === "development").value
+    const { value, details = {} } = isHeadless(
+      window,
+      process.env.NODE_ENV === "development"
     );
+    setIsBot((v) => v || value);
+    setBotDetect(details);
     updateProps();
     addEventListener("resize", updateProps);
     addEventListener("focus", updateProps);
-    removeEventListener("blur", updateProps);
+    addEventListener("blur", updateProps);
     addEventListener("mousemove", updateMouseProps);
     return () => {
       removeEventListener("resize", updateProps);
@@ -106,7 +111,7 @@ export function AppDataManagerProvider({
       removeEventListener("blur", updateProps);
       removeEventListener("mousemove", updateMouseProps);
     };
-  }, [setOrigin, setIsHeadlessBrowser, updateProps, updateMouseProps]);
+  }, [setOrigin, setIsBot, setBotDetect, updateProps, updateMouseProps]);
 
   return (
     <appDataContext.Provider
@@ -117,7 +122,8 @@ export function AppDataManagerProvider({
         outerWidth,
         innerWidth,
         isSmallScreen,
-        isHeadlessBrowser,
+        isBot,
+        botDetect,
         mouse,
         user,
       }}
@@ -147,8 +153,12 @@ export function useIsSmallScreen() {
   return useAppData().isSmallScreen;
 }
 
-export function useIsHeadlessBrowser() {
-  return useAppData().isHeadlessBrowser;
+export function useIsBot() {
+  return useAppData().isBot;
+}
+
+export function useBotDetect() {
+  return useAppData().botDetect;
 }
 
 export function useMouse() {

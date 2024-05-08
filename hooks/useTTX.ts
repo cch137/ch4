@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from "react";
-import { useIsHeadlessBrowser, useUserInfo } from "./useAppDataManager";
+import { useIsBot, useUserInfo } from "./useAppDataManager";
 
 class TTXRecordEvent extends Event {
   data: { type: string; data: Record<string, any> };
@@ -35,7 +35,7 @@ export default function useTTX() {
   const ttxOnError = useCallback(() => {
     setError(true);
   }, [setError]);
-  const isHeadless = useIsHeadlessBrowser();
+  const isHeadless = useIsBot();
 
   useEffect(() => {
     TTXRecordEvent.record("view2");

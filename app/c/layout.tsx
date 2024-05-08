@@ -15,6 +15,13 @@ export default async function RootLayout({
 }) {
   return (
     <MainLayout overflowYHidden>
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            "if(location.origin.startsWith('https://'))location='/apps/ai-chat/'",
+        }}
+        suppressHydrationWarning
+      />
       <AiChatProvider>{children}</AiChatProvider>
     </MainLayout>
   );

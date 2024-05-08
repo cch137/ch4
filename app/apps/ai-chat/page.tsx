@@ -19,7 +19,7 @@ import {
   errorBroadcaster,
   loadConv,
 } from "@/app/apps/ai-chat/useAiChat";
-import { useIsHeadlessBrowser } from "@/hooks/useAppDataManager";
+import { useIsBot } from "@/hooks/useAppDataManager";
 import { useIsSmallScreen, useVersion } from "@/hooks/useAppDataManager";
 
 export default function AiChatApp({
@@ -56,7 +56,7 @@ export default function AiChatApp({
   const closeSidebar = () => setIsSidebarOpen(false);
 
   const { currentConv } = useAiChatPage();
-  const isHeadlessBrowser = useIsHeadlessBrowser();
+  const isBot = useIsBot();
 
   useEffect(() => {
     if (isSidebarOpen) {
@@ -137,7 +137,7 @@ export default function AiChatApp({
       />
     );
 
-  if (isHeadlessBrowser)
+  if (isBot)
     return (
       <div className="p-4">
         <div>

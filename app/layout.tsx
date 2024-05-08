@@ -2,7 +2,7 @@ import "./optimize.css";
 import "./globals.css";
 
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import { appTitle } from "@/constants/app";
 import { sansFontClassname, css } from "@/constants/font";
@@ -47,6 +47,7 @@ export default async function RootLayout({
           appData={{
             version,
             user: new Token(cookies().get(TOKEN_COOKIE_NAME)?.value).info,
+            serverUA: headers().get("User-Agent") || "",
           }}
         >
           {children}
