@@ -47,7 +47,7 @@ export default async function RootLayout({
           appData={{
             version,
             user: new Token(cookies().get(TOKEN_COOKIE_NAME)?.value).info,
-            serverUA: headers().get("User-Agent") || "",
+            isHeadless: /headless/.test(headers().get("User-Agent") || ""),
           }}
         >
           {children}

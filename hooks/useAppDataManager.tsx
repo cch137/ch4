@@ -16,7 +16,7 @@ import isHeadless from "@/utils/isHeadless";
 export const SMALL_SCREEN_W = 720;
 
 type AppData = {
-  serverUA: string;
+  isHeadless: boolean;
   version: string;
   user: UserInfo;
 };
@@ -24,6 +24,7 @@ type AppData = {
 const appDataContext = createContext<
   AppData & {
     origin: string;
+    isHeadless: boolean;
     isFocus?: boolean;
     outerWidth?: number;
     innerWidth?: number;
@@ -73,7 +74,7 @@ export function AppDataManagerProvider({
   const [isFocus, setIsFocus] = useState<boolean>();
   const [innerWidth, setInnerWidth] = useState<number>();
   const [outerWidth, setOuterWidth] = useState<number>();
-  const [isBot, setIsBot] = useState<boolean>(false);
+  const [isBot, setIsBot] = useState<boolean>(_appData.isHeadless);
   const [botDetect, setBotDetect] = useState<{ [key: string]: boolean }>({});
   const [mouse, setMouse] = useState({
     x: 0,
