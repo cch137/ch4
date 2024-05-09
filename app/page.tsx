@@ -146,6 +146,12 @@ const aiApps: LinkItem[] = [
     icon: "//nav.afmobi.com/wp-content/uploads/2024/02/eb7d4-www.perplexity.ai.png",
   },
   {
+    title: "Phind",
+    description: "AI 搜索引擎",
+    link: "//www.phind.com/",
+    icon: "//www.phind.com/favicon.ico",
+  },
+  {
     title: "WolframAlpha",
     link: "//www.wolframalpha.com/",
     icon: "//www.wolframalpha.com/favicon.ico",
