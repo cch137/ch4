@@ -36,7 +36,7 @@ export default function detectBot({
     Object.getOwnPropertyDescriptors(plugins)
   ).map((p) => p.value);
   // 如果是觸屏的話就不檢測 plugins
-  const hasAnomalyPlugins = isTouchScreen
+  const pluginsIsAnomaly = isTouchScreen
     ? false
     : // 如果 plugins 不存在或是沒有 plugins，是爬蟲
       plugins.length === 0 ||
@@ -47,7 +47,7 @@ export default function detectBot({
       !pluginList.every((p) => p.constructor === Plugin);
 
   // language(s) 不存在（只有較舊的無頭請求才被抓到）
-  const hasAnomalyLanguages = !language || !languages || languages.length === 0;
+  const languagesIsAnomaly = !language || !languages || languages.length === 0;
 
   // navigator.platform 和 userAgent 中的 platform 不符合
   const platfromIsNotSame = dev
@@ -84,8 +84,8 @@ export default function detectBot({
 
   const details = Object.freeze({
     wd: isWebdriver,
-    pg: hasAnomalyPlugins,
-    lg: hasAnomalyLanguages,
+    pg: pluginsIsAnomaly,
+    lg: languagesIsAnomaly,
     pf: platfromIsNotSame,
     cr: chromeIsAnomaly,
     cd: cdcExists,
