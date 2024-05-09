@@ -7,11 +7,13 @@ import {
   useCallback,
   useEffect,
 } from "react";
+import type { IResult as ParsedUa } from "ua-parser-js";
 
 import store from "@cch137/utils/dev/store";
 
 import type { StatusResponse, UserInfo } from "@/constants/types";
-import isHeadless from "@/utils/isHeadless";
+import detectBot from "@/utils/detectBot";
+import { type HashedShuttle, unpackDataWithHash } from "@cch137/utils/shuttle";
 
 export const SMALL_SCREEN_W = 720;
 
@@ -19,19 +21,28 @@ type AppData = {
   isHeadless: boolean;
   version: string;
   user: UserInfo;
+  ua: ParsedUa;
+};
+
+type MouseData = {
+  x: number;
+  y: number;
+  d: number;
+  elements: Set<Element>;
 };
 
 const appDataContext = createContext<
   AppData & {
     origin: string;
-    isHeadless: boolean;
     isFocus?: boolean;
     outerWidth?: number;
     innerWidth?: number;
+    outerHeight?: number;
+    innerHeight?: number;
     isSmallScreen: boolean;
     isBot: boolean;
     botDetect: { [k: string]: boolean };
-    mouse: { x: number; y: number; elements: Set<Element> };
+    mouse: MouseData;
     user: {
       isPending: boolean;
       isLoggedIn: boolean;
@@ -45,9 +56,11 @@ export function AppDataManagerProvider({
   appData,
 }: {
   children: React.ReactNode;
-  appData: AppData;
+  appData: HashedShuttle<AppData> | string;
 }) {
-  const [{ user: u, ..._appData }, setAppData] = useState(appData);
+  const [{ user: u, ..._appData }, setAppData] = useState(
+    unpackDataWithHash(appData, 256, 137)
+  );
 
   const [userIsPending, setUserIsPending] = useState(false);
   const update = useCallback(async () => {
@@ -74,31 +87,47 @@ export function AppDataManagerProvider({
   const [isFocus, setIsFocus] = useState<boolean>();
   const [innerWidth, setInnerWidth] = useState<number>();
   const [outerWidth, setOuterWidth] = useState<number>();
+  const [innerHeight, setInnerHeight] = useState<number>();
+  const [outerHeight, setOuterHeight] = useState<number>();
   const [isBot, setIsBot] = useState<boolean>(_appData.isHeadless);
   const [botDetect, setBotDetect] = useState<{ [key: string]: boolean }>({});
   const [mouse, setMouse] = useState({
     x: 0,
     y: 0,
+    d: 0,
     elements: new Set<Element>(),
   });
   const isSmallScreen = (innerWidth || Infinity) < SMALL_SCREEN_W;
   const updateProps = useCallback(() => {
     setInnerWidth(window.innerWidth);
-    setOuterWidth(window.innerWidth);
+    setOuterWidth(window.outerWidth);
+    setInnerHeight(window.innerHeight);
+    setOuterHeight(window.outerHeight);
     setIsFocus(document.hasFocus());
-  }, [setInnerWidth, setOuterWidth, setIsFocus]);
+  }, [
+    setInnerWidth,
+    setOuterWidth,
+    setInnerHeight,
+    setOuterHeight,
+    setIsFocus,
+  ]);
   const updateMouseProps = useCallback(
     ({ clientX: x, clientY: y }: MouseEvent) => {
-      setMouse({ x, y, elements: new Set(document.elementsFromPoint(x, y)) });
+      setMouse(({ x: x1, y: y1 }) => ({
+        x,
+        y,
+        d: Math.sqrt((x1 - x) ** 2 + (y1 - y) ** 2),
+        elements: new Set(document.elementsFromPoint(x, y)),
+      }));
     },
     [setMouse]
   );
   useEffect(() => {
     setOrigin(location.origin);
-    const { value, details = {} } = isHeadless(
-      window,
-      process.env.NODE_ENV === "development"
-    );
+    const { value, details = {} } = detectBot({
+      ua: _appData.ua,
+      dev: process.env.NODE_ENV === "development",
+    });
     setIsBot((v) => v || value);
     setBotDetect(details);
     updateProps();
@@ -122,6 +151,8 @@ export function AppDataManagerProvider({
         isFocus,
         outerWidth,
         innerWidth,
+        outerHeight,
+        innerHeight,
         isSmallScreen,
         isBot,
         botDetect,
@@ -164,6 +195,10 @@ export function useBotDetect() {
 
 export function useMouse() {
   return useAppData().mouse;
+}
+
+export function useUserAgent() {
+  return useAppData().ua;
 }
 
 const v = store({ v: "" });

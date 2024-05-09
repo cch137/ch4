@@ -3,6 +3,7 @@ import "./globals.css";
 
 import type { Metadata } from "next";
 import { cookies, headers } from "next/headers";
+import uaParser from "ua-parser-js";
 
 import { appTitle } from "@/constants/app";
 import { sansFontClassname, css } from "@/constants/font";
@@ -10,6 +11,7 @@ import { TOKEN_COOKIE_NAME } from "@/constants/cookies";
 import { AppDataManagerProvider } from "@/hooks/useAppDataManager";
 import Token from "@/server/auth/tokenizer";
 import { v as version } from "@/server/version";
+import { packDataWithHash } from "@cch137/utils/shuttle";
 
 export const metadata: Metadata = {
   title: appTitle(),
@@ -26,6 +28,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const ua = headers().get("User-Agent") || "";
   return (
     <html lang="en" className="dark">
       <head>
@@ -44,11 +47,16 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: css }}
         />
         <AppDataManagerProvider
-          appData={{
-            version,
-            user: new Token(cookies().get(TOKEN_COOKIE_NAME)?.value).info,
-            isHeadless: /headless/.test(headers().get("User-Agent") || ""),
-          }}
+          appData={packDataWithHash(
+            {
+              version,
+              user: new Token(cookies().get(TOKEN_COOKIE_NAME)?.value).info,
+              isHeadless: /headless/.test(ua),
+              ua: new uaParser(ua).getResult(),
+            },
+            256,
+            137
+          ).toBase64()}
         >
           {children}
         </AppDataManagerProvider>
