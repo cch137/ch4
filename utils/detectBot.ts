@@ -7,8 +7,8 @@ export default function detectBot({
   ua: ParsedUa;
   dev?: boolean;
 }) {
+  if (typeof window === "undefined") return { value: false, details: {} };
   const win = window;
-  if (typeof win === "undefined") return { value: false, details: {} };
   const doc = document;
   const nav = navigator;
   // @ts-ignore
