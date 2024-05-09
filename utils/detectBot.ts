@@ -63,7 +63,8 @@ export default function detectBot({
       );
 
   // Chrome 瀏覽器沒有 window.chrome 屬性
-  const chromeIsAnomaly = /Chrome/.test(userAgent) && !chrome;
+  const chromeIsAnomaly =
+    ["Chrome", "Edge", "Opera"].includes(ua.browser?.name || "") && !chrome;
 
   // 检测 cdc 属性是否存在
   const cdcExists = (() => {
