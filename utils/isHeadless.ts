@@ -1,5 +1,5 @@
 const isWebdriver = (nav: Navigator) => {
-  if (nav.webdriver) return true;
+  if (nav.webdriver === true || nav.webdriver === undefined) return true;
   // 偵測 webdriver 是否有被重新定義，當被重新定義時是不正常請求
   return Object.keys(Object.getOwnPropertyDescriptors(nav)).includes(
     "webdriver"
