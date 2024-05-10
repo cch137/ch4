@@ -14,6 +14,7 @@ import {
   useAiChatInputConsole,
 } from "@/app/apps/ai-chat/useAiChat";
 import { Tooltip } from "@nextui-org/tooltip";
+import { useIsTouchScreen } from "@/hooks/useAppDataManager";
 
 export default function InputConsole({
   isAtBottom,
@@ -26,14 +27,11 @@ export default function InputConsole({
   const [textareaValue, setTextareaValue] = useState("");
 
   const { isAnswering, isStoping } = useAiChatInputConsole();
-  const isTouchScreen =
-    typeof window === "undefined"
-      ? false
-      : Boolean("ontouchstart" in window || navigator.maxTouchPoints);
+  const isTouchScreen = useIsTouchScreen();
   useEffect(() => {
     const textarea = _textarea.current;
     if (!textarea) return;
-    if (!isAnswering && !isTouchScreen) textarea.focus();
+    // if (!isAnswering && !isTouchScreen) textarea.focus();
   }, [_textarea, isAnswering, isTouchScreen]);
 
   const send = useCallback(async () => {

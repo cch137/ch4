@@ -39,6 +39,7 @@ const appDataContext = createContext<
     innerWidth?: number;
     outerHeight?: number;
     innerHeight?: number;
+    isTouchScreen?: boolean;
     isSmallScreen: boolean;
     isBot: boolean;
     botDetect: { [k: string]: boolean };
@@ -85,6 +86,8 @@ export function AppDataManagerProvider({
 
   const [origin, setOrigin] = useState("");
   const [isFocus, setIsFocus] = useState<boolean>();
+  const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
+  const [isTouchScreen, setIsTouchScreen] = useState<boolean>(false);
   const [innerWidth, setInnerWidth] = useState<number>();
   const [outerWidth, setOuterWidth] = useState<number>();
   const [innerHeight, setInnerHeight] = useState<number>();
@@ -97,14 +100,15 @@ export function AppDataManagerProvider({
     d: 0,
     elements: new Set<Element>(),
   });
-  const isSmallScreen = (innerWidth || Infinity) < SMALL_SCREEN_W;
   const updateProps = useCallback(() => {
+    setIsSmallScreen((window.innerWidth || Infinity) < SMALL_SCREEN_W);
     setInnerWidth(window.innerWidth);
     setOuterWidth(window.outerWidth);
     setInnerHeight(window.innerHeight);
     setOuterHeight(window.outerHeight);
     setIsFocus(document.hasFocus());
   }, [
+    setIsSmallScreen,
     setInnerWidth,
     setOuterWidth,
     setInnerHeight,
@@ -130,6 +134,9 @@ export function AppDataManagerProvider({
     });
     setIsBot((v) => v || value);
     setBotDetect(details);
+    setIsTouchScreen(
+      Boolean("ontouchstart" in window || navigator.maxTouchPoints)
+    );
     updateProps();
     addEventListener("resize", updateProps);
     addEventListener("focus", updateProps);
@@ -154,6 +161,7 @@ export function AppDataManagerProvider({
         outerHeight,
         innerHeight,
         isSmallScreen,
+        isTouchScreen,
         isBot,
         botDetect,
         mouse,
@@ -183,6 +191,10 @@ export function useIsFocus() {
 
 export function useIsSmallScreen() {
   return useAppData().isSmallScreen;
+}
+
+export function useIsTouchScreen() {
+  return useAppData().isTouchScreen;
 }
 
 export function useIsBot() {

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ChangeEvent } from "react";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 
 import { Button } from "@nextui-org/button";
 import { Slider } from "@nextui-org/slider";
@@ -73,6 +73,41 @@ function ConvConfigSlider({
   );
 }
 
+function ModelSelect({
+  isDisabled,
+  models,
+  modelOnChange,
+  selectedModels,
+}: {
+  isDisabled: boolean;
+  models: ModelType[];
+  modelOnChange: (e: ChangeEvent<HTMLSelectElement>) => Promise<void>;
+  selectedModels: string[];
+}) {
+  return (
+    <Select
+      isDisabled={isDisabled}
+      label="Model"
+      className="max-w-xs"
+      onChange={modelOnChange}
+      selectedKeys={selectedModels}
+      color="secondary"
+      variant="underlined"
+    >
+      {models.map((model, i) => (
+        <SelectItem
+          color="secondary"
+          variant="bordered"
+          key={model.value}
+          value={model.value}
+        >
+          {model.name}
+        </SelectItem>
+      ))}
+    </Select>
+  );
+}
+
 export default function ConversationConfig({
   closeSidebar,
   modelSettingOpened,
@@ -86,12 +121,22 @@ export default function ConversationConfig({
   const [modelSettingsHeight, setModelSettingsHeight] = useState("");
   const [isFetchingModels, setIsFetchingModels] = useState(true);
   const [showAdditional, setShowAdditional] = useState(false);
-  const models = _models.map((m) => ({
-    ...m,
-    value: correctModelName(m.value),
-  }));
-  const selectedModel = models.find((m) => m.value === convConfig.modl);
-  const selectedModels = selectedModel ? [selectedModel.value] : [];
+  const models = useMemo(
+    () =>
+      _models.map((m) => ({
+        ...m,
+        value: correctModelName(m.value),
+      })),
+    []
+  );
+  const selectedModel = useMemo(
+    () => models.find((m) => m.value === convConfig.modl),
+    [models, convConfig.modl]
+  );
+  const selectedModels = useMemo(
+    () => (selectedModel ? [selectedModel.value] : []),
+    [selectedModel]
+  );
   const isSmallScreen = useIsSmallScreen();
 
   const setSelectedModel = useCallback(
@@ -112,13 +157,16 @@ export default function ConversationConfig({
     }, 0);
   }, [setModelSettingsHeight]);
 
-  const modelOnChange = async (e: ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    const model = models.find((m) => m.value === value);
-    if (!model) return;
-    setSelectedModel(model);
-    adjustModelSettingsElHeight();
-  };
+  const modelOnChange = useCallback(
+    async (e: ChangeEvent<HTMLSelectElement>) => {
+      const value = e.target.value;
+      const model = models.find((m) => m.value === value);
+      if (!model) return;
+      setSelectedModel(model);
+      adjustModelSettingsElHeight();
+    },
+    [models, setSelectedModel, adjustModelSettingsElHeight]
+  );
 
   const inited = useRef(false);
   useEffect(() => {
@@ -141,26 +189,12 @@ export default function ConversationConfig({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex gap-2">
-        <Select
+        <ModelSelect
           isDisabled={isDisabled || isFetchingModels}
-          label="Model"
-          className="max-w-xs"
-          onChange={modelOnChange}
-          selectedKeys={selectedModels}
-          color="secondary"
-          variant="underlined"
-        >
-          {models.map((model, i) => (
-            <SelectItem
-              color="secondary"
-              variant="bordered"
-              key={model.value}
-              value={model.value}
-            >
-              {model.name}
-            </SelectItem>
-          ))}
-        </Select>
+          models={models}
+          modelOnChange={modelOnChange}
+          selectedModels={selectedModels}
+        />
         <div className="flex-1 gap-1 flex-center">
           <Tooltip
             content="Model settings"

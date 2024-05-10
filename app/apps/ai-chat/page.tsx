@@ -1,7 +1,7 @@
 "use client";
 
 import "./chat.css";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AICHAT_PATH, AICHAT_SHORTPATH, SIDEBAR_WIDTH } from "@/constants/chat";
 import { Link } from "@nextui-org/link";
 import PageSpinner from "@/components/PageSpinner";
@@ -52,8 +52,14 @@ export default function AiChatApp({
   const [isReady, setIsReady] = useState(false);
   const inited = useRef(false);
 
-  const toggleSidebarOpen = () => setIsSidebarOpen(!isSidebarOpen);
-  const closeSidebar = () => setIsSidebarOpen(false);
+  const toggleSidebarOpen = useCallback(
+    () => setIsSidebarOpen(!isSidebarOpen),
+    [setIsSidebarOpen, isSidebarOpen]
+  );
+  const closeSidebar = useCallback(
+    () => setIsSidebarOpen(false),
+    [setIsSidebarOpen]
+  );
 
   const { currentConv } = useAiChatPage();
   const isBot = useIsBot();
@@ -70,7 +76,7 @@ export default function AiChatApp({
       if (convId) loadConv(convId, true);
       inited.current = true;
     }
-  }, [isSidebarOpen, inited, setIsReady, convId]);
+  }, [isSidebarOpen, closeSidebar, inited, setIsReady, convId]);
 
   const getPathnameData = () => {
     const pathname = `${location.pathname}${
