@@ -171,12 +171,6 @@ const aiApps: LinkItem[] = [
     icon: "//you.com/favicon/apple-touch-icon-57x57.png",
   },
   {
-    title: "DALL·E",
-    description: "By OpenAI",
-    link: "//labs.openai.com/",
-    icon: "//labs.openai.com/favicon.ico",
-  },
-  {
     title: "GateKeep",
     description: "數理教學影片生成",
     link: "//app.gatekeep.ai/",
