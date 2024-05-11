@@ -180,6 +180,12 @@ const aiApps: LinkItem[] = [
     link: "//app.gatekeep.ai/",
     icon: "//app.gatekeep.ai/favicon.ico",
   },
+  {
+    title: "Komo",
+    description: "AI 搜索引擎",
+    link: "//komo.ai/",
+    icon: "//komo.ai/favicon.ico",
+  },
 ];
 
 const otherTools: LinkItem[] = [
