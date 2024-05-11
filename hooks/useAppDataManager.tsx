@@ -35,6 +35,7 @@ type MouseData = {
 const appDataContext = createContext<
   AppData & {
     origin: string;
+    isClient: boolean;
     isFocus?: boolean;
     outerWidth?: number;
     innerWidth?: number;
@@ -87,6 +88,7 @@ export function AppDataManagerProvider({
 
   const [origin, setOrigin] = useState("");
   const [isFocus, setIsFocus] = useState<boolean>();
+  const [isClient, setIsClient] = useState<boolean>(false);
   const [isSmallScreen, setIsSmallScreen] = useState<boolean>(false);
   const [isTouchScreen, setIsTouchScreen] = useState<boolean>(false);
   const [innerWidth, setInnerWidth] = useState<number>();
@@ -133,6 +135,7 @@ export function AppDataManagerProvider({
       ua: _appData.ua,
       dev: _appData.isDev,
     });
+    setIsClient(true);
     setIsBot((v) => v || value);
     setBotDetect(details);
     setIsTouchScreen(
@@ -149,13 +152,21 @@ export function AppDataManagerProvider({
       removeEventListener("blur", updateProps);
       removeEventListener("mousemove", updateMouseProps);
     };
-  }, [setOrigin, setIsBot, setBotDetect, updateProps, updateMouseProps]);
+  }, [
+    setOrigin,
+    setIsClient,
+    setIsBot,
+    setBotDetect,
+    updateProps,
+    updateMouseProps,
+  ]);
 
   return (
     <appDataContext.Provider
       value={{
         ..._appData,
         origin,
+        isClient,
         isFocus,
         outerWidth,
         innerWidth,
@@ -188,6 +199,10 @@ export function useOrigin() {
 
 export function useIsFocus() {
   return useAppData().isFocus;
+}
+
+export function useIsClient() {
+  return useAppData().isClient;
 }
 
 export function useIsSmallScreen() {

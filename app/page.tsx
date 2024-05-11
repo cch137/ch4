@@ -4,9 +4,11 @@ import Link from "next/link";
 import { MdKeyboardArrowRight } from "react-icons/md";
 import { Image } from "@nextui-org/image";
 import { Spacer } from "@nextui-org/spacer";
+import { Spinner } from "@nextui-org/spinner";
 import { Tooltip } from "@nextui-org/tooltip";
 
 import MainLayout from "@/components/MainLayout";
+import { useIsClient } from "@/hooks/useAppDataManager";
 
 type LinkItem = {
   title: string;
@@ -230,11 +232,20 @@ function LinkGroup({ title, links }: { title: string; links: LinkItem[] }) {
 }
 
 export default function Homepage() {
+  const isClient = useIsClient();
   return (
     <MainLayout>
       <LinkGroup title="本站應用" links={apps} />
-      <LinkGroup title="AI 應用" links={aiApps} />
-      <LinkGroup title="其他工具" links={otherTools} />
+      {isClient ? (
+        <>
+          <LinkGroup title="AI 應用" links={aiApps} />
+          <LinkGroup title="其他工具" links={otherTools} />
+        </>
+      ) : (
+        <div className="flex-center opacity-50 py-8">
+          <Spinner color="current" />
+        </div>
+      )}
       <Spacer y={8} />
       <div className="text-center text-default-200 select-none">
         <span>by</span>{" "}
