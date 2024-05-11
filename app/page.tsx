@@ -237,7 +237,10 @@ export default function Homepage() {
       <LinkGroup title="其他工具" links={otherTools} />
       <Spacer y={8} />
       <div className="text-center text-default-200 select-none">
-        <span>by</span> <Link href="https://github.com/cch137">@cch137</Link>
+        <span>by</span>{" "}
+        <Link href="https://github.com/cch137" target="_blank">
+          @cch137
+        </Link>
       </div>
     </MainLayout>
   );
