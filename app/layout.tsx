@@ -32,13 +32,6 @@ export default async function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "if((location.origin==='https://ch4.cch137.link'||location.origin==='https://x.cch137.link')&&location.pathname!=='/view/redirect')location=`/view/redirect?to=${decodeURIComponent(location.pathname+location.search)}`",
-          }}
-          suppressHydrationWarning
-        />
         <script async src="/t3b.js" />
       </head>
       <body className={sansFontClassname} suppressHydrationWarning>
