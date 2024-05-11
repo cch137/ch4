@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import AuthNext from "@/server/auth-next";
 import { unpackDataWithHash } from "@cch137/utils/shuttle";
-import type { UniOptions } from "@cch137/utils/ai";
+import type { UniOptions } from "@/server/ai-providers";
 import { readStream } from "@cch137/utils/stream";
 import { aiProvider, sendNextResponseStream } from "@/server/aichat";
 

@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 
 import store from "@cch137/utils/dev/store";
 import Broadcaster from "@cch137/utils/dev/broadcaster";
-import type { UniOptions } from "@cch137/utils/ai";
-import { wrapMessages } from "@cch137/utils/ai/utils";
+import type { UniOptions } from "@/server/ai-providers";
+import { wrapMessages } from "@/server/ai-providers/utils";
 import { packDataWithHash } from "@cch137/utils/shuttle";
 import detectLanguages from "@cch137/utils/detect-languages";
 import wrapStreamResponse from "@cch137/utils/fetch-stream/wrap-stream-response";

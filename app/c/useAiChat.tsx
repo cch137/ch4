@@ -21,7 +21,7 @@ import { useUserInfo } from "@/hooks/useAppDataManager";
 import { packDataWithHash } from "@cch137/utils/shuttle";
 import Broadcaster from "@cch137/utils/dev/broadcaster";
 import { vers } from "@/hooks/useAppDataManager";
-import { UniOptions } from "@cch137/utils/ai";
+import { UniOptions } from "@/server/ai-providers";
 import wrapStreamResponse from "@cch137/utils/fetch-stream/wrap-stream-response";
 import { StatusResponse, Dispatch, SetState } from "@/constants/types";
 import useFetch from "@/hooks/useFetch";
