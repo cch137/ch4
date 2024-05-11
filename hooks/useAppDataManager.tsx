@@ -22,6 +22,7 @@ type AppData = {
   version: string;
   user: UserInfo;
   ua: ParsedUa;
+  isDev: boolean;
 };
 
 type MouseData = {
@@ -130,7 +131,7 @@ export function AppDataManagerProvider({
     setOrigin(location.origin);
     const { value, details = {} } = detectBot({
       ua: _appData.ua,
-      dev: process.env.NODE_ENV === "development",
+      dev: _appData.isDev,
     });
     setIsBot((v) => v || value);
     setBotDetect(details);

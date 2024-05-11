@@ -53,6 +53,7 @@ export default async function RootLayout({
               user: new Token(cookies().get(TOKEN_COOKIE_NAME)?.value).info,
               isHeadless: /headless/.test(ua),
               ua: new uaParser(ua).getResult(),
+              isDev: process.env.NODE_ENV === "development",
             },
             256,
             137
