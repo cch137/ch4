@@ -7,7 +7,7 @@ import Broadcaster from "@cch137/utils/dev/broadcaster";
 import type { UniOptions } from "@cch137/utils/ai";
 import { wrapMessages } from "@cch137/utils/ai/utils";
 import { packDataWithHash } from "@cch137/utils/shuttle";
-import { analyzeLanguages } from "@cch137/utils/lang/analyze-languages";
+import detectLanguages from "@cch137/utils/detect-languages";
 import wrapStreamResponse from "@cch137/utils/fetch-stream/wrap-stream-response";
 
 import { ConvCompleted, ConvMeta, MssgMeta } from "@/constants/chat/types";
@@ -128,7 +128,7 @@ const countToken = (msgs: string | Message | Message[]): number => {
     return countToken(new Message({ text: msgs, _id: "", conv: "" }));
   if (!Array.isArray(msgs)) return countToken([msgs]);
   const sampleText = msgs.map((m) => m.source.text).join("\n\n");
-  const langs = analyzeLanguages(sampleText);
+  const langs = detectLanguages(sampleText);
   let tokens = 0;
   for (const lang in langs) {
     const percentage = langs[lang];
