@@ -8,7 +8,7 @@ import type { UniOptions } from "@cch137/utils/ai";
 import { wrapMessages } from "@cch137/utils/ai/utils";
 import { packDataWithHash } from "@cch137/utils/shuttle";
 import { analyzeLanguages } from "@cch137/utils/lang/analyze-languages";
-import wrapStreamResponse from "@cch137/utils/crawl/wrap-stream-response";
+import wrapStreamResponse from "@cch137/utils/fetch-stream/wrap-stream-response";
 
 import { ConvCompleted, ConvMeta, MssgMeta } from "@/constants/chat/types";
 import { StatusResponse } from "@/constants/types";
