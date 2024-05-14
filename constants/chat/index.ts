@@ -1,33 +1,39 @@
-import qs, { type ParsedQs } from "qs"
+import qs, { type ParsedQs } from "qs";
 import type { ConvConfig, ModelType } from "./types";
-import { CONTENT_MAX_W } from '../app'
+import { CONTENT_MAX_W } from "../app";
 
-export const AICHAT_PATH = '/apps/ai-chat/';
-export const AICHAT_SHORTPATH = '/c/';
-export const AICHAT_DESC = 'A simple AI chat app. Offers various models for free. This is for everyone.';
-export const TEMP = '[TEMP]';
+export const AICHAT_PATH = "/apps/ai-chat/";
+export const AICHAT_SHORTPATH = "/c/";
+export const AICHAT_DESC =
+  "A simple AI chat app. Offers various models for free. This is for everyone.";
+export const TEMP = "[TEMP]";
 export const SIDEBAR_WIDTH = 285;
-export {CONTENT_MAX_W};
+export { CONTENT_MAX_W };
 export const MAX_CTXT = 16;
 
 export const isTempMsgId = (id?: string | null) => !id || id.startsWith(TEMP);
 
-const correctNumber = (item: string | number | undefined | null, minValue: number, maxValue: number, defaultValue: number) => {
+const correctNumber = (
+  item: string | number | undefined | null,
+  minValue: number,
+  maxValue: number,
+  defaultValue: number
+) => {
   if (item === undefined || item === null) return defaultValue;
   const parsed = Number(item);
   if (isNaN(parsed)) return defaultValue;
   if (parsed > maxValue) return maxValue;
   if (parsed < minValue) return minValue;
   return parsed;
-}
+};
 
 const qsItemToString = (item?: string | string[] | ParsedQs | ParsedQs[]) => {
-  if (typeof item === 'string') return item;
+  if (typeof item === "string") return item;
   return undefined;
-}
+};
 
 export const DEFAULT_CONV_CONFIG = Object.freeze({
-  modl: 'gemini-pro',
+  modl: "gemini-pro",
   temp: 0.3,
   ctxt: MAX_CTXT,
   topP: 1,
@@ -35,26 +41,27 @@ export const DEFAULT_CONV_CONFIG = Object.freeze({
 });
 const c = DEFAULT_CONV_CONFIG;
 
-export const getDefConvConfig = (): ConvConfig => ({...c});
+export const getDefConvConfig = (): ConvConfig => ({ ...c });
 
-export const correctModelName = (model = '') => {
-  if (/^gemini/i.test(model)) return 'gemini-pro';
-  if (/^gpt[-_]?4/i.test(model)) return 'gpt-4';
-  if (/^gpt[-_]?3/i.test(model)) return 'gpt-3.5-turbo';
-  if (/^claude/i.test(model)) return 'claude-2';
+export const correctModelName = (model = "") => {
+  if (/^gemini/i.test(model)) return "gemini-pro";
+  if (/^gpt[-_]?4o/i.test(model)) return "gpt-4o";
+  if (/^gpt[-_]?4/i.test(model)) return "gpt-4";
+  if (/^gpt[-_]?3/i.test(model)) return "gpt-3.5-turbo";
+  if (/^claude/i.test(model)) return "claude-2";
   return c.modl;
-}
+};
 
-export const parseConvConfig = (conf: string = '') => {
+export const parseConvConfig = (conf: string = "") => {
   const {
     model,
-    temperature = '0.3',
-    context = 'true',
+    temperature = "0.3",
+    context = "true",
     modl: _modl = model,
     temp: _temp = temperature,
     topP: _topP,
     topK: _topK,
-    ctxt: _ctxt = context !== 'false' ? '16' : '0',
+    ctxt: _ctxt = context !== "false" ? "16" : "0",
   } = qs.parse(conf);
   const modl = correctModelName(qsItemToString(_modl));
   const temp = correctNumber(qsItemToString(_temp), 0, 1, c.temp);
@@ -62,7 +69,7 @@ export const parseConvConfig = (conf: string = '') => {
   const topK = correctNumber(qsItemToString(_topK), 1, 16, c.topK);
   const ctxt = correctNumber(qsItemToString(_ctxt), 0, MAX_CTXT, c.ctxt);
   return { modl, temp, topP, topK, ctxt } as ConvConfig;
-}
+};
 
 export const serializeConvConfig = (conf: ConvConfig) => {
   const {
@@ -78,12 +85,13 @@ export const serializeConvConfig = (conf: ConvConfig) => {
   const topK = correctNumber(_topK, 1, 16, c.topK);
   const ctxt = correctNumber(_ctxt, 0, MAX_CTXT, c.ctxt);
   return qs.stringify({ modl, temp, topP, topK, ctxt });
-}
+};
 
 function correctConvConfig(config: ConvConfig): ConvConfig;
 function correctConvConfig(config: string): string;
 function correctConvConfig(config: ConvConfig | string): ConvConfig | string {
-  if (typeof config === 'string') return serializeConvConfig(parseConvConfig(config));
+  if (typeof config === "string")
+    return serializeConvConfig(parseConvConfig(config));
   return parseConvConfig(serializeConvConfig(config));
 }
 export { correctConvConfig };
@@ -92,27 +100,33 @@ const MIN_LEVEL = 0;
 
 export const models: ModelType[] = [
   {
-    name: 'Gemini-Pro',
-    value: 'gemini-pro',
-    configKeys: ['temp','topP','topK','ctxt'],
+    name: "Gemini-Pro",
+    value: "gemini-pro",
+    configKeys: ["temp", "topP", "topK", "ctxt"],
     permissionLevel: MIN_LEVEL,
   },
   {
-    name: 'GPT-3.5-Turbo',
-    value: 'gpt3',
-    configKeys: ['temp','topP','ctxt'],
+    name: "GPT-4o",
+    value: "gpt-4o",
+    configKeys: ["temp", "topP", "topK", "ctxt"],
     permissionLevel: MIN_LEVEL,
   },
   {
-    name: 'GPT-4',
-    value: 'gpt4',
-    configKeys: ['temp','topP','topK','ctxt'],
+    name: "GPT-3.5-Turbo",
+    value: "gpt3",
+    configKeys: ["temp", "topP", "ctxt"],
     permissionLevel: MIN_LEVEL,
   },
   {
-    name: 'Claude-2',
-    value: 'claude-2',
-    configKeys: ['temp','topP','topK','ctxt'],
+    name: "GPT-4",
+    value: "gpt4",
+    configKeys: ["temp", "topP", "topK", "ctxt"],
+    permissionLevel: MIN_LEVEL,
+  },
+  {
+    name: "Claude-2",
+    value: "claude-2",
+    configKeys: ["temp", "topP", "topK", "ctxt"],
     permissionLevel: MIN_LEVEL,
   },
 ];

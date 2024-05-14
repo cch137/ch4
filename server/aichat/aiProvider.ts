@@ -24,8 +24,9 @@ const provider1 = await adminProvider(
 
 export type SupportedModel =
   | "gemini-pro"
-  | "gpt-3.5-turbo"
+  | "gpt-4o"
   | "gpt-4"
+  | "gpt-3.5-turbo"
   | "claude-2";
 
 const aiProvider = new SuperProvider(
@@ -39,6 +40,9 @@ const aiProvider = new SuperProvider(
     get ["gpt-4"]() {
       return provider0.value;
     },
+    get ["gpt-4o"]() {
+      return provider0.value;
+    },
     get ["claude-2"]() {
       return provider1.value;
     },
@@ -48,6 +52,7 @@ const aiProvider = new SuperProvider(
 aiProvider.listen(async (res) => {
   try {
     await res.untilDone;
+    console.log(res.model);
     if (res.lastError) throw new Error(res.lastError);
     statusAnalysis.record(res.model, true);
   } catch {
