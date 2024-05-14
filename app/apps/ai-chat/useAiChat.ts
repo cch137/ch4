@@ -123,6 +123,7 @@ const guessMaxInputToken = (_model?: string) => {
     case "claude-2":
       return 80000;
   }
+  return 8000;
 };
 
 const countToken = (msgs: string | Message | Message[]): number => {
