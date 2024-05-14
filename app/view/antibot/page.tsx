@@ -7,7 +7,6 @@ import {
   useMouse,
   useIsFocus,
 } from "@/hooks/useAppDataManager";
-import { Button } from "@nextui-org/button";
 import { useState } from "react";
 
 const json = (o: any) => JSON.stringify(o, void 0, 4);
@@ -21,9 +20,13 @@ export default function AntiBot() {
   const mouse = useMouse();
   return (
     <>
-      <Button id="count1" onClick={() => setCount((v) => v + 1)} size="sm">
+      <button
+        id="count1"
+        className="border-1"
+        onClick={() => setCount((v) => v + 1)}
+      >
         count: {count}
-      </Button>
+      </button>
       <pre>{`mouse: ${json(mouse)}`}</pre>
       <pre className="text-wrap">{`isBot: ${isBot}`}</pre>
       <pre className="text-wrap">{`isFocus: ${isFocus}`}</pre>
@@ -34,9 +37,13 @@ export default function AntiBot() {
         <summary>ua</summary>
         <pre className="text-wrap">{`ua: ${json(ua)}`}</pre>
       </details>
-      <Button id="count2" onClick={() => setCount((v) => v + 1)} size="sm">
+      <button
+        id="count2"
+        className="border-1"
+        onClick={() => setCount((v) => v + 1)}
+      >
         count: {count}
-      </Button>
+      </button>
     </>
   );
 }
