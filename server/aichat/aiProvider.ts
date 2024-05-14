@@ -52,7 +52,6 @@ const aiProvider = new SuperProvider(
 aiProvider.listen(async (res) => {
   try {
     await res.untilDone;
-    console.log(res.model);
     if (res.lastError) throw new Error(res.lastError);
     statusAnalysis.record(res.model, true);
   } catch {
