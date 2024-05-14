@@ -116,6 +116,8 @@ const guessMaxInputToken = (_model?: string) => {
       return 4000;
     case "gpt-4":
       return 8000;
+    case "gpt-4o":
+      return 8000;
     case "gemini-pro":
       return 8000;
     case "claude-2":
