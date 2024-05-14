@@ -21,7 +21,7 @@ export default function AiChatContent() {
     const inner = _inner.current;
     if (!outer || !inner) return;
     const isAtBottom =
-      inner.clientHeight - outer.clientHeight - Math.ceil(outer.scrollTop) < 8;
+      inner.clientHeight - outer.clientHeight - Math.ceil(outer.scrollTop) < 4;
     setIsAtBottom(isAtBottom);
   }, [_outer, _inner]);
 
