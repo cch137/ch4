@@ -5,7 +5,7 @@ import SuperProvider, {
 } from "@/server/ai-providers";
 import statusAnalysis from "./status";
 
-await admin.config["gemini-key"].set("AIzaSyAumupRyzuW_e7SBNqJX6debuVF-R9sYPg");
+// await admin.config["gemini-key"].set("key");
 
 const gemini = await adminProvider(
   [admin.config["gemini-key"]],
