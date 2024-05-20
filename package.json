@@ -10,7 +10,7 @@
     "test": "next dev"
   },
   "dependencies": {
-    "@cch137/utils": "^0.3.3",
+    "@cch137/utils": "^0.3.4",
     "@google/generative-ai": "^0.11.1",
     "@nextui-org/button": "^2.0.31",
     "@nextui-org/react": "^2.3.6",
