@@ -80,7 +80,7 @@ class GeminiResponse extends Stream implements BaseProviderResponse {
       );
       const genModel = client.getGenerativeModel({ model });
       const chat = genModel.startChat({
-        history,
+        history: history as any,
         generationConfig: { maxOutputTokens, temperature, topK, topP },
       });
       let globalError: Error | undefined = undefined;
