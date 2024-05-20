@@ -499,7 +499,7 @@ export default function MazeLab() {
 
   const setSeed = useCallback(
     (
-      seed: number = random.randInt(0, 2147483647),
+      seed: number = random.randint(0, 2147483647),
       generate = true,
       save = false
     ) => {

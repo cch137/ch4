@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 
-import store from "@cch137/utils/dev/store";
-import Broadcaster from "@cch137/utils/dev/broadcaster";
+import store from "@cch137/utils/store";
+import Emitter from "@cch137/utils/emitter";
 import type { UniOptions } from "@/server/ai-providers";
 import { wrapMessages } from "@/server/ai-providers/utils";
 import { packDataWithHash } from "@cch137/utils/shuttle";
 import detectLanguages from "@cch137/utils/detect-languages";
-import wrapStreamResponse from "@cch137/utils/fetch-stream/wrap-stream-response";
+import fetchStream from "@cch137/utils/fetch-stream";
 
 import { ConvCompleted, ConvMeta, MssgMeta } from "@/constants/chat/types";
 import { StatusResponse } from "@/constants/types";
@@ -26,19 +26,17 @@ import { vers } from "@/hooks/useAppDataManager";
 import random from "@cch137/utils/random";
 import { userIdCache } from "@/hooks/useAppDataManager";
 
-type action = "send" | "stream";
-export const answerBroadcaster = new Broadcaster<action>("ai-chat-answer");
-export const errorBroadcaster = new Broadcaster<{
-  message: string;
-  title?: string;
-}>("ai-chat-error");
+export const answerEmitter = new Emitter<{ send: []; stream: [] }>();
+export const errorEmitter = new Emitter<{
+  error: [message: string, title?: string];
+}>();
 
-const boardcastAnsweringSignal = (signal: action = "stream") => {
-  answerBroadcaster.broadcast(signal);
+const boardcastAnsweringSignal = (signal: "send" | "stream" = "stream") => {
+  answerEmitter.emit(signal);
 };
 
 const _handleErrorMessage = (message: string, title?: string) => {
-  errorBroadcaster.broadcast({ message, title });
+  errorEmitter.emit("error", message, title);
 };
 
 const handleError = (e?: any) => {
@@ -462,20 +460,21 @@ export const askQuestion = async (
       topP,
       topK,
     };
+    const t0 = Date.now();
     const res = await _askAiModel(options);
     if (chat.isStoping) res.controller.abort();
     boardcastAnsweringSignal("send");
-    res.chunks.$on(() => {
-      answer.edit(res.answer);
+    res.on("data", () => {
+      answer.edit(res.chunks.join(""));
       boardcastAnsweringSignal();
     });
     _stopGeneration = async () => {
       _stopGeneration = async () => {};
       res.controller.abort();
     };
-    res.promise
-      .then(async ({ dtms }) => {
-        answer.source.dtms = dtms;
+    res.process
+      .then(async () => {
+        answer.source.dtms = Date.now() - t0;
         if (!answer.source.text) {
           answer.source.text = "Model does not respond.";
           return handleError(answer.source.text);
@@ -641,13 +640,12 @@ export async function loadConv(
 }
 
 const _askAiModel = async (options: UniOptions) => {
-  const controller = new AbortController();
-  const res = await fetch("/api/ai-chat/ask", {
+  return await fetchStream("/api/ai-chat/ask", {
     method: "POST",
     body: packDataWithHash<UniOptions>(options, 256, 4141414141, 4242424242),
-    signal: controller.signal,
+    encoding: "utf8",
+    keepChunks: true,
   });
-  return wrapStreamResponse(res, { controller, handleError });
 };
 
 const _askConvName = async (q = "Hi", a = "Hi") => {
@@ -657,13 +655,15 @@ const _askConvName = async (q = "Hi", a = "Hi") => {
       messages: wrapMessages(prompt),
       temperature: 0,
     });
-    await res.promise;
-    const name = res.answer;
+    await res.process;
+    const name = res.chunks.join("");
     try {
       return `${JSON.parse(name)}`;
     } catch {}
     return name;
-  } catch {}
+  } catch (e) {
+    handleError(e);
+  }
   return "";
 };
 

@@ -21,7 +21,7 @@ import { IoAddOutline, IoEllipsisVertical } from "react-icons/io5";
 
 import { models as _models } from "@/constants/chat";
 import type { ConvMeta } from "@/constants/chat/types";
-import baseConverter from "@cch137/utils/format/base-converter";
+import baseConverter from "@cch137/utils/str/base-converter";
 import {
   useAiChatConvList,
   useAiChatConv,
@@ -46,7 +46,7 @@ function ConversationButton({
   const [isHover, setIsHover] = useState(false);
   const ref = createRef<HTMLButtonElement>();
   const { id, name: _name } = conv;
-  const name = _name || baseConverter.convert(id, "64w", 10);
+  const name = _name || baseConverter(id, "64w", 10);
 
   const { currentConv, isLoadingConv } = useAiChatConv();
 

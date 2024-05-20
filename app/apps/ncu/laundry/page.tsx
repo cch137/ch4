@@ -3,7 +3,7 @@
 import "./laundry.css";
 
 import { packData } from "@cch137/utils/shuttle";
-import formatDate from "@cch137/utils/format/date";
+import formatDate from "@cch137/utils/str/date";
 import { Button } from "@nextui-org/button";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Spinner } from "@nextui-org/spinner";

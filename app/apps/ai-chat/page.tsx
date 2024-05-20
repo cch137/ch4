@@ -16,7 +16,7 @@ import { useUserInfo } from "@/hooks/useAppDataManager";
 import SigninToContinue from "@/components/SignInToContinue";
 import {
   useAiChatPage,
-  errorBroadcaster,
+  errorEmitter,
   loadConv,
 } from "@/app/apps/ai-chat/useAiChat";
 import { useIsBot } from "@/hooks/useAppDataManager";
@@ -33,9 +33,12 @@ export default function AiChatApp({
 
   const { openErrorMessageBox, errorMessageBox } = useErrorMessage();
   useEffect(() => {
-    return errorBroadcaster.subscribe(({ data }) =>
-      openErrorMessageBox(data.message, data.title)
-    );
+    const handler = (message: string, title?: string) =>
+      openErrorMessageBox(message, title);
+    errorEmitter.on("error", handler);
+    return () => {
+      errorEmitter.off("error", handler);
+    };
   }, [openErrorMessageBox]);
 
   // sidebar stuffs

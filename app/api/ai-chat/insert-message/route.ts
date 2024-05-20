@@ -6,7 +6,7 @@ import type { MssgMeta, MssgMetaWithVers } from "@/constants/chat/types";
 import type { StatusResponse } from "@/constants/types";
 import { readStream } from "@cch137/utils/stream";
 import { unpackDataWithHash } from "@cch137/utils/shuttle";
-import { parse } from "@cch137/utils/format/version";
+import { parse } from "@cch137/utils/version-parser";
 
 export async function POST(
   req: NextRequest

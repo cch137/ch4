@@ -1,21 +1,19 @@
 import { Trigger, TriggerItem } from "@/constants/asst";
 import { StatusResponse } from "@/constants/types";
-import Broadcaster from "@cch137/utils/dev/broadcaster";
-import store from "@cch137/utils/dev/store";
+import Emitter from "@cch137/utils/emitter";
+import store from "@cch137/utils/store";
 import { packDataWithHash, unpackDataWithHash } from "@cch137/utils/shuttle";
 import { readStream } from "@cch137/utils/stream";
 import { useEffect, useState } from "react";
-import wrapStreamResponse from "@cch137/utils/fetch-stream/wrap-stream-response";
+import fetchStream from "@cch137/utils/fetch-stream";
 
-export const triggersErrorBroadcaster = new Broadcaster<{
-  message: string;
-  title?: string;
-}>("aiasst-trigger-error");
+export const triggersErrorEmitter = new Emitter<{
+  error: [message: string, title?: string];
+}>();
 
 const handleTriggersError = (err: any): void => {
   if (err instanceof Error) return handleTriggersError(err.message || err.name);
-  if (typeof err === "string")
-    triggersErrorBroadcaster.broadcast({ message: err });
+  if (typeof err === "string") triggersErrorEmitter.emit("error", err);
   else console.error(err);
 };
 
@@ -74,10 +72,11 @@ export const updateTrigger = async (trigger?: Trigger) => {
 export const testTrigger = async (_id?: string) => {
   try {
     if (!_id) throw new Error("Trigger id not provided");
-    const res = await fetch(`/api/ai-asst/triggers/${_id}/test`, {
+    return await fetchStream(`/api/ai-asst/triggers/${_id}/test`, {
       method: "POST",
+      encoding: "utf8",
+      keepChunks: true,
     });
-    return wrapStreamResponse(res, { handleError: handleTriggersError });
   } catch (e) {
     handleTriggersError(e);
     return null;

@@ -27,7 +27,7 @@ import {
   IoTrashOutline,
 } from "react-icons/io5";
 
-import formatDate from "@cch137/utils/format/date";
+import formatDate from "@cch137/utils/str/date";
 import {
   Modal,
   ModalContent,
@@ -36,7 +36,7 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@nextui-org/modal";
-import store, { StoreType } from "@cch137/utils/dev/store";
+import store, { StoreType } from "@cch137/utils/store";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Spinner } from "@nextui-org/spinner";
@@ -271,8 +271,8 @@ function AsstTrigger({ trigger }: { trigger: Trigger }) {
       setIsTesting(true);
       const res = await testTrigger(form._id);
       if (!res) throw new Error("No Response");
-      res.chunks.$on((o) => setExecResult(res.answer));
-      await res.promise;
+      res.on("data", () => setExecResult(res.chunks.join("")));
+      await res.process;
     } finally {
       setIsTesting(false);
     }

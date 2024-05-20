@@ -1,5 +1,5 @@
 import fs from "fs";
-import { parse } from "@cch137/utils/format/version";
+import { parse } from "@cch137/utils/version-parser";
 
 const version = parse(
   JSON.parse(fs.readFileSync("package.json", "utf8"))?.version || ""

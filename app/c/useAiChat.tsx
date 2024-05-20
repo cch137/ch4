@@ -19,27 +19,25 @@ import {
 } from "@/constants/chat";
 import { useUserInfo } from "@/hooks/useAppDataManager";
 import { packDataWithHash } from "@cch137/utils/shuttle";
-import Broadcaster from "@cch137/utils/dev/broadcaster";
+import Emitter from "@cch137/utils/emitter";
 import { vers } from "@/hooks/useAppDataManager";
 import { UniOptions } from "@/server/ai-providers";
-import wrapStreamResponse from "@cch137/utils/fetch-stream/wrap-stream-response";
+import fetchStream from "@cch137/utils/fetch-stream";
 import { StatusResponse, Dispatch, SetState } from "@/constants/types";
 import useFetch from "@/hooks/useFetch";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 
-type action = "send" | "stream";
-export const answerBroadcaster = new Broadcaster<action>("ai-chat-answer");
-export const errorBroadcaster = new Broadcaster<{
-  message: string;
-  title?: string;
-}>("ai-chat-error");
+export const answerEmitter = new Emitter<{ send: []; stream: [] }>();
+export const errorEmitter = new Emitter<{
+  error: [message: string, title?: string];
+}>();
 
-const boardcastAnsweringSignal = (signal: action = "stream") => {
-  answerBroadcaster.broadcast(signal);
+const boardcastAnsweringSignal = (signal: "send" | "stream" = "stream") => {
+  answerEmitter.emit(signal);
 };
 
 const _handleErrorMessage = (message: string, title?: string) => {
-  errorBroadcaster.broadcast({ message, title });
+  errorEmitter.emit("error", message, title);
 };
 
 const handleError = (e?: any) => {
@@ -126,13 +124,16 @@ async function createConversation() {
 }
 
 const _askAiModel = async (options: UniOptions) => {
-  const controller = new AbortController();
-  const res = await fetch("/api/ai-chat/ask", {
-    method: "POST",
-    body: packDataWithHash<UniOptions>(options, 256, 4141414141, 4242424242),
-    signal: controller.signal,
-  });
-  return wrapStreamResponse(res, { controller, handleError });
+  try {
+    return await fetchStream("/api/ai-chat/ask", {
+      method: "POST",
+      body: packDataWithHash<UniOptions>(options, 256, 4141414141, 4242424242),
+      encoding: "utf8",
+      keepChunks: true,
+    });
+  } catch (e) {
+    handleError(e);
+  }
 };
 
 export type Conversation = ConvMeta & {

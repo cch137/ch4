@@ -3,8 +3,8 @@ import AuthNext from "@/server/auth-next";
 import { unpackDataWithHash } from "@cch137/utils/shuttle";
 import type { UniOptions } from "@/server/ai-providers";
 import { readStream } from "@cch137/utils/stream";
-import getIp from "@cch137/utils/server/get-ip";
-import RateLimiter from "@cch137/utils/server/rate-limiter";
+import getRequestIp from "@cch137/utils/server/get-request-ip";
+import RateLimiter from "@cch137/utils/rate-limiter";
 import { aiProvider, sendNextResponseStream } from "@/server/aichat";
 
 const rateLimiter = new RateLimiter([
@@ -24,7 +24,7 @@ const tryUnpackData = <T = UniOptions>(array: Uint8Array) => {
 };
 
 export async function POST(req: NextRequest) {
-  const ip = getIp(req);
+  const ip = getRequestIp(req);
   const rateCheck = rateLimiter.check(ip);
   if (!rateCheck.success)
     return new NextResponse(rateCheck.message, { status: 429 });

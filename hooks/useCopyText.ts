@@ -1,4 +1,4 @@
-import copyToClipboard from "@cch137/utils/webpage/copy-to-clipboard";
+import copyToClipboard from "@cch137/utils/web/copy-to-clipboard";
 import { useRef, useState } from "react";
 
 export default function useCopyText(

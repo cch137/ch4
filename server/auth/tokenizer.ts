@@ -4,7 +4,7 @@ import userManager from "./user-manager";
 import {
   base64ToBase64Url,
   base64UrlToBase64,
-} from "@cch137/utils/format/base64";
+} from "@cch137/utils/str/base-converter";
 import admin from "../admin";
 
 type TokenType = {
@@ -61,12 +61,17 @@ class Token implements TokenType {
   lastChecked: Date;
 
   constructor(token?: AnyTokenType) {
-    if (typeof token === "string")
-      token = unpackDataWithHash<TokenArrayType>(
-        base64UrlToBase64(token),
-        "MD5",
-        SALTS.value
-      );
+    if (typeof token === "string") {
+      try {
+        token = unpackDataWithHash<TokenArrayType>(
+          base64UrlToBase64(token),
+          "MD5",
+          ...SALTS.value
+        ) as TokenArrayType;
+      } catch {
+        token = void 0;
+      }
+    }
     if (Array.isArray(token)) token = tokenArrayToToken(token);
     const now = new Date();
     const {
@@ -169,7 +174,7 @@ class Token implements TokenType {
         packDataWithHash(
           tokenToTokenArray(token),
           "MD5",
-          SALTS.value
+          ...SALTS.value
         ).toBase64()
       );
     } catch {

@@ -5,15 +5,15 @@ import { readStream } from "@cch137/utils/stream";
 import auth from "@/server/auth";
 import type { StatusResponse } from "@/constants/types";
 import AuthNext from "@/server/auth-next";
-import getIp from "@cch137/utils/server/get-ip";
-import RateLimiter from "@cch137/utils/server/rate-limiter";
+import getRequestIp from "@cch137/utils/server/get-request-ip";
+import RateLimiter from "@cch137/utils/rate-limiter";
 
 const rateLimiter = new RateLimiter([{ maxCount: 5, timeMs: 60000 * 15 }]);
 
 export async function POST(
   req: NextRequest
 ): Promise<NextResponse<StatusResponse>> {
-  const ip = getIp(req);
+  const ip = getRequestIp(req);
   const rateCheck = rateLimiter.check(ip);
   if (!rateCheck.success) return NextResponse.json(rateCheck, { status: 429 });
   try {

@@ -8,7 +8,7 @@ import {
 } from "@/constants/asst";
 import useAiTriggers, {
   createTrigger,
-  triggersErrorBroadcaster,
+  triggersErrorEmitter,
   triggersStore,
 } from "@/app/apps/ai-asst/useAiTriggers";
 import { Button } from "@nextui-org/button";
@@ -80,9 +80,12 @@ export default function AiAsst() {
   const { errorMessageBox, openErrorMessageBox } = useErrorMessage();
 
   useEffect(() => {
-    return triggersErrorBroadcaster.subscribe(({ data: { message, title } }) =>
-      openErrorMessageBox(message, title)
-    );
+    const handler = (message: string, title?: string) =>
+      openErrorMessageBox(message, title);
+    triggersErrorEmitter.on("error", handler);
+    return () => {
+      triggersErrorEmitter.off("error", handler);
+    };
   }, [openErrorMessageBox]);
 
   const { isPending, isLoggedIn } = useUserInfo();

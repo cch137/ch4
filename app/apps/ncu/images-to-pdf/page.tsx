@@ -6,7 +6,7 @@ import { IoArrowUpCircleOutline, IoShuffle } from "react-icons/io5";
 import { Spacer } from "@nextui-org/spacer";
 import { Input } from "@nextui-org/input";
 import { readStream } from "@cch137/utils/stream";
-import formatBytes from "@cch137/utils/format/format-bytes";
+import formatBytes from "@cch137/utils/str/format-bytes";
 
 export default function Laundry() {
   const [files, setFiles] = useState<

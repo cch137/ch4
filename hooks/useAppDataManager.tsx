@@ -9,7 +9,7 @@ import {
 } from "react";
 import type { IResult as ParsedUa } from "ua-parser-js";
 
-import store from "@cch137/utils/dev/store";
+import store from "@cch137/utils/store";
 
 import type { StatusResponse, UserInfo } from "@/constants/types";
 import detectBot from "@/utils/detectBot";

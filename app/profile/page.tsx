@@ -1,6 +1,6 @@
 "use client";
 
-import formatDate from "@cch137/utils/format/date";
+import formatDate from "@cch137/utils/str/date";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/input";
 import {

@@ -33,7 +33,7 @@ import Markdown, { ExtraProps } from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import type { SetState } from "@/constants/types";
-import formatDate from "@cch137/utils/format/date";
+import formatDate from "@cch137/utils/str/date";
 import useCopyText from "@/hooks/useCopyText";
 
 import MessageCodeBlock from "./codeblock";

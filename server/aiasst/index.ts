@@ -12,7 +12,7 @@ import {
   PluginType,
 } from "@/constants/asst";
 import { userManager } from "../auth";
-import formatDate from "@cch137/utils/format/date";
+import formatDate from "@cch137/utils/str/date";
 import { aiProvider } from "../aichat";
 import mailer from "../auth/mailer";
 import { marked } from "marked";
