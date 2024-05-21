@@ -6,6 +6,7 @@ import {
   useContext,
   useCallback,
   useEffect,
+  useRef,
 } from "react";
 import type { IResult as ParsedUa } from "ua-parser-js";
 
@@ -14,6 +15,7 @@ import store from "@cch137/utils/store";
 import type { StatusResponse, UserInfo } from "@/constants/types";
 import detectBot from "@/utils/detectBot";
 import { type HashedShuttle, unpackDataWithHash } from "@cch137/utils/shuttle";
+import Emitter from "@cch137/utils/emitter";
 
 export const SMALL_SCREEN_W = 720;
 
@@ -53,6 +55,8 @@ const appDataContext = createContext<
     };
   }
 >(undefined!);
+
+export const swipe = new Emitter<{ left: []; right: []; up: []; down: [] }>();
 
 export function AppDataManagerProvider({
   children,
@@ -157,9 +161,43 @@ export function AppDataManagerProvider({
     setIsClient,
     setIsBot,
     setBotDetect,
+    setIsTouchScreen,
     updateProps,
     updateMouseProps,
   ]);
+
+  // swipe
+  const touchStartCoor = useRef([0, 0] as [number, number]);
+  useEffect(() => {
+    const touchStart = (ev: TouchEvent) => {
+      if (ev.touches.length !== 1) return;
+      const { screenX, screenY } = ev.touches[0];
+      touchStartCoor.current = [screenX, screenY];
+    };
+    const touchEnd = (ev: TouchEvent) => {
+      if (ev.changedTouches.length !== 1) return;
+      const { screenX: endX, screenY: endY } = ev.changedTouches[0];
+      const [startX, startY] = touchStartCoor.current;
+      const deltaX = endX - startX;
+      const deltaY = endY - startY;
+      const absDx = Math.abs(deltaX);
+      const absDy = Math.abs(deltaY);
+      if (absDx > absDy) {
+        if (absDx > Math.min(120, (innerWidth || 1e3) / 4))
+          swipe.emit(deltaX > 0 ? "left" : "right");
+      }
+      if (absDx < absDy) {
+        if (absDy > Math.min(120, (innerHeight || 1e3) / 4))
+          swipe.emit(deltaY > 0 ? "up" : "down");
+      }
+    };
+    addEventListener("touchstart", touchStart);
+    addEventListener("touchend", touchEnd);
+    return () => {
+      removeEventListener("touchstart", touchStart);
+      removeEventListener("touchend", touchEnd);
+    };
+  }, [touchStartCoor]);
 
   return (
     <appDataContext.Provider

@@ -8,9 +8,10 @@ import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IoArrowBack, IoArrowForward } from "react-icons/io5";
 import { useTextAnsPromblems } from "../problems";
+import { swipe } from "@/hooks/useAppDataManager";
 
 const secure = false;
 
@@ -120,6 +121,33 @@ export default function TextAnsView() {
     document.title = title;
   }, [title]);
 
+  const goToIsbnCP = useCallback(
+    (value?: string) => {
+      if (!value) return;
+      const prob = problems.find(({ isbn_c_p: _ }) => _ === value);
+      if (!prob) return;
+      router.push(
+        getProblemLinks(
+          prob.isbn_c_p,
+          encodeURIComponent(prob.link || ""),
+          !Boolean(yadiskLink)
+        ).view
+      );
+    },
+    [yadiskLink, router, problems]
+  );
+
+  useEffect(() => {
+    const prev = () => goToIsbnCP(prevProb?.isbn_c_p);
+    const next = () => goToIsbnCP(nextProb?.isbn_c_p);
+    swipe.on("left", prev);
+    swipe.on("right", next);
+    return () => {
+      swipe.off("left", prev);
+      swipe.off("right", next);
+    };
+  });
+
   if (secure) {
     if (!ttxHasPass && !ttxError) {
       if (ttxBlock) return <NotFound />;
@@ -152,18 +180,9 @@ export default function TextAnsView() {
             {indexError ? null : (
               <select
                 className="focus:outline-none"
-                onInput={(e) => {
-                  const value = (e.target as HTMLSelectElement).value;
-                  const prob = problems.find(({ isbn_c_p: _ }) => _ === value);
-                  if (prob)
-                    router.push(
-                      getProblemLinks(
-                        prob.isbn_c_p,
-                        encodeURIComponent(prob.link || ""),
-                        !Boolean(yadiskLink)
-                      ).view
-                    );
-                }}
+                onInput={(e) =>
+                  goToIsbnCP((e.target as HTMLSelectElement).value)
+                }
                 value={isbn_c_p}
               >
                 {problems.map((k, i) => (
