@@ -89,6 +89,7 @@ export default function TextAnsView() {
     ? "please wait"
     : "click to focus";
 
+  const router = useRouter();
   const problems = useTextAnsPromblems();
   const index = problems.findIndex(({ isbn_c_p: _ }) => _ === isbn_c_p);
   const indexError = index === -1;
@@ -98,29 +99,10 @@ export default function TextAnsView() {
     : index < problems.length - 1
     ? index + 1
     : index;
-  const prevProb = indexError ? null : problems[prevIndex!];
-  const nextProb = indexError ? null : problems[nextIndex!];
-  const prevProbHref = indexError
-    ? null
-    : getProblemLinks(
-        prevProb!.isbn_c_p,
-        encodeURIComponent(prevProb!.link || ""),
-        !Boolean(yadiskLink)
-      ).view;
-  const nextProbHref = indexError
-    ? null
-    : getProblemLinks(
-        nextProb!.isbn_c_p,
-        encodeURIComponent(nextProb!.link || ""),
-        !Boolean(yadiskLink)
-      ).view;
-
-  const router = useRouter();
-
-  useEffect(() => {
-    document.title = appTitle(title);
-  }, [title]);
-
+  const prevProb =
+    indexError || index === prevIndex ? null : problems[prevIndex!];
+  const nextProb =
+    indexError || index === nextIndex ? null : problems[nextIndex!];
   const goToIsbnCP = useCallback(
     (value?: string) => {
       if (!value) return;
@@ -136,17 +118,27 @@ export default function TextAnsView() {
     },
     [yadiskLink, router, problems]
   );
+  const gotoPrevProb = useCallback(
+    () => goToIsbnCP(prevProb?.isbn_c_p),
+    [goToIsbnCP, prevProb]
+  );
+  const gotoNextProb = useCallback(
+    () => goToIsbnCP(nextProb?.isbn_c_p),
+    [goToIsbnCP, nextProb]
+  );
 
   useEffect(() => {
-    const prev = () => goToIsbnCP(prevProb?.isbn_c_p);
-    const next = () => goToIsbnCP(nextProb?.isbn_c_p);
-    swipe.on("left", prev);
-    swipe.on("right", next);
+    document.title = appTitle(title);
+  }, [title]);
+
+  useEffect(() => {
+    swipe.on("left", gotoPrevProb);
+    swipe.on("right", gotoNextProb);
     return () => {
-      swipe.off("left", prev);
-      swipe.off("right", next);
+      swipe.off("left", gotoPrevProb);
+      swipe.off("right", gotoNextProb);
     };
-  }, [goToIsbnCP, prevProb, nextProb]);
+  }, [gotoPrevProb, gotoNextProb, prevProb, nextProb]);
 
   if (secure) {
     if (!ttxHasPass && !ttxError) {
@@ -170,9 +162,8 @@ export default function TextAnsView() {
             isIconOnly
             className="rounded-none text-xl"
             variant="light"
-            isDisabled={indexError || index === prevIndex}
-            as={Link}
-            href={prevProbHref || ""}
+            isDisabled={!prevProb}
+            onClick={gotoPrevProb}
           >
             <IoArrowBack />
           </Button>
@@ -194,9 +185,8 @@ export default function TextAnsView() {
             isIconOnly
             className="rounded-none text-xl"
             variant="light"
-            isDisabled={indexError || index === nextIndex}
-            as={Link}
-            href={nextProbHref || ""}
+            isDisabled={!nextProb}
+            onClick={gotoNextProb}
           >
             <IoArrowForward />
           </Button>
