@@ -2,7 +2,11 @@
 
 import NotFound from "@/app/not-found";
 import { appTitle } from "@/constants/app";
-import { getProblemLinks, getStaticLink } from "@/constants/apps/text-unlock";
+import {
+  getProblemLinks,
+  getStaticLink,
+  TEXTUNLOCK_PATHNAME,
+} from "@/constants/apps/text-unlock";
 import { useTTXSecure } from "@/hooks/useTTX";
 import { Button } from "@nextui-org/button";
 import { Image } from "@nextui-org/image";
@@ -197,7 +201,7 @@ export default function TextAnsView() {
           <>
             <div className="flex-center flex-col gap-4 text-default-600 py-64">
               <h1 className="text-2xl">Not Found</h1>
-              <Button variant="flat" href="/apps/text-unlock" as={Link}>
+              <Button variant="flat" href={TEXTUNLOCK_PATHNAME} as={Link}>
                 Back
               </Button>
             </div>
