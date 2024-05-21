@@ -8,11 +8,7 @@ export const metadata: Metadata = {
   description: "Textbook answers",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout() {
   return (
     <ProblemsContextProvider>
       <TextAnsView />

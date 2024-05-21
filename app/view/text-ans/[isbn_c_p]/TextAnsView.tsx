@@ -125,6 +125,10 @@ export default function TextAnsView() {
     if (ttxBlock) return <NotFound />;
   }
 
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
+
   return (
     <div
       className="w-full h-dvh flex flex-col items-center overflow-y-scroll"
