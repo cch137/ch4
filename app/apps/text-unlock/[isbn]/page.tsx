@@ -23,6 +23,8 @@ import {
   getQueryJSONUrl,
   TEXTUNLOCK_PATHNAME,
   getProblemLinks,
+  sortChapterProblems,
+  type Problem,
 } from "@/constants/apps/text-unlock";
 import useInit from "@/hooks/useInit";
 import { appTitle } from "@/constants/app";
@@ -30,11 +32,6 @@ import { Image } from "@nextui-org/image";
 import { IoMdClose } from "react-icons/io";
 import Collapsible from "@/components/Collapsible";
 import { useTTXSecure } from "@/hooks/useTTX";
-
-type Problem = {
-  isbn_c_p: string;
-  link: string;
-};
 
 function ChapterSection({
   chapter,
@@ -55,32 +52,7 @@ function ChapterSection({
 }) {
   const [_renderSection, setRenderSection] = useState(false);
   const renderSection = isOpen || _renderSection;
-  const sortedProblems = problems
-    .map(({ isbn_c_p, link }) => ({
-      isbn_c_p,
-      p: isbn_c_p.split("_").at(-1)!,
-      link,
-    }))
-    .map((item) => {
-      const numeric = Number(
-        item.p
-          .split("")
-          .filter((i) => "1234567890".includes(i))
-          .join("")
-      );
-      const alphabetic = item.p
-        .split("")
-        .filter((i) => !"1234567890".includes(i))
-        .join("");
-      return { item, numeric, alphabetic };
-    })
-    .sort((a, b) => a.numeric - b.numeric)
-    // .sort((a, b) => {
-    //   if (a.alphabetic > b.alphabetic) return 1;
-    //   if (a.alphabetic < b.alphabetic) return -1;
-    //   return 0;
-    // })
-    .map(({ item: { p, isbn_c_p, link } }) => ({ p, isbn_c_p, link }));
+  const sortedProblems = sortChapterProblems(problems);
   const closeRenderSection = useRef<NodeJS.Timeout>();
   useEffect(() => {
     if (isOpen) {

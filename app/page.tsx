@@ -185,10 +185,10 @@ const aiApps: LinkItem[] = [
 ];
 
 const otherTools: LinkItem[] = [
-  {
-    title: "test",
-    link: "/c/",
-  },
+  // {
+  //   title: "test",
+  //   link: "/c/",
+  // },
   {
     title: "Google 翻譯",
     link: "//translate.google.com",

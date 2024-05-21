@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { appTitle } from "@/constants/app";
+import { ProblemsContextProvider } from "./problems";
+import TextAnsView from "./[isbn_c_p]/TextAnsView";
 
 export const metadata: Metadata = {
   title: appTitle("TextUnlock"),
@@ -11,5 +13,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <ProblemsContextProvider>
+      <TextAnsView />
+    </ProblemsContextProvider>
+  );
 }
