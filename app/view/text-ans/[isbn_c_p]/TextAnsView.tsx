@@ -136,10 +136,7 @@ export default function TextAnsView() {
       onDoubleClick={allowCopy ? void 0 : (e) => e.preventDefault()}
     >
       <title>{appTitle(title)}</title>
-      <div
-        className={`max-w-full ${allowCopy ? "" : "pointer-events-none"}`}
-        style={{ width: 960 }}
-      >
+      <div className="max-w-full" style={{ width: 960 }}>
         <div className="flex bg-default-50 sticky top-0 z-50">
           <Button
             isIconOnly
