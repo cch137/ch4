@@ -203,7 +203,7 @@ export default function TextAnsView() {
         </div>
         {isLoading ? (
           <div className="flex-center text-default-300 py-64">loading...</div>
-        ) : !src || indexError ? (
+        ) : !src ? (
           <>
             <div className="flex-center flex-col gap-4 text-default-600 py-64">
               <h1 className="text-2xl">Not Found</h1>
@@ -222,6 +222,7 @@ export default function TextAnsView() {
             classNames={{ wrapper: allowCopy ? "" : "pointer-events-none" }}
             draggable="false"
             style={{ width: 960 }}
+            onError={() => setSrc(null)}
           />
         )}
       </div>
