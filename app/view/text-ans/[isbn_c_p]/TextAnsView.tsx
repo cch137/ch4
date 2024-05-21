@@ -68,7 +68,7 @@ export default function TextAnsView() {
   }, [setSrc, yadiskLink, _yadiskLink, isbn_c_p]);
 
   const [isbn, chapter, problem] = isbn_c_p.split("_");
-  const title = isbn_c_p ? `${chapter}_${problem}_${isbn}` : "Unknown";
+  const title = isbn_c_p ? `${chapter}_${problem}` : "Unknown";
   const {
     ttxShow,
     ttxError,
@@ -177,21 +177,18 @@ export default function TextAnsView() {
             <IoArrowBack />
           </Button>
           <div className="flex-1 flex-center text-default-600 select-none">
-            {indexError ? null : (
-              <select
-                className="focus:outline-none"
-                onInput={(e) =>
-                  goToIsbnCP((e.target as HTMLSelectElement).value)
-                }
-                value={isbn_c_p}
-              >
-                {problems.map((k, i) => (
-                  <option key={i} value={k.isbn_c_p}>
-                    {k.isbn_c_p.split("_").slice(1).join("_")}
-                  </option>
-                ))}
-              </select>
-            )}
+            <select
+              className="focus:outline-none"
+              onInput={(e) => goToIsbnCP((e.target as HTMLSelectElement).value)}
+              value={indexError ? "NOT_FOUND" : isbn_c_p}
+            >
+              {indexError ? <option value="NOT_FOUND"></option> : null}
+              {problems.map((k, i) => (
+                <option key={i} value={k.isbn_c_p}>
+                  {k.isbn_c_p.split("_").slice(1).join("_")}
+                </option>
+              ))}
+            </select>
           </div>
           <Button
             isIconOnly
@@ -205,11 +202,16 @@ export default function TextAnsView() {
           </Button>
         </div>
         {isLoading ? (
-          <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 text-default-300 select-none">
-            loading...
-          </div>
-        ) : !src ? (
-          <NotFound />
+          <div className="flex-center text-default-300 py-64">loading...</div>
+        ) : !src || indexError ? (
+          <>
+            <div className="flex-center flex-col gap-4 text-default-600 py-64">
+              <h1 className="text-2xl">Not Found</h1>
+              <Button variant="flat" href="/apps/text-unlock" as={Link}>
+                Back
+              </Button>
+            </div>
+          </>
         ) : (
           <Image
             alt={title}
