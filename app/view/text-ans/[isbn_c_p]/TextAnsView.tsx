@@ -146,7 +146,7 @@ export default function TextAnsView() {
       swipe.off("left", prev);
       swipe.off("right", next);
     };
-  }, [goToIsbnCP]);
+  }, [goToIsbnCP, prevProb, nextProb]);
 
   if (secure) {
     if (!ttxHasPass && !ttxError) {
