@@ -75,7 +75,6 @@ export default function StepByStep() {
     >
       <Input
         variant="bordered"
-        size="sm"
         classNames={{ input: "text-medium" }}
         value={searchValue}
         placeholder="Textbook"
