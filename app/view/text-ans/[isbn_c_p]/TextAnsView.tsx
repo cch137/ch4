@@ -116,6 +116,10 @@ export default function TextAnsView() {
 
   const router = useRouter();
 
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
+
   if (secure) {
     if (!ttxHasPass && !ttxError) {
       if (ttxBlock) return <NotFound />;
@@ -124,10 +128,6 @@ export default function TextAnsView() {
   } else {
     if (ttxBlock) return <NotFound />;
   }
-
-  useEffect(() => {
-    document.title = title;
-  }, [title]);
 
   return (
     <div
