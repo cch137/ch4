@@ -118,7 +118,7 @@ export default function TextAnsView() {
   const router = useRouter();
 
   useEffect(() => {
-    document.title = title;
+    document.title = appTitle(title);
   }, [title]);
 
   const goToIsbnCP = useCallback(
