@@ -1,5 +1,5 @@
 "use client";
 
-export default function TextAnsView() {
-  return <></>;
-}
+import TextAnsView from "../page";
+
+export default TextAnsView;
