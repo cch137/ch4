@@ -183,11 +183,11 @@ export function AppDataManagerProvider({
       const absDx = Math.abs(deltaX);
       const absDy = Math.abs(deltaY);
       if (absDx > absDy) {
-        if (absDx > Math.min(120, (innerWidth || 1e3) / 4))
+        if (absDx > Math.min(80, (innerWidth || 1e3) / 4))
           swipe.emit(deltaX > 0 ? "left" : "right");
       }
       if (absDx < absDy) {
-        if (absDy > Math.min(120, (innerHeight || 1e3) / 4))
+        if (absDy > Math.min(80, (innerHeight || 1e3) / 4))
           swipe.emit(deltaY > 0 ? "up" : "down");
       }
     };
