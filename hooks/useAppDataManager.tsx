@@ -181,16 +181,10 @@ export function AppDataManagerProvider({
       const deltaX = endX - startX;
       const deltaY = endY - startY;
       const d = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-      const absDx = Math.abs(deltaX);
-      const absDy = Math.abs(deltaY);
-      if (absDx > absDy) {
-        if (d > Math.min(60, (innerWidth || 1e3) / 4))
-          swipe.emit(deltaX > 0 ? "left" : "right");
-      }
-      if (absDx < absDy) {
-        if (d > Math.min(60, (innerHeight || 1e3) / 4))
-          swipe.emit(deltaY > 0 ? "up" : "down");
-      }
+      if (d < Math.min(60, (innerWidth || 1e3) / 2)) return;
+      if (Math.abs(deltaX) < Math.abs(deltaY))
+        swipe.emit(deltaY > 0 ? "up" : "down");
+      else swipe.emit(deltaX > 0 ? "left" : "right");
     };
     addEventListener("touchstart", touchStart);
     addEventListener("touchend", touchEnd);
@@ -198,7 +192,7 @@ export function AppDataManagerProvider({
       removeEventListener("touchstart", touchStart);
       removeEventListener("touchend", touchEnd);
     };
-  }, [touchStartCoor]);
+  }, [touchStartCoor, innerWidth, innerHeight]);
 
   return (
     <appDataContext.Provider
