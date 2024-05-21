@@ -57,14 +57,18 @@ export default function TextAnsView() {
     yadiskLink ? void 0 : getStaticLink(isbn_c_p)
   );
 
+  const srcTimeout = useRef<NodeJS.Timeout>();
   const _yadiskLink = useRef("");
   useEffect(() => {
-    if (!yadiskLink) return setSrc(getStaticLink(isbn_c_p));
-    if (yadiskLink !== _yadiskLink.current) {
-      _yadiskLink.current = yadiskLink;
-      setSrc(parseLink(yadiskLink));
-    }
-  }, [setSrc, yadiskLink, _yadiskLink, isbn_c_p]);
+    clearTimeout(srcTimeout.current);
+    srcTimeout.current = setTimeout(() => {
+      if (!yadiskLink) return setSrc(getStaticLink(isbn_c_p));
+      if (yadiskLink !== _yadiskLink.current) {
+        _yadiskLink.current = yadiskLink;
+        setSrc(parseLink(yadiskLink));
+      }
+    }, 100);
+  }, [setSrc, yadiskLink, _yadiskLink, isbn_c_p, srcTimeout]);
 
   const [isbn, chapter, problem] = isbn_c_p.split("_");
   const title = isbn_c_p ? `${chapter}_${problem}_${isbn}` : "Unknown";
