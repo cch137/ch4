@@ -79,7 +79,7 @@ export default function StepByStep() {
         value={searchValue}
         placeholder="Textbook"
         onValueChange={setSearchValue}
-        autoFocus
+        // autoFocus
       />
       <Spacer y={4} />
       <div className="flex-1 overflow-auto border-2 border-solid border-default-200 rounded-lg">
