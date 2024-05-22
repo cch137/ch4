@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { appTitle } from "@/constants/app";
-import { AIASST_DESC } from "@/constants/asst";
+import { AIASST_DESC, AIASST_DESC_LINES, AIASST_PATH } from "@/constants/asst";
 import MainLayout from "../../../components/MainLayout";
+import MemberOnly from "@/components/MemberOnly";
 
 export const metadata: Metadata = {
   title: appTitle("Assistant"),
@@ -13,5 +14,15 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <MainLayout>{children}</MainLayout>;
+  return (
+    <MainLayout>
+      <MemberOnly
+        nextPath={AIASST_PATH}
+        title="AI Assistant"
+        descriptions={AIASST_DESC_LINES}
+      >
+        {children}
+      </MemberOnly>
+    </MainLayout>
+  );
 }

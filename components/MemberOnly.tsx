@@ -5,18 +5,24 @@ import "./signin-to-continue.css";
 import { Button } from "@nextui-org/button";
 import Link from "next/link";
 import { signInHrefWithNext } from "@/constants/app";
-import { useIsSmallScreen } from "@/hooks/useAppDataManager";
+import { useIsSmallScreen, useUserInfo } from "@/hooks/useAppDataManager";
+import PageSpinner from "./PageSpinner";
 
-export default function SigninToContinue({
+export default function MemberOnly({
   nextPath: nextPath,
   title,
   descriptions,
+  children,
 }: {
   nextPath: string;
   title: string;
   descriptions: string[] | string;
+  children: React.ReactNode;
 }) {
+  const { isPending, isLoggedIn } = useUserInfo();
   const isSmallScreen = useIsSmallScreen();
+  if (isPending) return <PageSpinner />;
+  if (isLoggedIn) return children;
   return (
     <>
       <div

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  AIASST_DESC_LINES,
-  AIASST_PATH,
-  AIASST_TRIGGERS_PATH,
-  CONTENT_MAX_W,
-} from "@/constants/asst";
+import { AIASST_TRIGGERS_PATH, CONTENT_MAX_W } from "@/constants/asst";
 import useAiTriggers, {
   createTrigger,
   triggersErrorEmitter,
@@ -26,9 +21,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { IoAddOutline, IoRefreshOutline } from "react-icons/io5";
 import useErrorMessage from "@/hooks/useErrorMessage";
-import { useUserInfo } from "@/hooks/useAppDataManager";
-import PageSpinner from "@/components/PageSpinner";
-import SigninToContinue from "@/components/SignInToContinue";
 
 function TriggerList() {
   const router = useRouter();
@@ -87,19 +79,6 @@ export default function AiAsst() {
       triggersErrorEmitter.off("error", handler);
     };
   }, [openErrorMessageBox]);
-
-  const { isPending, isLoggedIn } = useUserInfo();
-
-  if (isPending) return <PageSpinner />;
-
-  if (!isLoggedIn)
-    return (
-      <SigninToContinue
-        nextPath={AIASST_PATH}
-        title="AI Assistant"
-        descriptions={AIASST_DESC_LINES}
-      />
-    );
 
   return (
     <>

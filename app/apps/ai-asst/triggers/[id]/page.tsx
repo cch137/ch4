@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  AIASST_DESC_LINES,
   AIASST_PATH,
   CONTENT_MAX_W,
   PluginObject,
@@ -46,10 +45,7 @@ import {
   testTrigger,
   updateTrigger,
 } from "@/app/apps/ai-asst/useAiTriggers";
-import { useUserInfo } from "@/hooks/useAppDataManager";
-import SigninToContinue from "@/components/SignInToContinue";
 import useConfirm from "@/hooks/useConfirm";
-import PageSpinner from "@/components/PageSpinner";
 
 type PluginObjectDisplay = PluginObject & {
   isNew?: boolean;
@@ -518,19 +514,6 @@ export default function AiAsst() {
       })();
     }
   }, [id]);
-
-  const { isPending, isLoggedIn } = useUserInfo();
-
-  if (isPending) return <PageSpinner />;
-
-  if (!isLoggedIn)
-    return (
-      <SigninToContinue
-        nextPath={AIASST_PATH}
-        title="AI Assistant"
-        descriptions={AIASST_DESC_LINES}
-      />
-    );
 
   return (
     <>

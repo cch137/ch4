@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { appTitle } from "@/constants/app";
 import MainLayout from "../../components/MainLayout";
 import { AiChatProvider } from "./useAiChat";
+import MemberOnly from "@/components/MemberOnly";
+import { AICHAT_SHORTPATH } from "@/constants/chat";
 
 export const metadata: Metadata = {
   title: appTitle("Chat"),
@@ -22,7 +24,19 @@ export default async function RootLayout({
         }}
         suppressHydrationWarning
       />
-      <AiChatProvider>{children}</AiChatProvider>
+      <AiChatProvider>
+        <MemberOnly
+          nextPath={AICHAT_SHORTPATH}
+          title="AI Chat"
+          descriptions={[
+            "A simple AI chat app by @cch137.",
+            "Offers various models for free.",
+            "This is for everyone.",
+          ]}
+        >
+          {children}
+        </MemberOnly>
+      </AiChatProvider>
     </MainLayout>
   );
 }

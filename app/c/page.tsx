@@ -4,7 +4,6 @@ import "./chat.css";
 import { useEffect, useRef, useState } from "react";
 import { AICHAT_SHORTPATH, SIDEBAR_WIDTH } from "@/constants/chat";
 import { Link } from "@nextui-org/link";
-import PageSpinner from "@/components/PageSpinner";
 import { useParams } from "next/navigation";
 
 import Sidebar from "./components/sidebar";
@@ -12,8 +11,6 @@ import AiChatContent from "./components/content";
 import useErrorMessage from "@/hooks/useErrorMessage";
 import { useRouter } from "next/navigation";
 import { appTitle } from "@/constants/app";
-import { useUserInfo } from "@/hooks/useAppDataManager";
-import SigninToContinue from "@/components/SignInToContinue";
 import {
   useAiChatPage,
   errorEmitter as errorEmitter,
@@ -118,25 +115,8 @@ export default function AiChatApp({ appPath = "/c/" }: { appPath?: string }) {
     };
   }, [router, currentConv, appPath]);
 
-  const { isPending, isLoggedIn } = useUserInfo();
-
   // DO NOT REMOVE useVersion
   const v = useVersion();
-
-  if (isPending || !isReady) return <PageSpinner />;
-
-  if (!isLoggedIn)
-    return (
-      <SigninToContinue
-        nextPath={appPath}
-        title="AI Chat"
-        descriptions={[
-          "A simple AI chat app by @cch137.",
-          "Offers various models for free.",
-          "This is for everyone.",
-        ]}
-      />
-    );
 
   if (isBot)
     return (

@@ -153,7 +153,7 @@ function LayoutSidebar({
           </div>
         </div>
       </div>
-      <div className="overflow-auto" style={{ height: "calc(100dvh - 3rem" }}>
+      <div className="overflow-auto" style={{ height: "calc(100dvh - 3rem)" }}>
         {children}
       </div>
     </div>
