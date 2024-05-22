@@ -136,11 +136,21 @@ export default function TextAnsView() {
   }, [title]);
 
   useEffect(() => {
+    const keyhandler = (event: KeyboardEvent) => {
+      switch (event.key) {
+        case "ArrowLeft":
+          return gotoPrevProb();
+        case "ArrowRight":
+          return gotoNextProb();
+      }
+    };
     swipe.on("left", gotoPrevProb);
     swipe.on("right", gotoNextProb);
+    document.addEventListener("keyup", keyhandler);
     return () => {
       swipe.off("left", gotoPrevProb);
       swipe.off("right", gotoNextProb);
+      document.removeEventListener("keyup", keyhandler);
     };
   }, [gotoPrevProb, gotoNextProb, prevProb, nextProb]);
 
