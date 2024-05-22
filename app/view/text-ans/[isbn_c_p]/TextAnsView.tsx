@@ -213,7 +213,9 @@ export default function TextAnsView() {
             className={`rounded-none w-full select-none ${
               allowCopy ? "" : "pointer-events-none"
             } ${isBlur ? "blur" : ""}`}
-            classNames={{ wrapper: allowCopy ? "" : "pointer-events-none" }}
+            classNames={{
+              wrapper: `rounded-none ${allowCopy ? "" : "pointer-events-none"}`,
+            }}
             draggable="false"
             style={{ width: 960 }}
             onError={() => setSrc(null)}
