@@ -167,23 +167,32 @@ export function AppDataManagerProvider({
   ]);
 
   // swipe
-  const touchStartCoor = useRef([0, 0] as [number, number]);
+  const touchedRef = useRef<{ x: number; y: number; t: number }>();
   useEffect(() => {
     const touchStart = (ev: TouchEvent) => {
-      if (ev.touches.length !== 1) return;
-      const { screenX, screenY } = ev.touches[0];
-      touchStartCoor.current = [screenX, screenY];
+      if (ev.touches.length !== 1) return (touchedRef.current = void 0);
+      const { screenX: x, screenY: y } = ev.touches[0];
+      touchedRef.current = { x, y, t: Date.now() };
     };
     const touchEnd = (ev: TouchEvent) => {
-      if (ev.changedTouches.length !== 1) return;
+      if (
+        ev.touches.length !== 0 ||
+        ev.changedTouches.length !== 1 ||
+        (visualViewport?.scale || 1) !== 1
+      )
+        return;
+      const touched = touchedRef.current;
+      if (!touched) return;
+      touchedRef.current = void 0;
       const { screenX: endX, screenY: endY } = ev.changedTouches[0];
-      const [startX, startY] = touchStartCoor.current;
+      const { x: startX, y: startY, t: startT } = touched;
       const deltaX = endX - startX;
       const deltaY = endY - startY;
-      const d = Math.sqrt(deltaX ** 2 + deltaY ** 2);
-      if (d < Math.min(60, (innerWidth || 1e3) / 2)) return;
-      if (Math.abs(deltaX) < Math.abs(deltaY))
-        swipe.emit(deltaY > 0 ? "up" : "down");
+      const distance = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+      const velocity = distance / (Date.now() - startT);
+      if (distance < 75 && velocity < 0.125) return;
+      const swipeBelongsY = Math.abs(deltaX) < Math.abs(deltaY);
+      if (swipeBelongsY) swipe.emit(deltaY > 0 ? "up" : "down");
       else swipe.emit(deltaX > 0 ? "left" : "right");
     };
     addEventListener("touchstart", touchStart);
@@ -192,7 +201,7 @@ export function AppDataManagerProvider({
       removeEventListener("touchstart", touchStart);
       removeEventListener("touchend", touchEnd);
     };
-  }, [touchStartCoor, innerWidth, innerHeight]);
+  }, [touchedRef]);
 
   return (
     <appDataContext.Provider
