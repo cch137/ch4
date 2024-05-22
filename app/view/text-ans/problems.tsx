@@ -15,6 +15,7 @@ const problemsContext = createContext({
     isbn_c_p: string;
     link: string;
   }[],
+  isReady: false,
 });
 
 export function ProblemsContextProvider({
@@ -26,30 +27,56 @@ export function ProblemsContextProvider({
   const isbn_c_p = Array.isArray(params.isbn_c_p)
     ? params.isbn_c_p[0]
     : params.isbn_c_p;
-  const [_problems, setProblems] = useState<{ [chapter: string]: Problem[] }>(
-    {}
-  );
+  const [problems, setProblems] = useState<
+    {
+      p: string;
+      isbn_c_p: string;
+      link: string;
+    }[]
+  >([]);
   const [isbn, chapter, problem] = isbn_c_p.split("_");
-  const chapters = Object.keys(_problems).sort((a, b) => Number(a) - Number(b));
-  const problems = chapters
-    .map((c) => sortChapterProblems(_problems[c]))
-    .flat();
 
+  const [isReady, setIsReady] = useState(false);
   const _isbn = useRef("");
+  const _ctrl = useRef<AbortController>();
   useEffect(() => {
     if (isbn) {
       if (isbn !== _isbn.current) {
         _isbn.current = isbn;
-        fetch(getQueryJSONUrl(`books/${isbn}/problems`)).then(async (res) =>
-          setProblems((await res.json()) || {})
-        );
+        if (_ctrl.current) _ctrl.current.abort();
+        const ac = new AbortController();
+        _ctrl.current = ac;
+        setIsReady(false);
+        setProblems([]);
+        fetch(getQueryJSONUrl(`books/${isbn}/problems`), {
+          signal: ac.signal,
+        }).then(async (res) => {
+          try {
+            const res = await fetch(getQueryJSONUrl(`books/${isbn}/problems`), {
+              signal: ac.signal,
+            });
+            const data = ((await res.json()) || {}) as {
+              [chapter: string]: Problem[];
+            };
+            const chapters = Object.keys(data).sort(
+              (a, b) => Number(a) - Number(b)
+            );
+            const problems = chapters
+              .map((c) => sortChapterProblems(data[c]))
+              .flat();
+            setProblems(problems);
+          } finally {
+            setIsReady(true);
+          }
+        });
       }
     }
-  }, [setProblems, isbn, _isbn]);
+  }, [setProblems, setIsReady, isbn, _isbn]);
 
   return (
     <problemsContext.Provider
       value={{
+        isReady,
         problems,
       }}
     >
@@ -59,5 +86,5 @@ export function ProblemsContextProvider({
 }
 
 export function useTextAnsPromblems() {
-  return useContext(problemsContext).problems;
+  return useContext(problemsContext);
 }

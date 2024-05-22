@@ -94,7 +94,7 @@ export default function TextAnsView() {
     : "click to focus";
 
   const router = useRouter();
-  const problems = useTextAnsPromblems();
+  const { problems, isReady: problemsIsReady } = useTextAnsPromblems();
   const index = problems.findIndex(({ isbn_c_p: _ }) => _ === isbn_c_p);
   const indexError = index === -1;
   const prevIndex = indexError ? null : index > 0 ? index - 1 : index;
@@ -182,18 +182,22 @@ export default function TextAnsView() {
             <IoArrowBack />
           </Button>
           <div className="flex-1 flex-center text-default-600 select-none">
-            <select
-              className="focus:outline-none"
-              onInput={(e) => goToIsbnCP((e.target as HTMLSelectElement).value)}
-              value={indexError ? "NOT_FOUND" : isbn_c_p}
-            >
-              {indexError ? <option value="NOT_FOUND"></option> : null}
-              {problems.map((k, i) => (
-                <option key={i} value={k.isbn_c_p}>
-                  {k.isbn_c_p.split("_").slice(1).join("_")}
-                </option>
-              ))}
-            </select>
+            {problemsIsReady && problems.length ? (
+              <select
+                className="focus:outline-none"
+                onInput={(e) =>
+                  goToIsbnCP((e.target as HTMLSelectElement).value)
+                }
+                value={indexError ? "NOT_FOUND" : isbn_c_p}
+              >
+                {indexError ? <option value="NOT_FOUND"></option> : null}
+                {problems.map((k, i) => (
+                  <option key={i} value={k.isbn_c_p}>
+                    {k.isbn_c_p.split("_").slice(1).join("_")}
+                  </option>
+                ))}
+              </select>
+            ) : null}
           </div>
           <Button
             isIconOnly
