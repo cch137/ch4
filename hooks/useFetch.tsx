@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export type UseFetchResponseType = "text" | "json" | "arrayBuffer" | "blob";
 
@@ -107,10 +107,10 @@ export default function useFetch<T = any>(
     setIsPending,
   ]);
 
-  const refresh = () => {
+  const refresh = useCallback(() => {
     fetched.current = false;
     setAllowFetch(true);
-  };
+  }, [fetched, setAllowFetch]);
 
   return {
     data,
