@@ -1,0 +1,32 @@
+/* Markdown format fixes */
+.react-markdown h1, .react-markdown h2, .react-markdown h3, .react-markdown h4 {
+  font-weight: 600;
+}
+.react-markdown h1 {font-size: x-large; margin-top: .500rem; margin-bottom: .250rem;}
+.react-markdown h2 {font-size:  larger; margin-top: .250rem; margin-bottom: .125rem;}
+.react-markdown h3 {font-size:   large; margin-top: .250rem; margin-bottom: .125rem;}
+.react-markdown p {
+  white-space: break-spaces;
+}
+/* .react-markdown p {
+  padding-top: .5rem;
+}
+.react-markdown p:nth-child(1) {
+  padding-top: 0;
+} */
+.react-markdown ol, .react-markdown ul {
+  padding-left: 1.75rem;
+}
+.react-markdown ol {
+  list-style: decimal;
+}
+.react-markdown ol ol {
+  list-style: lower-roman;
+}
+.react-markdown ul {
+  list-style: disc;
+}
+.react-markdown li {
+  padding-left: .25rem;
+}
+

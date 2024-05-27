@@ -83,6 +83,18 @@ const apps: LinkItem[] = [
     link: "/apps/ai-asst",
   },
   {
+    title: "Text Unlock",
+    description: "Textbook solutions",
+    link: "/apps/text-unlock",
+    icon: "/assets/icons/text-unlock.jpg",
+  },
+  {
+    title: "Wakawaka",
+    description: "Study tool",
+    link: "/apps/wakawaka",
+    icon: "/assets/icons/fresh-cards.jpg",
+  },
+  {
     title: "Silence",
     description: "白噪音生成器",
     link: "/view/silence",
@@ -92,12 +104,6 @@ const apps: LinkItem[] = [
     title: "IMG to PDF",
     link: "/apps/ncu/images-to-pdf",
     icon: "/assets/icons/img-to-pdf.jpg",
-  },
-  {
-    title: "Text Unlock",
-    description: "Textbook solutions",
-    link: "/apps/text-unlock",
-    icon: "/assets/icons/text-unlock.jpg",
   },
   {
     title: "天氣 API",

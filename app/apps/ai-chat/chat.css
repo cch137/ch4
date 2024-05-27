@@ -186,38 +186,6 @@
   font-size: 14px !important;
 }
 
-/* Markdown format fixes */
-.aichat-message h1, .aichat-message h2, .aichat-message h3, .aichat-message h4 {
-  font-weight: 600;
-}
-.aichat-message h1 {font-size: x-large; margin-top: .500rem; margin-bottom: .250rem;}
-.aichat-message h2 {font-size:  larger; margin-top: .250rem; margin-bottom: .125rem;}
-.aichat-message h3 {font-size:   large; margin-top: .250rem; margin-bottom: .125rem;}
-.aichat-message p {
-  white-space: break-spaces;
-}
-/* .aichat-message p {
-  padding-top: .5rem;
-}
-.aichat-message p:nth-child(1) {
-  padding-top: 0;
-} */
-.aichat-message ol, .aichat-message ul {
-  padding-left: 1.75rem;
-}
-.aichat-message ol {
-  list-style: decimal;
-}
-.aichat-message ol ol {
-  list-style: lower-roman;
-}
-.aichat-message ul {
-  list-style: disc;
-}
-.aichat-message li {
-  padding-left: .25rem;
-}
-
 .aichat-thinking::after {
   display: inline;
   content: "Thinking";

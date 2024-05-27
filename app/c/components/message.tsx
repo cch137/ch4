@@ -165,7 +165,7 @@ function MessageContent({
           )}
         </ModalContent>
       </Modal>
-      <div className="aichat-message w-full">
+      <div className="aichat-message react-markdown w-full">
         <div className={isModel ? "text-default-600" : "text-default-800"}>
           {isModel && disableActions && !text ? (
             <div className="aichat-thinking" />

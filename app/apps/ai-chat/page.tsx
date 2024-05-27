@@ -1,6 +1,7 @@
 "use client";
 
 import "./chat.css";
+import "@/styles/react-markdown.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AICHAT_PATH, AICHAT_SHORTPATH, SIDEBAR_WIDTH } from "@/constants/chat";
 import { Link } from "@nextui-org/link";
