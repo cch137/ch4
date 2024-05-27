@@ -9,7 +9,7 @@ import { useWK, useWKPage, WKBlock, type WKCard } from "../../provider";
 import { API_OP_CARDS_PATH, WAKAWAKA_GROUP } from "../../constants";
 import random from "@cch137/utils/random";
 import { Spacer, Spinner } from "@nextui-org/react";
-import { BlockItem } from "../[cardId]/page";
+import BlockItem from "../BlockItem";
 
 const blockMap = new WeakMap<WKCard, WKBlock[]>();
 const shuffleActivatedCards = (cards: WKCard[]) => {

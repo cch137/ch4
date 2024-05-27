@@ -2,8 +2,7 @@
 
 import "@/styles/react-markdown.css";
 
-import type { ClassAttributes, HTMLAttributes } from "react";
-import { createRef, useCallback, useEffect, useState } from "react";
+import { createRef, useCallback, useState } from "react";
 import Link from "next/link";
 import { IoAdd, IoPencil, IoTrashOutline } from "react-icons/io5";
 import { Button } from "@nextui-org/button";
@@ -11,10 +10,6 @@ import { Textarea, Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Spacer } from "@nextui-org/spacer";
 import { Spinner } from "@nextui-org/spinner";
-import { Image } from "@nextui-org/image";
-import Markdown, { ExtraProps } from "react-markdown";
-import remarkGfm from "remark-gfm";
-
 import { appTitle } from "@/constants/app";
 import {
   API_IMAGE_PATH,
@@ -31,78 +26,7 @@ import useModalMessage from "@/components/modals/message";
 import useModalConfirm from "@/components/modals/confirm";
 import useModalInput from "@/components/modals/input";
 import useModalSelect from "@/components/modals/select";
-
-function BlockImage({ meta }: { meta: string }) {
-  const [id, setId] = useState("");
-  const [filename, setFilename] = useState("");
-  const [error, setError] = useState(false);
-  useEffect(() => {
-    try {
-      const { id = "", filename = "" } = JSON.parse(meta);
-      setId(id);
-      setFilename(filename);
-      setError(false);
-    } catch {
-      setError(true);
-    }
-  }, [meta, setId, setFilename, setError]);
-  try {
-    if (error || !id || !filename) throw new Error();
-    return (
-      <div className="w-full">
-        <Image
-          src={`https://raw.githubusercontent.com/cch137/api-files/master/i/${id}/${filename}`}
-          alt={filename}
-          onError={() => setError(true)}
-        />
-      </div>
-    );
-  } catch {
-    return <code className="text-danger-300">image render error</code>;
-  }
-}
-
-function Anchor({
-  className,
-  children,
-  ...props
-}: ClassAttributes<HTMLAnchorElement> &
-  HTMLAttributes<HTMLAnchorElement> &
-  ExtraProps) {
-  return (
-    <a
-      // @ts-ignore
-      href={props.href}
-      target="_blank"
-      className={
-        "underline opacity-75 decoration-default-500 hover:opacity-90 transition " +
-        className
-      }
-      {...props}
-    >
-      {String(children).replace(/\n$/, "")}
-    </a>
-  );
-}
-
-export function BlockItem({ item }: { item: WKBlock }) {
-  if (item.type === "text")
-    return (
-      <div className="bg-default-50 rounded-md p-4">
-        <p className="whitespace-break-spaces">{item.content}</p>
-      </div>
-    );
-  if (item.type === "md")
-    return (
-      <div className="bg-default-50 rounded-md p-4 react-markdown">
-        <Markdown components={{ a: Anchor }} remarkPlugins={[remarkGfm]}>
-          {item.content}
-        </Markdown>
-      </div>
-    );
-  if (item.type === "image") return <BlockImage meta={item.content} />;
-  return <code className="text-danger-300">block render error</code>;
-}
+import BlockItem from "../BlockItem";
 
 function BlockItemEditor({
   item,
