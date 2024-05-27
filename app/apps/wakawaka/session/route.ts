@@ -5,7 +5,7 @@ import admin from "@/server/admin";
 export async function POST(req: NextRequest) {
   const token = AuthNext.parseRequestToken(req);
   const { info } = token;
-  const res = await fetch("http://localhost:5000/wk/session", {
+  const res = await fetch("https://api.cch137.link/wk/session", {
     method: "POST",
     body: JSON.stringify({
       uid: info.id,
