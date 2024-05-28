@@ -1,20 +1,20 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@nextui-org/button";
 import { Spacer } from "@nextui-org/spacer";
 import { Spinner } from "@nextui-org/spinner";
 import { Switch } from "@nextui-org/switch";
 import {
-  IoAdd,
-  IoCheckmark,
-  IoClose,
-  IoPencil,
-  IoPlay,
-  IoReload,
-  IoTrashOutline,
-} from "react-icons/io5";
+  MdAdd,
+  MdAutoStories,
+  MdDelete,
+  MdEdit,
+  MdPlaylistAddCheck,
+  MdPlaylistRemove,
+  MdRestartAlt,
+} from "react-icons/md";
 import { useRouter } from "next/navigation";
 import {
   API_OP_CARDS_PATH,
@@ -32,6 +32,7 @@ import formatDate from "@cch137/utils/str/date";
 function CardItem({
   gid,
   item,
+  isDisabled = false,
   del,
   rename,
   enable,
@@ -39,6 +40,7 @@ function CardItem({
 }: {
   gid: string;
   item: WKCard;
+  isDisabled?: boolean;
   del: (_id: string) => void;
   rename: (_id: string, name: string) => void;
   enable: (_id: string, enabled: boolean) => void;
@@ -89,22 +91,25 @@ function CardItem({
             color="success"
             isSelected={item.enabled}
             onValueChange={(v) => enable(item._id, v)}
+            isDisabled={isDisabled}
           />
           <Button
             isIconOnly
             variant="flat"
             size="sm"
             onPress={() => activate(item._id)}
+            isDisabled={isDisabled}
           >
-            <IoReload className="text-lg" />
+            <MdRestartAlt className="text-lg" />
           </Button>
           <Button
             isIconOnly
             variant="flat"
             size="sm"
             onPress={renameInput.open}
+            isDisabled={isDisabled}
           >
-            <IoPencil className="text-lg" />
+            <MdEdit className="text-lg" />
           </Button>
           <Button
             isIconOnly
@@ -112,8 +117,9 @@ function CardItem({
             color="danger"
             size="sm"
             onPress={deleteConfirm.open}
+            isDisabled={isDisabled}
           >
-            <IoTrashOutline className="text-lg" />
+            <MdDelete className="text-lg" />
           </Button>
         </div>
       </div>
@@ -133,6 +139,7 @@ export default function CardGroup() {
     isLoadingCards,
   } = useWKPage();
   const router = useRouter();
+  const [updatingCards, setUpdatingCards] = useState<symbol[]>([]);
 
   const cardNameInput = useModalInput(
     (name) => {
@@ -156,7 +163,10 @@ export default function CardGroup() {
       fetch(apiPath + "/activate", {
         method: "POST",
         headers,
-      }).finally(updateCards);
+      }).finally(() => {
+        setUpdatingCards(cards.map((i) => Symbol(i._id)));
+        updateCards();
+      });
     }
   );
 
@@ -167,7 +177,10 @@ export default function CardGroup() {
       fetch(apiPath + "/enable", {
         method: "POST",
         headers,
-      }).finally(updateCards);
+      }).finally(() => {
+        setUpdatingCards(cards.map((i) => Symbol(i._id)));
+        updateCards();
+      });
     }
   );
 
@@ -178,51 +191,49 @@ export default function CardGroup() {
       fetch(apiPath + "/disable", {
         method: "POST",
         headers,
-      }).finally(updateCards);
+      }).finally(() => {
+        setUpdatingCards(cards.map((i) => Symbol(i._id)));
+        updateCards();
+      });
     }
   );
 
-  const deleteCard = useCallback(
-    (_id: string) => {
+  const putCard = useCallback(
+    (_id: string, body: any = {}, method: string = "PUT") => {
       fetch(API_OP_CARDS_PATH(groupId, _id), {
-        method: "DELETE",
+        method,
+        body: JSON.stringify(body),
         headers,
-      }).finally(updateCards);
+      }).finally(() => {
+        setUpdatingCards((l) => [...l, Symbol(_id)]);
+        updateCards();
+      });
     },
-    [headers, updateCards, groupId]
+    [headers, updateCards, groupId, setUpdatingCards]
+  );
+
+  useEffect(() => {
+    if (!isLoadingCards) setUpdatingCards([]);
+  }, [isLoadingCards, setUpdatingCards]);
+
+  const deleteCard = useCallback(
+    (_id: string) => putCard(_id, {}, "DELETE"),
+    [putCard]
   );
 
   const renameCard = useCallback(
-    (_id: string, name: string) => {
-      fetch(API_OP_CARDS_PATH(groupId, _id), {
-        method: "PUT",
-        body: JSON.stringify({ name }),
-        headers,
-      }).finally(updateCards);
-    },
-    [headers, updateCards, groupId]
+    (_id: string, name: string) => putCard(_id, { name }),
+    [putCard]
   );
 
   const enableCard = useCallback(
-    (_id: string, enabled: boolean) => {
-      fetch(API_OP_CARDS_PATH(groupId, _id), {
-        method: "PUT",
-        body: JSON.stringify({ enabled }),
-        headers,
-      }).finally(updateCards);
-    },
-    [headers, updateCards, groupId]
+    (_id: string, enabled: boolean) => putCard(_id, { enabled }),
+    [putCard]
   );
 
   const activateCard = useCallback(
-    (_id: string) => {
-      fetch(API_OP_CARDS_PATH(groupId, _id), {
-        method: "PUT",
-        body: JSON.stringify({ enabled: true, expire: new Date() }),
-        headers,
-      }).finally(updateCards);
-    },
-    [groupId, headers, updateCards]
+    (_id: string) => putCard(_id, { enabled: true, expire: new Date() }),
+    [putCard]
   );
 
   return (
@@ -250,7 +261,7 @@ export default function CardGroup() {
           <Button
             variant="flat"
             size="sm"
-            startContent={<IoCheckmark className="text-lg" />}
+            startContent={<MdPlaylistAddCheck className="text-lg" />}
             onPress={enableCardsConfirm.open}
           >
             Enable
@@ -258,7 +269,7 @@ export default function CardGroup() {
           <Button
             variant="flat"
             size="sm"
-            startContent={<IoClose className="text-lg" />}
+            startContent={<MdPlaylistRemove className="text-lg" />}
             onPress={disableCardsConfirm.open}
           >
             Disable
@@ -266,25 +277,25 @@ export default function CardGroup() {
           <Button
             variant="flat"
             size="sm"
-            startContent={<IoReload className="text-lg" />}
+            startContent={<MdRestartAlt className="text-lg" />}
             onPress={activateCardsConfirm.open}
           >
-            Activate
+            Reset
           </Button>
           <Button
             variant="flat"
             size="sm"
-            startContent={<IoPlay className="text-lg" />}
+            startContent={<MdAutoStories className="text-lg" />}
             as={Link}
-            href={WAKAWAKA_CARD(groupId, "play")}
+            href={WAKAWAKA_CARD(groupId, "review")}
           >
-            Play
+            Review
           </Button>
           <div className="flex-1" />
           <Button
             variant="flat"
             size="sm"
-            startContent={<IoAdd className="text-lg" />}
+            startContent={<MdAdd className="text-lg" />}
             onPress={cardNameInput.open}
           >
             Add a card
@@ -304,6 +315,9 @@ export default function CardGroup() {
                 key={i}
                 gid={groupId}
                 item={item}
+                isDisabled={Boolean(
+                  updatingCards.find((i) => i.description === item._id)
+                )}
                 del={deleteCard}
                 rename={renameCard}
                 enable={enableCard}

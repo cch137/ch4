@@ -2,8 +2,8 @@
 
 import { swipe } from "@/hooks/useAppDataManager";
 import { Button } from "@nextui-org/button";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { IoCheckmark, IoEye, IoStop } from "react-icons/io5";
+import { useCallback, useEffect, useState } from "react";
+import { IoCheckmark, IoStop } from "react-icons/io5";
 import Link from "next/link";
 import { useWK, useWKPage, WKBlock, type WKCard } from "../../provider";
 import { API_OP_CARDS_PATH, WAKAWAKA_GROUP } from "../../constants";
@@ -31,9 +31,8 @@ export default function PlayCardGroup() {
 
   const [cards, setCards] = useState(shuffleActivatedCards(srcCards));
   const [blockLoadings, setBlockLoadings] = useState<symbol[]>([]);
-  const [updatings, setUpdatings] = useState<symbol[]>([]);
+  const [isUpdating, setIsUpdating] = useState(false);
   const isLoadingBlocks = blockLoadings.length !== 0;
-  const isUpdating = updatings.length !== 0;
   const [started, setStarted] = useState(Date.now());
 
   const [seenCard, setSeenCard] = useState<WKCard>();
@@ -41,6 +40,10 @@ export default function PlayCardGroup() {
   const blocks = card ? blockMap.get(card) || [] : [];
   const isSeen = seenCard === card;
   const seeCard = useCallback(() => setSeenCard(card), [setSeenCard, card]);
+
+  useEffect(() => {
+    if (!isLoadingCards) setIsUpdating(false);
+  }, [isLoadingCards, setIsUpdating]);
 
   useEffect(() => {
     for (let i = 0; i < length; i++) {
@@ -97,16 +100,12 @@ export default function PlayCardGroup() {
               )
             : []
         );
-        const symbol = Symbol();
-        setUpdatings((l) => [...l, symbol]);
+        setIsUpdating(true);
         fetch(API_OP_CARDS_PATH(groupId, _id), {
           method: "PUT",
           body: JSON.stringify({ expire }),
           headers,
-        }).finally(() => {
-          setUpdatings((l) => l.filter((i) => i !== symbol));
-          updateSrcCards();
-        });
+        }).finally(updateSrcCards);
       }
     },
     [
@@ -118,7 +117,7 @@ export default function PlayCardGroup() {
       groupId,
       started,
       updateSrcCards,
-      setUpdatings,
+      setIsUpdating,
     ]
   );
 

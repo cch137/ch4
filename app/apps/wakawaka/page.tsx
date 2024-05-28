@@ -1,12 +1,18 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@nextui-org/button";
 import { Spinner } from "@nextui-org/spinner";
 import { Spacer } from "@nextui-org/spacer";
 import { Switch } from "@nextui-org/switch";
 import Link from "next/link";
-import { IoAdd, IoPencil, IoReload, IoTrashOutline } from "react-icons/io5";
+import {
+  MdAdd,
+  MdDelete,
+  MdEdit,
+  MdRefresh,
+  MdRestartAlt,
+} from "react-icons/md";
 
 import {
   API_LISTS_PATH,
@@ -21,12 +27,14 @@ import formatDate from "@cch137/utils/str/date";
 
 function GroupItem({
   item,
+  isDisabled = false,
   del,
   rename,
   enable,
   activate,
 }: {
   item: WKGroup;
+  isDisabled?: boolean;
   del: (_id: string) => void;
   rename: (_id: string, name: string) => void;
   enable: (_id: string, enabled: boolean) => void;
@@ -83,22 +91,25 @@ function GroupItem({
             color="success"
             isSelected={item.enabled}
             onValueChange={(v) => enable(item._id, v)}
+            isDisabled={isDisabled}
           />
           <Button
             isIconOnly
             variant="flat"
             size="sm"
             onPress={() => activate(item._id)}
+            isDisabled={isDisabled}
           >
-            <IoReload className="text-lg" />
+            <MdRestartAlt className="text-lg" />
           </Button>
           <Button
             isIconOnly
             variant="flat"
             size="sm"
             onPress={renameInput.open}
+            isDisabled={isDisabled}
           >
-            <IoPencil className="text-lg" />
+            <MdEdit className="text-lg" />
           </Button>
           <Button
             isIconOnly
@@ -106,8 +117,9 @@ function GroupItem({
             color="danger"
             size="sm"
             onPress={deleteConfirm.open}
+            isDisabled={isDisabled}
           >
-            <IoTrashOutline className="text-lg" />
+            <MdDelete className="text-lg" />
           </Button>
         </div>
       </div>
@@ -118,6 +130,11 @@ function GroupItem({
 export default function Wakawaka() {
   const { groups, updateGroups, isLoadingGroups, sid, updateSid, headers } =
     useWK();
+  const [updatingGroups, setUpdatingGroups] = useState<symbol[]>([]);
+
+  useEffect(() => {
+    if (!isLoadingGroups) setUpdatingGroups([]);
+  }, [isLoadingGroups, setUpdatingGroups]);
 
   const groupNameInput = useModalInput(
     (name) => {
@@ -130,47 +147,38 @@ export default function Wakawaka() {
     { title: "Add a group", label: "Group name" }
   );
 
-  const deleteGroup = useCallback(
-    (_id: string) => {
+  const putGroup = useCallback(
+    (_id: string, body: any = {}, method: string = "PUT") => {
       fetch(API_OP_GROUPS_PATH(_id), {
-        method: "DELETE",
+        method,
+        body: JSON.stringify(body),
         headers,
-      }).finally(updateGroups);
+      }).finally(() => {
+        setUpdatingGroups((l) => [...l, Symbol(_id)]);
+        updateGroups();
+      });
     },
-    [headers, updateGroups]
+    [headers, updateGroups, setUpdatingGroups]
+  );
+
+  const deleteGroup = useCallback(
+    (_id: string) => putGroup(_id, "DELETE"),
+    [putGroup]
   );
 
   const renameGroup = useCallback(
-    (_id: string, name: string) => {
-      fetch(API_OP_GROUPS_PATH(_id), {
-        method: "PUT",
-        body: JSON.stringify({ name }),
-        headers,
-      }).finally(updateGroups);
-    },
-    [headers, updateGroups]
+    (_id: string, name: string) => putGroup(_id, { name }),
+    [putGroup]
   );
 
   const enableGroup = useCallback(
-    (_id: string, enabled: boolean) => {
-      fetch(API_OP_GROUPS_PATH(_id), {
-        method: "PUT",
-        body: JSON.stringify({ enabled }),
-        headers,
-      }).finally(updateGroups);
-    },
-    [headers, updateGroups]
+    (_id: string, enabled: boolean) => putGroup(_id, { enabled }),
+    [putGroup]
   );
 
   const activateGroup = useCallback(
-    (_id: string) => {
-      fetch(API_OP_GROUPS_PATH(_id), {
-        method: "PUT",
-        body: JSON.stringify({ enabled: true, expire: new Date() }),
-        headers,
-      }).finally(updateGroups);
-    },
-    [headers, updateGroups]
+    (_id: string) => putGroup(_id, { enabled: true, expire: new Date() }),
+    [putGroup]
   );
 
   return (
@@ -182,7 +190,7 @@ export default function Wakawaka() {
             Welcome to {WAKAWAKA_APPNAME}!
           </h1>
           <Button variant="light" size="sm" isIconOnly onPress={updateSid}>
-            <IoReload className="text-lg text-default-300" />
+            <MdRefresh className="text-lg text-default-300" />
           </Button>
         </div>
         <Spacer y={4} />
@@ -191,7 +199,7 @@ export default function Wakawaka() {
           <Button
             variant="flat"
             size="sm"
-            startContent={<IoAdd className="text-lg" />}
+            startContent={<MdAdd className="text-lg" />}
             onPress={groupNameInput.open}
           >
             Add a group
@@ -210,6 +218,9 @@ export default function Wakawaka() {
               <GroupItem
                 key={i}
                 item={item}
+                isDisabled={Boolean(
+                  updatingGroups.find((s) => s.description === item._id)
+                )}
                 del={deleteGroup}
                 rename={renameGroup}
                 enable={enableGroup}

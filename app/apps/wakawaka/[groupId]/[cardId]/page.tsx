@@ -4,13 +4,13 @@ import "@/styles/react-markdown.css";
 
 import { createRef, useCallback, useState } from "react";
 import Link from "next/link";
-import { IoAdd, IoPencil, IoTrashOutline } from "react-icons/io5";
 import { Button } from "@nextui-org/button";
 import { Textarea, Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Spacer } from "@nextui-org/spacer";
 import { Spinner } from "@nextui-org/spinner";
 import { appTitle } from "@/constants/app";
+import { MdAdd, MdDelete, MdEdit } from "react-icons/md";
 import {
   API_IMAGE_PATH,
   API_OP_BLOCKS_PATH,
@@ -108,7 +108,7 @@ function BlockItemEditor({
         </div>
         <div className="flex flex-col gap-2">
           <Button isIconOnly variant="flat" size="sm" onPress={editSelect.open}>
-            <IoPencil className="text-lg" />
+            <MdEdit className="text-lg" />
           </Button>
           <Button
             isIconOnly
@@ -117,7 +117,7 @@ function BlockItemEditor({
             size="sm"
             onPress={deleteConfirm.open}
           >
-            <IoTrashOutline className="text-lg" />
+            <MdDelete className="text-lg" />
           </Button>
         </div>
       </div>
@@ -141,6 +141,7 @@ export default function CardBlocks() {
   const [uploads, setUploads] = useState<symbol[]>([]);
   const contentTxtRef = createRef<HTMLTextAreaElement>();
   const imageInputRef = createRef<HTMLInputElement>();
+  const contentSubmitRef = createRef<HTMLButtonElement>();
   const isUploading = [...uploads].length !== 0;
 
   const renameCard = useCallback(
@@ -297,7 +298,7 @@ export default function CardBlocks() {
             isIconOnly
             onPress={renameInput.open}
           >
-            <IoPencil className="text-lg" />
+            <MdEdit className="text-lg" />
           </Button>
         </div>
         <Spacer y={4} />
@@ -379,6 +380,9 @@ export default function CardBlocks() {
               value={newBlockContent}
               onValueChange={(s) => setNewBlockContent(s)}
               onPaste={(e) => uploadFiles(e.clipboardData.files)}
+              onKeyUp={(e) => {
+                if (e.key === "Enter") contentSubmitRef.current?.click();
+              }}
               autoFocus
             />
           )}
@@ -387,7 +391,7 @@ export default function CardBlocks() {
               <Button
                 variant="bordered"
                 size="sm"
-                startContent={<IoAdd className="text-lg" />}
+                startContent={<MdAdd className="text-lg" />}
                 onPress={() => {
                   const content = newBlockContent;
                   if (!content) return;
@@ -396,6 +400,7 @@ export default function CardBlocks() {
                     .finally(updateBlocks);
                 }}
                 isDisabled={isUploading}
+                ref={contentSubmitRef}
               >
                 Add block
               </Button>

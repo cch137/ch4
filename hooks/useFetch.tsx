@@ -89,8 +89,10 @@ export default function useFetch<T = any>(
         setFetchError(err);
       })
       .finally(() => {
-        setIsPending(false);
-        if (ctrl.current === abt) ctrl.current = void 0;
+        if (ctrl.current === abt) {
+          setIsPending(false);
+          ctrl.current = void 0;
+        }
       });
   }, [
     fetched,
