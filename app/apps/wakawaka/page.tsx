@@ -206,9 +206,9 @@ export default function Wakawaka() {
           </Button>
         </div>
         <Spacer y={4} />
-        {!sid || groups?.length === 0 ? (
+        {groups?.length === 0 ? (
           <div className="opacity-50 select-none flex-center">
-            {isLoadingGroups ? <Spinner color="current" /> : "no data"}
+            {!sid || isLoadingGroups ? <Spinner color="current" /> : "no data"}
           </div>
         ) : null}
         <div className="flex flex-col gap-2">
