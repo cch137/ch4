@@ -12,7 +12,7 @@ import {
   IoClose,
   IoPencil,
   IoPlay,
-  IoSync,
+  IoReload,
   IoTrashOutline,
 } from "react-icons/io5";
 import { useRouter } from "next/navigation";
@@ -96,7 +96,7 @@ function CardItem({
             size="sm"
             onPress={() => activate(item._id)}
           >
-            <IoSync className="text-lg" />
+            <IoReload className="text-lg" />
           </Button>
           <Button
             isIconOnly
@@ -266,7 +266,7 @@ export default function CardGroup() {
           <Button
             variant="flat"
             size="sm"
-            startContent={<IoSync className="text-lg" />}
+            startContent={<IoReload className="text-lg" />}
             onPress={activateCardsConfirm.open}
           >
             Activate

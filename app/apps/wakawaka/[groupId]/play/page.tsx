@@ -31,7 +31,9 @@ export default function PlayCardGroup() {
 
   const [cards, setCards] = useState(shuffleActivatedCards(srcCards));
   const [blockLoadings, setBlockLoadings] = useState<symbol[]>([]);
+  const [updatings, setUpdatings] = useState<symbol[]>([]);
   const isLoadingBlocks = blockLoadings.length !== 0;
+  const isUpdating = updatings.length !== 0;
   const [started, setStarted] = useState(Date.now());
 
   const [seenCard, setSeenCard] = useState<WKCard>();
@@ -65,14 +67,22 @@ export default function PlayCardGroup() {
   }, [groupId, headers, cards, setBlockLoadings]);
 
   useEffect(() => {
-    if (!cards.length && !isLoadingCards) {
+    if (!cards.length && !isLoadingCards && !isUpdating) {
       const l = shuffleActivatedCards(srcCards);
       if (!l.length) return;
       setCards(l);
       setSeenCard(void 0);
       setStarted(Date.now());
     }
-  }, [cards, srcCards, isLoadingCards, setSeenCard, setStarted, setCards]);
+  }, [
+    cards,
+    srcCards,
+    isLoadingCards,
+    isUpdating,
+    setSeenCard,
+    setStarted,
+    setCards,
+  ]);
 
   const addExpire = useCallback(
     (ms: number) => {
@@ -87,11 +97,14 @@ export default function PlayCardGroup() {
               )
             : []
         );
+        const symbol = Symbol();
+        setUpdatings((l) => [...l, symbol]);
         fetch(API_OP_CARDS_PATH(groupId, _id), {
           method: "PUT",
           body: JSON.stringify({ expire }),
           headers,
         }).finally(() => {
+          setUpdatings((l) => l.filter((i) => i !== symbol));
           updateSrcCards();
         });
       }
@@ -105,6 +118,7 @@ export default function PlayCardGroup() {
       groupId,
       started,
       updateSrcCards,
+      setUpdatings,
     ]
   );
 

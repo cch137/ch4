@@ -6,13 +6,7 @@ import { Spinner } from "@nextui-org/spinner";
 import { Spacer } from "@nextui-org/spacer";
 import { Switch } from "@nextui-org/switch";
 import Link from "next/link";
-import {
-  IoAdd,
-  IoPencil,
-  IoRefresh,
-  IoSync,
-  IoTrashOutline,
-} from "react-icons/io5";
+import { IoAdd, IoPencil, IoReload, IoTrashOutline } from "react-icons/io5";
 
 import {
   API_LISTS_PATH,
@@ -96,7 +90,7 @@ function GroupItem({
             size="sm"
             onPress={() => activate(item._id)}
           >
-            <IoSync className="text-lg" />
+            <IoReload className="text-lg" />
           </Button>
           <Button
             isIconOnly
@@ -188,7 +182,7 @@ export default function Wakawaka() {
             Welcome to {WAKAWAKA_APPNAME}!
           </h1>
           <Button variant="light" size="sm" isIconOnly onPress={updateSid}>
-            <IoRefresh className="text-lg text-default-300 rotate-45" />
+            <IoReload className="text-lg text-default-300" />
           </Button>
         </div>
         <Spacer y={4} />
