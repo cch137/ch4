@@ -63,7 +63,7 @@ function GroupItem({
     }
   );
   const expired = new Date(item.expire);
-  const activated = item.enabled && Date.now() > expired.getTime();
+  const activated = item.enabled && Date.now() >= expired.getTime();
   return (
     <>
       {modal.Modal}
