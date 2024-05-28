@@ -185,10 +185,11 @@ export default function CardBlocks() {
     return createBlocks([{ type, content }]);
   }
 
-  async function uploadFiles(files?: FileList | null) {
-    if (!files) return;
+  async function uploadFiles(_files?: FileList | null) {
+    const files = _files ? [..._files] : [];
+    if (!files.length) return;
     Promise.all(
-      [...files].map(async (file) => {
+      files.map(async (file) => {
         try {
           if (file.type.startsWith("image/")) {
             const body = await readStream(file.stream());
