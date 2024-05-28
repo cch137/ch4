@@ -160,6 +160,7 @@ export default function CardGroup() {
     "Confirm",
     "Confirm to activate all cards?",
     () => {
+      setUpdatingCards(cards.map((i) => Symbol(i._id)));
       fetch(apiPath + "/activate", {
         method: "POST",
         headers,
@@ -174,6 +175,7 @@ export default function CardGroup() {
     "Confirm",
     "Confirm to enable all cards?",
     () => {
+      setUpdatingCards(cards.map((i) => Symbol(i._id)));
       fetch(apiPath + "/enable", {
         method: "POST",
         headers,
@@ -188,6 +190,7 @@ export default function CardGroup() {
     "Confirm",
     "Confirm to disable all cards?",
     () => {
+      setUpdatingCards(cards.map((i) => Symbol(i._id)));
       fetch(apiPath + "/disable", {
         method: "POST",
         headers,
@@ -200,6 +203,7 @@ export default function CardGroup() {
 
   const putCard = useCallback(
     (_id: string, body: any = {}, method: string = "PUT") => {
+      setUpdatingCards((l) => [...l, Symbol(_id)]);
       fetch(API_OP_CARDS_PATH(groupId, _id), {
         method,
         body: JSON.stringify(body),

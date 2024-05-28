@@ -149,6 +149,7 @@ export default function Wakawaka() {
 
   const putGroup = useCallback(
     (_id: string, body: any = {}, method: string = "PUT") => {
+      setUpdatingGroups((l) => [...l, Symbol(_id)]);
       fetch(API_OP_GROUPS_PATH(_id), {
         method,
         body: JSON.stringify(body),
