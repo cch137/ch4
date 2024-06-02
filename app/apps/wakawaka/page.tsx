@@ -163,7 +163,7 @@ export default function Wakawaka() {
   );
 
   const deleteGroup = useCallback(
-    (_id: string) => putGroup(_id, "DELETE"),
+    (_id: string) => putGroup(_id, void 0, "DELETE"),
     [putGroup]
   );
 

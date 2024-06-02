@@ -221,7 +221,7 @@ export default function CardGroup() {
   }, [isLoadingCards, setUpdatingCards]);
 
   const deleteCard = useCallback(
-    (_id: string) => putCard(_id, {}, "DELETE"),
+    (_id: string) => putCard(_id, void 0, "DELETE"),
     [putCard]
   );
 
