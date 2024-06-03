@@ -300,9 +300,9 @@ export default function TextUnlockBook() {
           {!isCached ? null : (
             <ActionButton onClick={() => setOpenPreview((i) => !i)}>
               {openPreview ? (
-                <MdVisibility className="text-xl" />
-              ) : (
                 <MdVisibilityOff className="text-xl" />
+              ) : (
+                <MdVisibility className="text-xl" />
               )}
             </ActionButton>
           )}
