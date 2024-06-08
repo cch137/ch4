@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { Button } from "@nextui-org/button";
 import { Spacer } from "@nextui-org/spacer";
 import { Spinner } from "@nextui-org/spinner";
 import { Switch } from "@nextui-org/switch";
+import { Select, SelectItem } from "@nextui-org/select";
 import {
   MdAdd,
   MdAutoStories,
@@ -129,6 +130,8 @@ function CardItem({
   );
 }
 
+type SortByKey = "created_az" | "created_za" | "name_az" | "name_za";
+
 export default function CardGroup() {
   const {
     groupId,
@@ -144,6 +147,7 @@ export default function CardGroup() {
     enableCards,
     disableCards,
   } = useWKGroup();
+  const [sortBy, setSortBy] = useState<SortByKey>("created_za");
 
   const cardNameInput = useModalInput((name) => createCard(name), {
     title: "Add a card",
@@ -197,6 +201,17 @@ export default function CardGroup() {
     }
   );
 
+  const sortedCards =
+    sortBy === "name_az"
+      ? cards.sort((a, b) => (a.name > b.name ? 1 : -1))
+      : sortBy === "name_za"
+      ? cards.sort((a, b) => (a.name > b.name ? -1 : 1))
+      : sortBy === "created_az"
+      ? cards.sort((a, b) => (a._id > b._id ? 1 : -1))
+      : sortBy === "created_za"
+      ? cards.sort((a, b) => (a._id > b._id ? -1 : 1))
+      : cards;
+
   return (
     <>
       {enableCardsConfirm.Modal}
@@ -231,6 +246,31 @@ export default function CardGroup() {
         </div>
         <Spacer y={4} />
         <div className="flex flex-wrap gap-2">
+          <Select
+            aria-label="Sort by"
+            placeholder="Sort by"
+            size="sm"
+            variant="bordered"
+            className="w-32"
+            selectedKeys={[sortBy]}
+            onChange={(e) => {
+              const v = e.target.value as SortByKey;
+              setSortBy((o) => v || o);
+            }}
+          >
+            <SelectItem value="created_az" key="created_az">
+              Created ↓
+            </SelectItem>
+            <SelectItem value="created_za" key="created_za">
+              Created ↑
+            </SelectItem>
+            <SelectItem value="name_az" key="name_az">
+              Name ↓
+            </SelectItem>
+            <SelectItem value="name_za" key="name_za">
+              Name ↑
+            </SelectItem>
+          </Select>
           <Button
             variant="flat"
             size="sm"
@@ -281,22 +321,18 @@ export default function CardGroup() {
           </div>
         ) : null}
         <div className="flex flex-col gap-2">
-          {cards
-            .sort((a, b) => (a.name > b.name ? 1 : -1))
-            .map((item, i) => (
-              <CardItem
-                key={i}
-                gid={groupId}
-                item={item}
-                isDisabled={Boolean(
-                  operatingCardIds.find((i) => i === item._id)
-                )}
-                del={deleteCard}
-                rename={renameCard}
-                enable={enableCard}
-                activate={activateCard}
-              />
-            ))}
+          {sortedCards.map((item, i) => (
+            <CardItem
+              key={i}
+              gid={groupId}
+              item={item}
+              isDisabled={Boolean(operatingCardIds.find((i) => i === item._id))}
+              del={deleteCard}
+              rename={renameCard}
+              enable={enableCard}
+              activate={activateCard}
+            />
+          ))}
         </div>
       </div>
     </>
