@@ -6,7 +6,7 @@ import {
   WAKAWAKA_APPNAME,
   WAKAWAKA_APPPATH,
 } from "@/app/apps/wakawaka/constants";
-import { WKProvider } from "./provider";
+import { WKBaseProvider } from "./provider";
 
 export const metadata: Metadata = {
   title: appTitle("Wakawaka"),
@@ -20,7 +20,7 @@ export default function RootLayout({
 }) {
   return (
     <MainLayout>
-      <WKProvider>
+      <WKBaseProvider>
         <MemberOnly
           title={WAKAWAKA_APPNAME}
           descriptions={"Study tool"}
@@ -28,7 +28,7 @@ export default function RootLayout({
         >
           {children}
         </MemberOnly>
-      </WKProvider>
+      </WKBaseProvider>
     </MainLayout>
   );
 }

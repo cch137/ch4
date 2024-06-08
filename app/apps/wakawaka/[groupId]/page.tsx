@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@nextui-org/button";
 import { Spacer } from "@nextui-org/spacer";
@@ -15,14 +15,12 @@ import {
   MdPlaylistRemove,
   MdRestartAlt,
 } from "react-icons/md";
-import { useRouter } from "next/navigation";
 import {
-  API_OP_CARDS_PATH,
   WAKAWAKA_APPPATH,
   WAKAWAKA_APPSHORT,
   WAKAWAKA_CARD,
 } from "../constants";
-import { useWK, useWKPage, type WKCard } from "../provider";
+import { useWKGroup, type WKCardInfo } from "../provider";
 import useModalInput from "@/components/modals/input";
 import { appTitle } from "@/constants/app";
 import useModalMessage from "@/components/modals/message";
@@ -39,7 +37,7 @@ function CardItem({
   activate,
 }: {
   gid: string;
-  item: WKCard;
+  item: WKCardInfo;
   isDisabled?: boolean;
   del: (_id: string) => void;
   rename: (_id: string, name: string) => void;
@@ -72,13 +70,17 @@ function CardItem({
       {deleteConfirm.Modal}
       {renameInput.Modal}
       <div className="flex-center bg-default-50 rounded-md hover:brightness-90 transition">
-        <Link href={WAKAWAKA_CARD(gid, item._id)} className="flex-1 py-2 pl-4">
+        <Link
+          href={WAKAWAKA_CARD(gid, item._id)}
+          className="flex-1 py-2 pl-4"
+          prefetch={false}
+        >
           <div>{item.name}</div>
           <div className="flex items-center gap-1 text-default-300 text-xs max-sm:hidden">
             <div
               className={`rounded-full size-2 ${
                 activated ? "bg-success-500" : "bg-danger-500"
-              }`}
+              } transition`}
             />
             <div className="text-nowrap text-ellipsis">
               {formatDate(expired)}
@@ -128,116 +130,71 @@ function CardItem({
 }
 
 export default function CardGroup() {
-  const { sid } = useWK();
   const {
-    id: groupId,
-    name: groupName,
-    apiPath,
-    headers,
+    groupId,
+    groupName,
+    editGroup,
     cards,
-    updateCards,
-    isLoadingCards,
-  } = useWKPage();
-  const router = useRouter();
-  const [updatingCards, setUpdatingCards] = useState<symbol[]>([]);
+    createCard,
+    editCard,
+    deleteCard,
+    isLoadingGroup,
+    operatingCardIds,
+    activateCards,
+    enableCards,
+    disableCards,
+  } = useWKGroup();
 
-  const cardNameInput = useModalInput(
-    (name) => {
-      fetch(apiPath, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ name }),
-      })
-        .then(async (res) =>
-          router.push(WAKAWAKA_CARD(groupId, await res.json()))
-        )
-        .finally(updateCards);
-    },
-    { title: "Add a card", label: "Card name", textarea: true }
-  );
-
+  const cardNameInput = useModalInput((name) => createCard(name), {
+    title: "Add a card",
+    label: "Card name",
+    textarea: true,
+  });
   const activateCardsConfirm = useModalConfirm(
     "Confirm",
     "Confirm to activate all cards?",
-    () => {
-      setUpdatingCards(cards.map((i) => Symbol(i._id)));
-      fetch(apiPath + "/activate", {
-        method: "POST",
-        headers,
-      }).finally(() => {
-        setUpdatingCards(cards.map((i) => Symbol(i._id)));
-        updateCards();
-      });
-    }
+    activateCards
   );
-
   const enableCardsConfirm = useModalConfirm(
     "Confirm",
     "Confirm to enable all cards?",
-    () => {
-      setUpdatingCards(cards.map((i) => Symbol(i._id)));
-      fetch(apiPath + "/enable", {
-        method: "POST",
-        headers,
-      }).finally(() => {
-        setUpdatingCards(cards.map((i) => Symbol(i._id)));
-        updateCards();
-      });
-    }
+    enableCards
   );
-
   const disableCardsConfirm = useModalConfirm(
     "Confirm",
     "Confirm to disable all cards?",
-    () => {
-      setUpdatingCards(cards.map((i) => Symbol(i._id)));
-      fetch(apiPath + "/disable", {
-        method: "POST",
-        headers,
-      }).finally(() => {
-        setUpdatingCards(cards.map((i) => Symbol(i._id)));
-        updateCards();
-      });
-    }
-  );
-
-  const putCard = useCallback(
-    (_id: string, body: any = {}, method: string = "PUT") => {
-      setUpdatingCards((l) => [...l, Symbol(_id)]);
-      fetch(API_OP_CARDS_PATH(groupId, _id), {
-        method,
-        body: JSON.stringify(body),
-        headers,
-      }).finally(() => {
-        setUpdatingCards((l) => [...l, Symbol(_id)]);
-        updateCards();
-      });
-    },
-    [headers, updateCards, groupId, setUpdatingCards]
-  );
-
-  useEffect(() => {
-    if (!isLoadingCards) setUpdatingCards([]);
-  }, [isLoadingCards, setUpdatingCards]);
-
-  const deleteCard = useCallback(
-    (_id: string) => putCard(_id, void 0, "DELETE"),
-    [putCard]
+    disableCards
   );
 
   const renameCard = useCallback(
-    (_id: string, name: string) => putCard(_id, { name }),
-    [putCard]
+    (_id: string, name: string) => editCard(_id, { name }),
+    [editCard]
   );
-
   const enableCard = useCallback(
-    (_id: string, enabled: boolean) => putCard(_id, { enabled }),
-    [putCard]
+    (_id: string, enabled: boolean) => editCard(_id, { enabled }),
+    [editCard]
+  );
+  const activateCard = useCallback(
+    (_id: string) =>
+      editCard(_id, { enabled: true, expire: new Date().toISOString() }),
+    [editCard]
   );
 
-  const activateCard = useCallback(
-    (_id: string) => putCard(_id, { enabled: true, expire: new Date() }),
-    [putCard]
+  const modal = useModalMessage();
+  const rename = useCallback(
+    (_id: string, name: string) => editGroup(_id, { name }),
+    [editGroup]
+  );
+  const groupRenameInput = useModalInput(
+    (s) => {
+      if (!s) return modal.open("Group name cannot be empty.");
+      rename(groupId, s);
+    },
+    {
+      title: "Rename group",
+      label: "Group name",
+      defaultValue: groupName,
+    }
   );
 
   return (
@@ -246,6 +203,8 @@ export default function CardGroup() {
       {disableCardsConfirm.Modal}
       {activateCardsConfirm.Modal}
       {cardNameInput.Modal}
+      {modal.Modal}
+      {groupRenameInput.Modal}
       <div className="max-w-screen-md m-auto">
         <div className="flex">
           <title>{appTitle(groupName)}</title>
@@ -259,6 +218,16 @@ export default function CardGroup() {
             <span className="opacity-25 px-1">/</span>
             <span>{groupName}</span>
           </h1>
+          <div className="flex gap-2">
+            <Button
+              variant="flat"
+              size="sm"
+              isIconOnly
+              onPress={groupRenameInput.open}
+            >
+              <MdEdit className="text-lg" />
+            </Button>
+          </div>
         </div>
         <Spacer y={4} />
         <div className="flex flex-wrap gap-2">
@@ -308,7 +277,7 @@ export default function CardGroup() {
         <Spacer y={4} />
         {cards?.length === 0 ? (
           <div className="opacity-50 select-none flex-center">
-            {!sid || isLoadingCards ? <Spinner color="current" /> : "no data"}
+            {isLoadingGroup ? <Spinner color="current" /> : "no data"}
           </div>
         ) : null}
         <div className="flex flex-col gap-2">
@@ -320,7 +289,7 @@ export default function CardGroup() {
                 gid={groupId}
                 item={item}
                 isDisabled={Boolean(
-                  updatingCards.find((i) => i.description === item._id)
+                  operatingCardIds.find((i) => i === item._id)
                 )}
                 del={deleteCard}
                 rename={renameCard}

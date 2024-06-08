@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { appTitle } from "@/constants/app";
-import { WKPageProvider } from "../provider";
+import { WKGroupProvider } from "../provider";
 
 export const metadata: Metadata = {
   title: appTitle("Wakawaka"),
@@ -12,5 +12,5 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <WKPageProvider>{children}</WKPageProvider>;
+  return <WKGroupProvider>{children}</WKGroupProvider>;
 }

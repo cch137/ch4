@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { Button } from "@nextui-org/button";
 import { Spinner } from "@nextui-org/spinner";
 import { Spacer } from "@nextui-org/spacer";
@@ -15,8 +15,6 @@ import {
 } from "react-icons/md";
 
 import {
-  API_LISTS_PATH,
-  API_OP_GROUPS_PATH,
   WAKAWAKA_APPNAME,
   WAKAWAKA_GROUP,
 } from "@/app/apps/wakawaka/constants";
@@ -72,7 +70,11 @@ function GroupItem({
       {deleteConfirm.Modal}
       {renameInput.Modal}
       <div className="flex-center bg-default-50 rounded-md hover:brightness-90 transition">
-        <Link href={WAKAWAKA_GROUP(item._id)} className="flex-1 py-3 pl-4">
+        <Link
+          href={WAKAWAKA_GROUP(item._id)}
+          className="flex-1 py-3 pl-4"
+          prefetch={false}
+        >
           <div>{item.name}</div>
           <div className="flex items-center gap-1 text-default-300 text-xs max-sm:hidden">
             <div
@@ -128,58 +130,33 @@ function GroupItem({
 }
 
 export default function Wakawaka() {
-  const { groups, updateGroups, isLoadingGroups, sid, updateSid, headers } =
-    useWK();
-  const [updatingGroups, setUpdatingGroups] = useState<symbol[]>([]);
+  const {
+    groups,
+    isLoadingGroupList,
+    operatingGroupIds,
+    updateSid,
+    createGroup,
+    editGroup,
+    deleteGroup,
+  } = useWK();
 
-  useEffect(() => {
-    if (!isLoadingGroups) setUpdatingGroups([]);
-  }, [isLoadingGroups, setUpdatingGroups]);
-
-  const groupNameInput = useModalInput(
-    (name) => {
-      fetch(API_LISTS_PATH, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ name }),
-      }).finally(updateGroups);
-    },
-    { title: "Add a group", label: "Group name" }
-  );
-
-  const putGroup = useCallback(
-    (_id: string, body: any = {}, method: string = "PUT") => {
-      setUpdatingGroups((l) => [...l, Symbol(_id)]);
-      fetch(API_OP_GROUPS_PATH(_id), {
-        method,
-        body: JSON.stringify(body),
-        headers,
-      }).finally(() => {
-        setUpdatingGroups((l) => [...l, Symbol(_id)]);
-        updateGroups();
-      });
-    },
-    [headers, updateGroups, setUpdatingGroups]
-  );
-
-  const deleteGroup = useCallback(
-    (_id: string) => putGroup(_id, void 0, "DELETE"),
-    [putGroup]
-  );
+  const groupNameInput = useModalInput((name) => createGroup(name), {
+    title: "Add a group",
+    label: "Group name",
+  });
 
   const renameGroup = useCallback(
-    (_id: string, name: string) => putGroup(_id, { name }),
-    [putGroup]
+    (_id: string, name: string) => editGroup(_id, { name }),
+    [editGroup]
   );
-
   const enableGroup = useCallback(
-    (_id: string, enabled: boolean) => putGroup(_id, { enabled }),
-    [putGroup]
+    (_id: string, enabled: boolean) => editGroup(_id, { enabled }),
+    [editGroup]
   );
-
   const activateGroup = useCallback(
-    (_id: string) => putGroup(_id, { enabled: true, expire: new Date() }),
-    [putGroup]
+    (_id: string) =>
+      editGroup(_id, { enabled: true, expire: new Date().toISOString() }),
+    [editGroup]
   );
 
   return (
@@ -209,7 +186,7 @@ export default function Wakawaka() {
         <Spacer y={4} />
         {groups?.length === 0 ? (
           <div className="opacity-50 select-none flex-center">
-            {!sid || isLoadingGroups ? <Spinner color="current" /> : "no data"}
+            {isLoadingGroupList ? <Spinner color="current" /> : "no data"}
           </div>
         ) : null}
         <div className="flex flex-col gap-2">
@@ -220,7 +197,7 @@ export default function Wakawaka() {
                 key={i}
                 item={item}
                 isDisabled={Boolean(
-                  updatingGroups.find((s) => s.description === item._id)
+                  operatingGroupIds.find((s) => s === item._id)
                 )}
                 del={deleteGroup}
                 rename={renameGroup}

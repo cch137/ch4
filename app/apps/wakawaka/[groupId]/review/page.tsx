@@ -1,149 +1,319 @@
 "use client";
 
-import { swipe } from "@/hooks/useAppDataManager";
-import { Button } from "@nextui-org/button";
 import { useCallback, useEffect, useState } from "react";
-import { IoCheckmark, IoStop } from "react-icons/io5";
 import Link from "next/link";
-import { useWK, useWKPage, WKBlock, type WKCard } from "../../provider";
-import { API_OP_CARDS_PATH, WAKAWAKA_GROUP } from "../../constants";
+import { Button } from "@nextui-org/button";
+import { Spinner } from "@nextui-org/spinner";
+import { Kbd } from "@nextui-org/kbd";
+import {
+  MdRestartAlt,
+  MdSkipNext,
+  MdSkipPrevious,
+  MdStop,
+  MdVisibility,
+  MdVisibilityOff,
+} from "react-icons/md";
 import random from "@cch137/utils/random";
-import { Spacer, Spinner } from "@nextui-org/react";
-import BlockItem from "../BlockItem";
 
-const blockMap = new WeakMap<WKCard, WKBlock[]>();
-const shuffleActivatedCards = (cards: WKCard[]) => {
-  const now = new Date();
-  return random.shuffle(
-    cards.filter((i) => i.enabled && new Date(i.expire) < now)
-  );
-};
+import { appTitle } from "@/constants/app";
+import { swipe } from "@/hooks/useAppDataManager";
+import {
+  useWKGroup,
+  useWKCard,
+  WKCardProvider,
+  type WKCardInfo,
+} from "../../provider";
+import { WAKAWAKA_GROUP } from "../../constants";
+import CardContent from "../CardContent";
 
-export default function PlayCardGroup() {
-  const { sid, headers } = useWK();
+function Card({
+  show = false,
+  next: _next,
+  prev,
+}: {
+  show: boolean;
+  next: () => void;
+  prev?: () => void;
+}) {
   const {
-    id: groupId,
-    cards: srcCards,
-    updateCards: updateSrcCards,
-    setCards: setSrcCards,
-    isLoadingCards,
-  } = useWKPage();
-
-  const [cards, setCards] = useState(shuffleActivatedCards(srcCards));
-  const [blockLoadings, setBlockLoadings] = useState<symbol[]>([]);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const isLoadingBlocks = blockLoadings.length !== 0;
-  const [started, setStarted] = useState(Date.now());
-
-  const [seenCard, setSeenCard] = useState<WKCard>();
-  const card = cards[0] as WKCard | undefined;
-  const blocks = card ? blockMap.get(card) || [] : [];
-  const isSeen = seenCard === card;
-  const seeCard = useCallback(() => setSeenCard(card), [setSeenCard, card]);
-
-  useEffect(() => {
-    if (!isLoadingCards) setIsUpdating(false);
-  }, [isLoadingCards, setIsUpdating]);
-
-  useEffect(() => {
-    for (let i = 0; i < length; i++) {
-      const card = cards[i];
-      if (blockMap.has(card)) continue;
-      blockMap.set(card, []);
-      const symbol = Symbol();
-      setBlockLoadings((s) => [...s, symbol]);
-      fetch(API_OP_CARDS_PATH(groupId, card._id), {
-        method: "GET",
-        headers,
-      })
-        .then(async (res) => {
-          const blocks = (await res.json()) as WKBlock[];
-          blockMap.set(card, blocks);
-        })
-        .catch(() => {
-          blockMap.delete(card);
-        })
-        .finally(() => {
-          setBlockLoadings((s) => s.filter((i) => i !== symbol));
-        });
-    }
-  }, [groupId, headers, cards, setBlockLoadings]);
-
-  useEffect(() => {
-    if (!cards.length && !isLoadingCards && !isUpdating) {
-      const l = shuffleActivatedCards(srcCards);
-      if (!l.length) return;
-      setCards(l);
-      setSeenCard(void 0);
-      setStarted(Date.now());
-    }
-  }, [
+    cardId,
+    cardName,
+    cardType,
+    cardContent,
+    isLoadingCardContent,
     cards,
-    srcCards,
-    isLoadingCards,
-    isUpdating,
-    setSeenCard,
-    setStarted,
-    setCards,
-  ]);
+    editCard,
+  } = useWKCard();
+  const [isSeen, setIsSeen] = useState(false);
+  const [addedExpire, setAddedExpire] = useState<boolean>();
+  const [expCursor, setExpCursor] = useState(3);
 
   const addExpire = useCallback(
-    (ms: number) => {
-      const _id = card?._id;
-      setCards(cards.slice(1));
-      if (_id && ms) {
-        const expire = new Date(started + ms);
-        setSrcCards((l) =>
-          l
-            ? l.map((i) =>
-                i._id === _id ? { ...i, expire: expire.toISOString() } : i
-              )
-            : []
-        );
-        setIsUpdating(true);
-        fetch(API_OP_CARDS_PATH(groupId, _id), {
-          method: "PUT",
-          body: JSON.stringify({ expire }),
-          headers,
-        }).finally(updateSrcCards);
-      }
-    },
-    [
-      headers,
-      setCards,
-      setSrcCards,
-      card,
-      cards,
-      groupId,
-      started,
-      updateSrcCards,
-      setIsUpdating,
-    ]
+    (ms: number) =>
+      editCard(cardId, { expire: new Date(Date.now() + ms).toISOString() }),
+    [cardId, editCard]
   );
 
+  const next = useCallback(() => {
+    if (!addedExpire) {
+      setAddedExpire(true);
+      switch (expCursor) {
+        case 0: {
+          addExpire(3 * 3600000);
+          break;
+        }
+        case 1: {
+          addExpire(1 * 3600000);
+          break;
+        }
+        case 2: {
+          addExpire(0);
+          break;
+        }
+        case 3: {
+          addExpire(24 * 3600000);
+          break;
+        }
+        case 4: {
+          addExpire(72 * 3600000);
+          break;
+        }
+        case 5: {
+          addExpire(168 * 3600000);
+          break;
+        }
+        case 6: {
+          addExpire(336 * 3600000);
+          break;
+        }
+      }
+    }
+    _next();
+  }, [addedExpire, expCursor, setAddedExpire, addExpire, _next]);
+
   useEffect(() => {
+    if (!show) return;
+    const card = cards.find((i) => i._id === cardId)!;
+    const isAllowToPlay = card.enabled && new Date(card.expire) < new Date();
+    if (show && !isAllowToPlay && addedExpire === void 0) _next();
+  }, [show, addedExpire, cardId, cards, _next]);
+
+  useEffect(() => {
+    if (!show) return;
+    const onSwipeUp = () => {
+      if (isSeen) setIsSeen(false);
+      else if (prev) prev();
+    };
+    const onSwipeDown = () => {
+      if (isSeen) next();
+      else setIsSeen(true);
+    };
     const onSwipeLeft = () => {
-      // left
+      if (isSeen && !addedExpire) setExpCursor((v) => Math.max(0, v - 1));
+      else if (addedExpire) setAddedExpire(false);
     };
     const onSwipeRight = () => {
-      if (!isSeen) seeCard();
+      if (isSeen && !addedExpire) setExpCursor((v) => Math.min(6, v + 1));
     };
+    const onKeyUp = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "ArrowDown": {
+          onSwipeDown();
+          break;
+        }
+        case "ArrowUp": {
+          onSwipeUp();
+          break;
+        }
+        case "ArrowLeft": {
+          onSwipeLeft();
+          break;
+        }
+        case "ArrowRight": {
+          onSwipeRight();
+          break;
+        }
+      }
+    };
+    swipe.on("up", onSwipeUp);
+    swipe.on("down", onSwipeDown);
     swipe.on("left", onSwipeLeft);
     swipe.on("right", onSwipeRight);
+    document.addEventListener("keyup", onKeyUp);
     return () => {
+      swipe.off("up", onSwipeUp);
+      swipe.off("down", onSwipeDown);
       swipe.off("left", onSwipeLeft);
       swipe.off("right", onSwipeRight);
+      document.removeEventListener("keyup", onKeyUp);
     };
-  }, [isSeen, seeCard]);
+  }, [show, isSeen, addedExpire, setAddedExpire, setIsSeen, prev, next]);
 
-  if (!sid)
+  if (!show) return null;
+  if (isLoadingCardContent)
+    return (
+      <div className="flex-center py-8">
+        <Spinner color="current" />
+      </div>
+    );
+  return (
+    <div className="flex flex-col gap-4">
+      <h1 className="text-2xl font-bold">{cardName}</h1>
+      <div onClick={() => setIsSeen(false)} className={isSeen ? "" : "hidden"}>
+        <CardContent
+          _id={cardId}
+          type={cardType}
+          content={cardContent}
+          isLoading={isLoadingCardContent}
+        />
+      </div>
+      <div className="flex flex-col gap-2 pt-4">
+        <div className="w-full flex flex-wrap gap-2">
+          <Button
+            variant="flat"
+            onPress={prev}
+            className={isSeen || !prev ? "hidden" : ""}
+            startContent={<MdSkipPrevious className="text-lg" />}
+            endContent={<Kbd keys={["up"]}></Kbd>}
+          >
+            Back
+          </Button>
+          <Button
+            variant="flat"
+            onPress={() => setIsSeen(true)}
+            className={isSeen ? "hidden" : ""}
+            startContent={<MdVisibility className="text-lg" />}
+            endContent={<Kbd keys={["down"]}></Kbd>}
+          >
+            Show
+          </Button>
+          <Button
+            variant="flat"
+            onPress={() => setIsSeen(false)}
+            className={isSeen ? "" : "hidden"}
+            startContent={<MdVisibilityOff className="text-lg" />}
+            endContent={<Kbd keys={["up"]}></Kbd>}
+          >
+            Hide
+          </Button>
+          <Button
+            variant="flat"
+            onPress={next}
+            className={isSeen ? "" : "hidden"}
+            startContent={<MdSkipNext className="text-lg" />}
+            endContent={<Kbd keys={["down"]}></Kbd>}
+          >
+            Next
+          </Button>
+          <Button
+            variant="flat"
+            onPress={() => setAddedExpire(false)}
+            className={addedExpire ? "" : "hidden"}
+            startContent={<MdRestartAlt className="text-lg" />}
+            endContent={<Kbd keys={["left"]}></Kbd>}
+          >
+            Reset expire
+          </Button>
+        </div>
+        <div
+          className={`${
+            isSeen && !addedExpire ? "" : "hidden"
+          } flex flex-wrap gap-2`}
+        >
+          <Button
+            variant={expCursor === 0 ? "shadow" : "flat"}
+            className="min-w-16 w-16 text-warning-500"
+            onPress={() => addExpire(3 * 3600000)}
+          >
+            3H
+          </Button>
+          <Button
+            variant={expCursor === 1 ? "shadow" : "flat"}
+            className="min-w-16 w-16 text-warning-500"
+            onPress={() => addExpire(1 * 3600000)}
+          >
+            1H
+          </Button>
+          <Button
+            variant={expCursor === 2 ? "shadow" : "flat"}
+            color="danger"
+            className="min-w-16 w-16"
+            onPress={() => addExpire(0)}
+          >
+            X
+          </Button>
+          <Button
+            variant={expCursor === 3 ? "shadow" : "flat"}
+            className="min-w-16 w-16 text-default-500"
+            onPress={() => addExpire(24 * 3600000)}
+          >
+            1D
+          </Button>
+          <Button
+            variant={expCursor === 4 ? "shadow" : "flat"}
+            className="min-w-16 w-16 text-default-500"
+            onPress={() => addExpire(72 * 3600000)}
+          >
+            3D
+          </Button>
+          <Button
+            variant={expCursor === 5 ? "shadow" : "flat"}
+            className="min-w-16 w-16 text-success-500"
+            onPress={() => addExpire(168 * 3600000)}
+          >
+            7D
+          </Button>
+          <Button
+            variant={expCursor === 6 ? "shadow" : "flat"}
+            className="min-w-16 w-16 text-success-500"
+            onPress={() => addExpire(336 * 3600000)}
+          >
+            14D
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function PlayCardGroup() {
+  const { groupId, groupName, cards, isLoadingGroup } = useWKGroup();
+  const [cursor, setCursor] = useState(1);
+  const [needLoad, setNeedLoad] = useState(false);
+  const [enabledCards, setEnabledCards] = useState<WKCardInfo[]>([]);
+  const isEnd = cursor >= enabledCards.length;
+
+  useEffect(() => {
+    if (!isEnd || isLoadingGroup) return;
+    setEnabledCards([]);
+    setNeedLoad(true);
+  }, [isEnd, isLoadingGroup, setEnabledCards, setNeedLoad]);
+  useEffect(() => {
+    if (!needLoad || isLoadingGroup) return;
+    setNeedLoad(false);
+    const now = new Date();
+    const enableds = cards.filter((i) => i.enabled && new Date(i.expire) < now);
+    const shuffleds = random.shuffle(enableds);
+    if (shuffleds.length) {
+      setCursor(0);
+      setEnabledCards(shuffleds);
+    }
+  }, [needLoad, isLoadingGroup, setCursor, setEnabledCards, cards]);
+
+  const prev = useCallback(
+    () => setCursor((i) => Math.max(0, i - 1)),
+    [setCursor]
+  );
+  const next = useCallback(() => setCursor((i) => i + 1), [setCursor]);
+
+  if (isLoadingGroup && !enabledCards.length)
     return (
       <div className="flex-center py-8">
         <Spinner color="current" />
       </div>
     );
 
-  if (!card)
+  if (isEnd && !isLoadingGroup)
     return (
       <div className="max-w-screen-md m-auto">
         <div className="flex-center flex-col gap-4 pt-32">
@@ -157,10 +327,11 @@ export default function PlayCardGroup() {
 
   return (
     <div className="max-w-screen-md m-auto">
+      <title>{appTitle(groupName)}</title>
       <div className="flex">
         <Button
           variant="light"
-          startContent={<IoStop className="text-lg" />}
+          startContent={<MdStop className="text-lg" />}
           as={Link}
           href={WAKAWAKA_GROUP(groupId)}
           className="text-default-300 hover:text-current"
@@ -168,94 +339,17 @@ export default function PlayCardGroup() {
           Stop
         </Button>
         <div className="flex-1" />
-        {isLoadingBlocks ? <Spinner color="current" size="sm" /> : null}
       </div>
-      <div>
-        <Spacer y={4} />
-        <div className="flex-center flex-wrap gap-2">
-          {isSeen ? (
-            <>
-              <Button
-                variant="flat"
-                color="danger"
-                className="min-w-16 w-16"
-                onPress={() => addExpire(0)}
-              >
-                X
-              </Button>
-              <Button
-                variant="flat"
-                color="warning"
-                className="min-w-16 w-16"
-                onPress={() => addExpire(1 * 3600000)}
-              >
-                1H
-              </Button>
-              <Button
-                variant="flat"
-                color="warning"
-                className="min-w-16 w-16"
-                onPress={() => addExpire(3 * 3600000)}
-              >
-                3H
-              </Button>
-              <Button
-                variant="flat"
-                color="primary"
-                className="min-w-16 w-16"
-                onPress={() => addExpire(24 * 3600000)}
-              >
-                1D
-              </Button>
-              <Button
-                variant="flat"
-                color="primary"
-                className="min-w-16 w-16"
-                onPress={() => addExpire(72 * 3600000)}
-              >
-                3D
-              </Button>
-              <Button
-                variant="flat"
-                color="success"
-                className="min-w-16 w-16"
-                onPress={() => addExpire(168 * 3600000)}
-              >
-                7D
-              </Button>
-              <Button
-                variant="flat"
-                color="success"
-                className="min-w-16 w-16"
-                onPress={() => addExpire(336 * 3600000)}
-              >
-                14D
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="flat"
-                color="default"
-                isIconOnly
-                onPress={seeCard}
-              >
-                <IoCheckmark className="text-lg" />
-              </Button>
-            </>
-          )}
-        </div>
-        <div className="max-w-xl py-8 m-auto">
-          <h1 className="text-2xl font-bold">{card?.name || ""}</h1>
-          <Spacer y={4} />
-          {isSeen ? (
-            <div className="flex flex-col gap-2">
-              {blocks.map((i, k) => (
-                <BlockItem item={i} key={k} />
-              ))}
-            </div>
-          ) : null}
-        </div>
+      <div className="max-w-xl py-8 m-auto">
+        {enabledCards.slice(0, cursor + 10).map((card, i) => (
+          <WKCardProvider id={card._id} key={i}>
+            <Card
+              show={i === cursor}
+              prev={i === 0 ? void 0 : prev}
+              next={next}
+            />
+          </WKCardProvider>
+        ))}
       </div>
     </div>
   );
