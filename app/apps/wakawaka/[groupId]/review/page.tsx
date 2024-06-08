@@ -159,7 +159,7 @@ function Card({
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold">{cardName}</h1>
-      <div onClick={() => setIsSeen(false)} className={isSeen ? "" : "hidden"}>
+      <div className={isSeen ? "" : "hidden"}>
         <CardContent
           _id={cardId}
           type={cardType}
