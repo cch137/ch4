@@ -184,10 +184,14 @@ export default function CardContent({
         {editable ? null : typeCache === "text" ? (
           <div
             className="bg-default-50 rounded-xl p-4"
-            onClick={() => {
-              setIsPreview(false);
-              textareaRef.current?.focus();
-            }}
+            onClick={
+              isEditable
+                ? () => {
+                    setIsPreview(false);
+                    textareaRef.current?.focus();
+                  }
+                : void 0
+            }
           >
             <p className="whitespace-break-spaces break-words">
               {contentCache}
@@ -196,10 +200,14 @@ export default function CardContent({
         ) : typeCache === "md" ? (
           <div
             className="bg-default-50 rounded-xl p-4 react-markdown whitespace-break-spaces break-words"
-            onClick={() => {
-              setIsPreview(false);
-              textareaRef.current?.focus();
-            }}
+            onClick={
+              isEditable
+                ? () => {
+                    setIsPreview(false);
+                    textareaRef.current?.focus();
+                  }
+                : void 0
+            }
           >
             <Markdown components={{ a: Anchor }} remarkPlugins={[remarkGfm]}>
               {contentCache}
